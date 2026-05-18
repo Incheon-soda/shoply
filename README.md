@@ -1,0 +1,615 @@
+# 온프레미스 k8s vs AWS EKS — 인프라 운영 비교 실험
+
+> "동일한 앱, 동일한 트래픽, 다른 인프라 — 데이터가 말하게 한다"
+
+---
+
+## 목차
+
+- [프로젝트 개요](#프로젝트-개요)
+- [아키텍처](#아키텍처)
+- [발표 스토리 흐름](#발표-스토리-흐름)
+- [인프라 구성](#인프라-구성)
+- [실험 공정성 기준](#실험-공정성-기준)
+- [웹 서비스](#웹-서비스)
+- [서비스 구성](#서비스-구성)
+- [시나리오](#시나리오)
+- [모니터링](#모니터링)
+- [CI/CD](#cicd)
+- [로컬 개발 환경](#로컬-개발-환경)
+- [배포 및 검증 순서](#배포-및-검증-순서)
+- [실험 범위](#실험-범위)
+- [문서](#문서)
+
+---
+
+## 프로젝트 개요
+"물리 서버 한 대로 운영 중인
+ 온프레미스 환경을 가정했습니다"
+ 
+### 목적
+
+"EKS가 더 좋다"는 결론을 강요하지 않는다.  
+**온프레미스 vs EKS의 운영 특성 차이**를 데이터로 보여주고, 경영진이 스스로 판단하게 만드는 것이 목표다.
+
+발표는 **사전 녹화 영상** 형식으로 제출한다.
+
+### 품질 우선순위
+
+| 항목 | 목표 수준 |
+|---|---|
+| UI 완성도 | 30점 (최소 동작) |
+| API 로직 | 100점 |
+| DB 정합성 | 100점 |
+| 실험 재현성 | 100점 |
+
+---
+
+## 아키텍처
+
+![아키텍처 다이어그램](image.png)
+
+```
+사용자
+  └─ Load Balancer
+       └─ k8s 클러스터 (온프레미스 or EKS)
+            ├─ 프론트 (Vite + React)
+            ├─ API Gateway (Express.js)
+            └─ 서비스 레이어
+                 ├─ Product Service
+                 ├─ Inventory Service
+                 ├─ Order Service
+                 ├─ Payment Service
+                 └─ User Service
+
+k8s 외부 인프라
+  ├─ PostgreSQL  (온프레미스: t3.medium EC2 / EKS: RDS db.t3.medium)
+  ├─ Redis       (t3.micro EC2)
+  ├─ Locust      (t3.medium EC2)
+  └─ 모니터링    (t3.small EC2)
+```
+
+---
+
+## 발표 스토리 흐름
+
+```
+1단계 — 문제 제기
+  "타임세일 이벤트, 우리는 얼마나 잃고 있나?"
+
+2단계 — 실험 소개
+  "동일한 앱, 동일한 트래픽, 다른 인프라"
+  "공정한 조건에서 비교했습니다"
+
+3단계 — 시나리오 1 (일반 트래픽)
+  "이 상황에서는 온프레미스도 충분합니다"
+  → 신뢰감 형성
+
+4단계 — 시나리오 2 (트래픽 폭증)
+  "여기서 갈립니다"
+  → 데이터가 말하게 한다
+
+5단계 — 시나리오 3 (장애 상황)
+  "운영 관점에서 이런 차이가 납니다"
+  → 비용이 아닌 운영 리소스 차이로 어필
+
+6단계 — 결론
+  "이 차이가 비즈니스에 미치는 임팩트는 이렇습니다"
+```
+
+---
+
+## 인프라 구성
+
+### 전체 구조
+
+```
+온프레미스 팀 계정
+├── EC2 c8i.2xlarge — k8s 클러스터 재현
+│   └── KVM VM
+│       ├── VM1: k8s 마스터    (2vCPU / 4GB)
+│       ├── VM2: 워커노드 1    (2vCPU / 4GB)
+│       └── VM3: 워커노드 2    (2vCPU / 4GB)
+├── EC2 t3.medium  — PostgreSQL 직접 설치
+└── EC2 t3.micro   — Redis
+
+AWS EKS 팀 계정
+├── EKS 클러스터
+│   ├── 워커노드 t3.medium × 2 (초기)
+│   └── Karpenter → t3.medium 자동 추가
+├── RDS db.t3.medium — PostgreSQL 관리형
+└── EC2 t3.micro     — Redis
+
+공통
+├── EC2 t3.small  — Prometheus + Grafana (모니터링)
+├── EC2 t3.medium — Locust (부하 테스트)
+└── CI/CD         — 미정
+```
+
+### EC2 스펙
+
+#### 온프레미스 팀
+
+| 용도 | 인스턴스 | vCPU | RAM | 비고 |
+|---|---|:---:|:---:|---|
+| k8s 클러스터 재현 | c8i.2xlarge | 8 | 16GB | 내부에 VM 3대 운영 |
+| PostgreSQL | t3.medium | 2 | 4GB | 직접 설치 |
+| Redis | t3.micro | 2 | 1GB | 직접 설치 |
+
+#### EKS 팀
+
+| 용도 | 인스턴스 | vCPU | RAM | 비고 |
+|---|---|:---:|:---:|---|
+| EKS 워커노드 (초기) | t3.medium × 2 | 2 | 4GB | Karpenter 자동 확장 |
+| PostgreSQL | RDS db.t3.medium | 2 | 4GB | 관리형 |
+| Redis | t3.micro | 2 | 1GB | 직접 설치 |
+
+#### 공통
+
+| 용도 | 인스턴스 | vCPU | RAM |
+|---|---|:---:|:---:|
+| 모니터링 (Prometheus + Grafana) | t3.small | 2 | 2GB |
+| 부하 테스트 (Locust) | t3.medium | 2 | 4GB |
+
+### 온프레미스 VM 구성 (c8i.2xlarge 내부)
+
+| VM | 역할 | vCPU | RAM |
+|---|---|:---:|:---:|
+| VM1 | k8s 마스터 | 2 | 4GB |
+| VM2 | 워커노드 1 | 2 | 4GB |
+| VM3 | 워커노드 2 | 2 | 4GB |
+
+> 워커노드 VM 스펙 = EKS 워커노드 스펙(t3.medium급) — 공정한 비교를 위해 동일하게 맞춤
+
+### 워커노드 초기 고정 배치
+
+실험 재현성을 위해 서비스별 노드를 사전 고정한다.  
+HPA 발동으로 추가되는 Pod는 k8s 스케줄러가 자유 배치한다.
+
+| 워커노드 | 고정 서비스 |
+|---|---|
+| 워커노드 1 | API Gateway, Product Service, Inventory Service |
+| 워커노드 2 | 프론트, Order Service, Payment Service, User Service |
+| 추가 Pod (HPA 발동 시) | k8s 스케줄러 자유 배치 |
+
+### 예상 실험 비용 (10시간 기준)
+
+| 항목 | 비용 |
+|---|---:|
+| 온프레미스 EC2 (c8i.2xlarge) | $3.40 |
+| PostgreSQL EC2 (t3.medium) | $0.20 |
+| Redis EC2 (t3.micro) | $0.10 |
+| 모니터링 EC2 (t3.small) | $0.23 |
+| Locust EC2 (t3.medium) | $0.19 |
+| EKS 클러스터 | $1.00 |
+| EKS 노드 | $1.00 |
+| **합계** | **약 $6~7** |
+| 여유 포함 | **약 $20~30 (한화 3~4만원)** |
+
+---
+
+## 실험 공정성 기준
+
+### 반드시 같아야 하는 것
+
+- Docker 이미지 (완전히 동일한 버전)
+- Locust 스크립트 (GitHub 공통 레포 관리)
+- RPS 설정 (동일한 부하량)
+- 실험 시간 (동일한 시간대, 동시 시작)
+- 측정 지표 (동일한 Prometheus 쿼리)
+- DB 스키마 (동일한 구조)
+
+### 의도적으로 다른 것 (실험 핵심 변수)
+
+- PostgreSQL 운영 방식 (직접 설치 vs RDS 관리형)
+- 노드 확장 방식 (고정 vs Karpenter 자동 확장)
+- EC2 스펙
+
+---
+
+## 웹 서비스
+
+| 항목 | 내용 |
+|---|---|
+| 프론트엔드 | Vite + React |
+| API Gateway | Express.js |
+| DB | PostgreSQL (k8s 외부 EC2) |
+| 캐시 | Redis (k8s 외부 EC2) |
+| 컨테이너 | Docker 단일 이미지 |
+| 레지스트리 | AWS ECR |
+
+### 페이지 구성
+
+| 페이지 | 설명 |
+|---|---|
+| 메인 (상품 목록) | 상품 그리드, 타임세일 배너 |
+| 상품 상세 | 재고 수량 실시간, 구매 버튼 |
+| 타임세일 | 카운트다운 타이머, 실시간 재고 |
+| 주문 / 결제 | 장바구니 → 주문 → Mock 결제 |
+| 실패 현황 | 실패 건수 실시간, 성공률 |
+
+### API 구성
+
+| 엔드포인트 | 메서드 | 역할 |
+|---|:---:|---|
+| `/api/products` | GET | 상품 목록 조회 |
+| `/api/products/:id` | GET | 상품 상세 조회 |
+| `/api/orders` | POST | 주문 생성 |
+| `/api/payments` | POST | 결제 처리 (Mock) |
+| `/api/stats` | GET | 실패 건수 / 성공률 실시간 |
+
+---
+
+## 서비스 구성
+
+| 서비스 | 역할 | 핵심 기능 | 부하 특성 |
+|---|---|---|---|
+| Product Service | 상품 조회 | 목록/상세 조회, Redis 캐싱, 타임세일 정보 | Read 폭증 |
+| Inventory Service | 재고 관리 | 재고 조회/차감, 동시성 처리 (SELECT FOR UPDATE) | 동시성 집중 |
+| Order Service | 주문 처리 | 주문 생성/조회, 상태 변경 | Write 집중 |
+| Payment Service | 결제 처리 | Mock 결제, 실패 처리, 건수 집계 | Write + 정합성 |
+| User Service | 유저 관리 | 로그인, Mock JWT 발급 | 부하 낮음 |
+
+---
+
+## 시나리오
+
+### 시나리오 1 — 일반 트래픽 (20분)
+
+| 항목 | 내용 |
+|---|---|
+| 상황 | 평상시 쇼핑몰 운영 |
+| 핵심 서비스 | 전체 서비스 고르게 |
+| 핵심 측정 지표 | Error Rate 0% 유지 여부 |
+
+**트래픽 타임라인**
+
+| 구간 | RPS | 목적 |
+|---|:---:|---|
+| 0~5분 | 100 | 워밍업 |
+| 5~15분 | 200 | 정상 트래픽 유지 |
+| 15~20분 | 200 | 관찰 |
+
+**API 비율**
+
+| 엔드포인트 | 비율 |
+|---|:---:|
+| GET /api/products | 70% |
+| POST /api/orders | 20% |
+| POST /api/payments | 10% |
+
+**보여줄 것:** TPS 안정 / Error Rate 0% / Pod 수 변화 없음 — 둘 다 정상 운영
+
+> **메시지:** "트래픽이 예측 가능하고 안정적이면 온프레미스도 충분합니다"
+
+---
+
+### 시나리오 2 — 타임세일 트래픽 폭증 (20분)
+
+| 항목 | 내용 |
+|---|---|
+| 상황 | 타임세일 시작 순간 트래픽 급증 |
+| 집중 노드 | 워커노드 1 (API Gateway, Product, Inventory) |
+| 핵심 서비스 | Product Service, Inventory Service |
+| 핵심 측정 지표 | Pending Pod / Node 자동 추가 / Error Rate |
+
+**트래픽 타임라인**
+
+| 구간 | RPS | 목적 |
+|---|:---:|---|
+| 0~5분 | 100 | 정상 트래픽 |
+| 5분 | **1,000** | **1초 만에 급증** |
+| 5~15분 | 1,000 | 폭증 유지 |
+| 15~20분 | 1,000 | 안정화 관찰 |
+
+**API 비율** (워커노드 1 집중)
+
+| 엔드포인트 | 비율 |
+|---|:---:|
+| GET /api/products | 50% |
+| POST /api/orders | 30% |
+| POST /api/payments | 20% |
+
+| 환경 | 예상 결과 |
+|---|---|
+| 온프레미스 | 워커노드1 CPU 한계 → HPA Pod 증설 시도 → 자원 부족으로 Pending → Error Rate 급증 |
+| EKS | HPA Pod 증설 → Karpenter 노드 자동 추가 → Pending 해소 → Error Rate 0% 유지 |
+
+**보여줄 것:** Pending Pod 타임라인 / Node Count 자동 증가 / Error Rate 차이 / HPA desired vs current 괴리
+
+> **메시지:** "여기서 갈립니다"
+
+---
+
+### 시나리오 3 — 노드 장애 복구 (20분)
+
+| 항목 | 내용 |
+|---|---|
+| 상황 | 피크 트래픽 중 **워커노드 2** 강제 종료 |
+| 장애 대상 서비스 | 프론트, Order Service, Payment Service, User Service |
+| 핵심 서비스 | Order Service, Payment Service |
+| 핵심 측정 지표 | MTTR / 결제 실패 건수 / Pending Pod / 데이터 정합성 |
+
+**트래픽 타임라인**
+
+| 구간 | RPS | 목적 |
+|---|:---:|---|
+| 0~5분 | 500 | 피크 트래픽 유지 |
+| 5분 | — | **워커노드 2 강제 종료** |
+| 5~15분 | 500 | 복구 관찰 |
+| 15~20분 | 500 | 정상 확인 |
+
+**API 비율** (결제 흐름 집중)
+
+| 엔드포인트 | 비율 |
+|---|:---:|
+| POST /api/orders | 50% |
+| POST /api/payments | 50% |
+
+| 환경 | 예상 결과 |
+|---|---|
+| 온프레미스 | 죽은 Pod → 워커노드1 재스케줄 시도 → 자원 부족 → Pending → 복구 5~10분 → 결제 실패 N건 발생 |
+| EKS | Karpenter 신규 노드 추가 → Pod 재배치 → 복구 30~60초 → 결제 실패 최소화 |
+
+**보여줄 것:** MTTR 비교 / 장애 중 결제 실패 건수 / Pending Pod 타임라인 / Node Count 변화
+
+> **메시지:** "복구 시간이 곧 비즈니스 손실입니다"
+
+---
+
+### 시나리오 진행 순서
+
+```
+시나리오 1 (20분) → 정상 확인 후
+시나리오 2 (20분) → 복구 확인 후
+시나리오 3 (20분)
+
+총 60분 + 세팅 시간
+```
+
+> Locust 스크립트는 GitHub 공통 레포에서 한 명이 관리하고 양쪽 동일 스크립트를 사용한다.
+
+---
+
+## 모니터링
+
+### 지표 수집
+
+| 도구 | 대상 | 수집 지표 |
+|---|---|---|
+| prom-client | Express.js 앱 | TPS, Latency, Error Rate, API별 응답시간 |
+| kube-state-metrics | k8s 클러스터 | Pod 수, Node 수, Pending Pod, HPA 상태 |
+| Node Exporter | VM / 노드 | CPU, RAM, 디스크, 네트워크 |
+| PostgreSQL Exporter | PostgreSQL | Active Connection, 쿼리 응답시간, Lock 대기 |
+| Redis Exporter | Redis | 캐시 히트율, 메모리 사용량 |
+
+### 수집 흐름
+
+```
+각 서버 / Pod
+      ↓ scrape (5초 간격)
+Prometheus (t3.small)
+      ↓
+Grafana (t3.small)
+      ↓
+대시보드 (온프레미스 | EKS 나란히)
+```
+
+> Prometheus가 온프레미스 k8s + EKS 양쪽 동시 scrape → Grafana 하나에서 나란히 비교  
+> CloudWatch → EKS 보조 모니터링 (선택)
+
+### 대시보드 구성
+
+#### 템플릿에서 가져올 패널
+
+| 템플릿 (ID) | 가져올 패널 |
+|---|---|
+| Node Exporter Full (1860) | CPU 사용률, Memory 사용률, Network I/O |
+| Kubernetes Cluster (315) | Pod Count, Node Count, Pending Pod 타임라인 |
+| PostgreSQL (9628) | Active Connection, 쿼리 응답시간, Lock 대기 |
+| Redis (11835) | 캐시 히트율, Memory 사용량 |
+
+#### 직접 제작 패널 상세
+
+**상단 — 비즈니스 지표 (온프레미스 | EKS 나란히)**
+
+| # | 패널명 | 수집 도구 | PromQL 메트릭 | 설명 |
+|:---:|---|---|---|---|
+| 1 | TPS | prom-client | `rate(http_requests_total[1m])` | 초당 처리 요청 수 — 폭증 시 처리량 차이 |
+| 2 | P95 Latency | prom-client | `histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[1m]))` | 95번째 백분위 응답시간 — 폭증 시 얼마나 튀는지 |
+| 3 | Error Rate | prom-client | `rate(http_requests_total{status=~"5.."}[1m]) / rate(http_requests_total[1m])` | 5xx 에러 비율 — **온프레미스 치솟고 EKS 0% 유지** |
+
+**중단 — k8s 반응 (온프레미스 | EKS 나란히)**
+
+| # | 패널명 | 수집 도구 | PromQL 메트릭 | 설명 |
+|:---:|---|---|---|---|
+| 4 | Pod Count | kube-state-metrics | `count(kube_pod_status_phase{phase="Running"})` | Running 상태 Pod 수 타임라인 |
+| 5 | Node Count | kube-state-metrics | `count(kube_node_info)` | 노드 수 — EKS는 Karpenter로 자동 증가하는 순간 포착 |
+| 6 | Pending Pod | kube-state-metrics | `count(kube_pod_status_phase{phase="Pending"})` | **발표 임팩트 최강** — 온프레미스 쌓임 / EKS 0 유지 |
+| 7 | HPA current vs desired | kube-state-metrics | `kube_horizontalpodautoscaler_status_current_replicas` / `kube_horizontalpodautoscaler_spec_max_replicas` | 원하는 Pod 수 vs 실제 Pod 수 — 괴리가 크면 노드 부족 상태 |
+
+**하단 — 인프라**
+
+| # | 패널명 | 수집 도구 | PromQL 메트릭 | 설명 |
+|:---:|---|---|---|---|
+| 8 | CPU 사용률 | Node Exporter | `1 - avg(rate(node_cpu_seconds_total{mode="idle"}[1m]))` | 노드 전체 CPU 사용률 |
+| 9 | Memory 사용률 | Node Exporter | `1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes` | 노드 메모리 사용률 |
+| 10 | DB Connection 수 | PostgreSQL Exporter | `pg_stat_activity_count` | PostgreSQL 활성 커넥션 수 — 폭증 시 병목 확인 |
+| 11 | Redis 캐시 히트율 | Redis Exporter | `rate(redis_keyspace_hits_total[1m]) / (rate(redis_keyspace_hits_total[1m]) + rate(redis_keyspace_misses_total[1m]))` | 캐시 효율 — 낮으면 DB 직접 조회 폭증 신호 |
+
+**하단 — API 상세**
+
+| # | 패널명 | 수집 도구 | PromQL 메트릭 | 설명 |
+|:---:|---|---|---|---|
+| 12 | API 엔드포인트별 응답시간 | prom-client | `histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{path=~"/api/.*"}[1m])) by (path)` | `/products` / `/orders` / `/payments` 각각 병목 지점 확인 |
+
+#### 최종 레이아웃 요약
+
+```
+┌─────────────────────────────────────────────────────┐
+│  상단 — 비즈니스 지표 (온프레미스 | EKS 나란히)       │
+│  #1 TPS  |  #2 P95 Latency  |  #3 Error Rate        │
+├─────────────────────────────────────────────────────┤
+│  중단 — k8s 반응 (온프레미스 | EKS 나란히)            │
+│  #4 Pod Count  |  #5 Node Count  |  #6 Pending Pod  │
+│  #7 HPA current vs desired                          │
+├─────────────────────────────────────────────────────┤
+│  하단 — 인프라 + API 상세                             │
+│  #8 CPU  |  #9 Memory  |  #10 DB Conn  |  #11 Redis │
+│  #12 API 엔드포인트별 응답시간                        │
+└─────────────────────────────────────────────────────┘
+```
+
+#### 발표 핵심 화면
+
+```
+┌─────────────────────────┬─────────────────────────┐
+│     온프레미스          │         AWS EKS          │
+│  Error Rate:  37%       │  Error Rate:   0.3%      │
+│  Pending Pod: 급증 ↑    │  Pending Pod:  0         │
+└─────────────────────────┴─────────────────────────┘
+         이 화면 하나로 설명이 필요 없다
+```
+
+---
+
+## CI/CD
+
+```
+코드 푸시
+  → GitHub Actions 자동 트리거  (미정)
+  → Docker 이미지 빌드
+  → AWS ECR 푸시
+  → 양쪽 환경 자동 배포
+      ├── 온프레미스 k8s (kubectl apply)
+      └── EKS (kubectl apply)
+```
+
+> 이미지 버전 태그로 양쪽 환경에 완전히 동일한 이미지 배포를 보장한다.
+
+---
+
+## 로컬 개발 환경
+
+로컬에서 서비스를 단계별로 올리며 개발·검증하는 환경.  
+소스: `msa_shoply/`
+
+### 프로젝트 구조
+
+```
+msa_shoply/
+├── docker-compose.yml   # 로컬 개발용 컨테이너 구성
+├── .env.example         # 환경변수 템플릿
+├── .env                 # 실제 환경변수 (git 제외)
+└── db/
+    ├── schema.sql       # 테이블 및 인덱스 정의
+    └── seed.sql         # 초기 상품·재고·유저 데이터
+```
+
+### 포트 구성
+
+| 서비스 | 컨테이너명 | 포트 |
+|---|---|:---:|
+| API Gateway | msa_gateway | 4000 |
+| Product Service | msa_product | 4001 |
+| Inventory Service | msa_inventory | 4002 |
+| Order Service | msa_order | 4003 |
+| Payment Service | msa_payment | 4004 |
+| User Service | msa_user | 4005 |
+| Frontend | msa_frontend | 3000 |
+| PostgreSQL | msa_postgres | 5432 |
+| Redis | msa_redis | 6379 |
+
+### 빠른 시작
+
+```bash
+# 1. 환경변수 설정
+cp msa_shoply/.env.example msa_shoply/.env
+
+# 2. 인프라 먼저 기동 (PostgreSQL + Redis)
+docker compose -f msa_shoply/docker-compose.yml up postgres redis -d
+
+# 3. 서비스는 배포 및 검증 순서에 따라 단계별로 올림
+#    → docker-compose.yml 내 주석 해제하여 순서대로 추가
+```
+
+> DB 초기화는 자동 실행: `schema.sql` → 테이블 생성, `seed.sql` → 유저 ~1,000명 / 상품 456개 / 재고 2,736건 삽입 (부하 테스트용 대규모 데이터)
+
+### 환경변수 구조 (.env.example)
+
+| 구분 | 변수 | 기본값 |
+|---|---|---|
+| PostgreSQL | POSTGRES_DB / USER / PASSWORD / HOST / PORT | shoply / shoply / shoply1234 / postgres / 5432 |
+| Redis | REDIS_HOST / REDIS_PORT | redis / 6379 |
+| JWT | JWT_SECRET | change-me-in-production |
+| 서비스 URL | USER_SERVICE_URL 외 4개 | http://{서비스명}:{포트} |
+
+---
+
+## 배포 및 검증 순서
+
+서비스를 한 번에 올리지 않고 단계별로 올리며 각 단계에서 동작을 확인한다.  
+**공통:** 매 단계에 API Gateway + 프론트 + PostgreSQL + Redis 항상 포함.
+
+| 단계 | 추가 서비스 | 확인 항목 |
+|:---:|---|---|
+| 1차 | PostgreSQL, Redis, User Service, API Gateway, 프론트 | 로그인 / JWT 발급 / 페이지 렌더링 |
+| 2차 | + Product Service | 상품 목록 / 상품 상세 / Redis 캐싱 |
+| 3차 | + Inventory Service | 재고 조회 / 재고 차감 / 동시성 처리 |
+| 4차 | + Order Service | 주문 생성 / 주문 상태 변경 / 재고 선점 |
+| 5차 | + Payment Service | 결제 처리 / 성공·실패 / 재고 최종 차감 / **전체 흐름** |
+
+**각 단계 확인 방법**
+
+```
+API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에서 추가
+전체 흐름 확인               → 프론트 페이지 눈으로 확인 + curl API 직접 호출 병행
+```
+
+> 최종 전체 흐름: 로그인 → 상품 조회 → 주문 → 결제
+
+---
+
+## 실험 범위
+
+### Must Have
+
+| 항목 | 내용 |
+|---|---|
+| 서비스 | 5개 + PostgreSQL + Redis |
+| 페이지 | 5개 |
+| API | 5개 |
+| 시나리오 | 3개 |
+| 대시보드 | 템플릿 4개 + 직접 제작 8개 패널 |
+| 최대 부하 | Locust 1,000 RPS |
+
+### Nice to Have
+
+**서비스 추가**
+- `Search Service` — 시나리오 2 강화 (검색 + 조회 동시 병목 비교)
+- `Notification Service` — 시나리오 3 강화 (장애 중 알림 유실 건수 측정)
+
+**페이지 추가**
+- 검색 결과 페이지
+- 알림 내역
+- 동시 접속자 수 실시간 표시
+
+**대시보드 추가**
+- 서비스별 병목 비교 패널
+- 알림 유실률
+- 검색 응답시간
+
+---
+
+## 문서
+
+| 문서 | 설명 |
+|---|---|
+| [데이터 레이어 설계](문서/데이터.md) | PostgreSQL 테이블/인덱스 전략, Redis 캐싱 정책 및 API별 캐시 흐름 |
+| [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구 역할, Grafana 템플릿 패널, 직접 제작 패널 PromQL, 최종 대시보드 레이아웃 |
+| [DB 검증 가이드](문서/DB_검증_가이드.md) | PostgreSQL·Redis 기동 절차, 데이터 건수·정합성 검증 쿼리, 트러블슈팅 |
+| [프로젝트 원본 정리](문서/온프레미스_vs_EKS_프로젝트_정리.md) | 초기 기획 원문 (방향성, 스토리 흐름, 전체 구조 상세) |
+
+---
+
+*온프레미스 k8s vs AWS EKS 비교 실험 프로젝트 | 인프라 아키텍처 팀*
