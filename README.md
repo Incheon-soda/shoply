@@ -69,6 +69,23 @@ k8s 외부 인프라
   └─ 모니터링    (t3.small EC2)
 ```
 
+### 서비스 간 통신 흐름
+
+```
+[Frontend]
+    └─ 모든 요청 → [API Gateway :4000]
+                        ├─ /api/auth/*      → User Service     :4005
+                        ├─ /api/products/*  → Product Service  :4001
+                        ├─ /api/inventory/* → Inventory Service :4002
+                        ├─ /api/orders/*    → Order Service    :4003
+                        └─ /api/payments/*  → Payment Service  :4004  (미구현)
+
+[Order Service]   ──── POST /reserve ──────→ [Inventory Service]
+[Payment Service] ─ 결제성공 → POST /deduct  → [Inventory Service]
+                  └ 결제실패 → POST /release → [Inventory Service]
+[Payment Service] ──── PATCH /:id/status ──→ [Order Service]
+```
+
 ---
 
 ## 발표 스토리 흐름
@@ -232,9 +249,13 @@ HPA 발동으로 추가되는 Pod는 k8s 스케줄러가 자유 배치한다.
 
 | 엔드포인트 | 메서드 | 역할 |
 |---|:---:|---|
+| `/api/auth/login` | POST | 로그인 / JWT 발급 |
+| `/api/auth/me` | GET | 내 정보 조회 (JWT 검증) |
 | `/api/products` | GET | 상품 목록 조회 |
 | `/api/products/:id` | GET | 상품 상세 조회 |
-| `/api/orders` | POST | 주문 생성 |
+| `/api/inventory/:productId` | GET | 재고 조회 |
+| `/api/orders` | POST | 주문 생성 (재고 자동 예약) |
+| `/api/orders/:id` | GET | 주문 조회 |
 | `/api/payments` | POST | 결제 처리 (Mock) |
 | `/api/stats` | GET | 실패 건수 / 성공률 실시간 |
 
@@ -502,7 +523,7 @@ Grafana (t3.small)
 | 1차 | User Service + API Gateway + Frontend | ✅ 완료 | 4005 / 4000 / 3000 |
 | 2차 | Product Service | ✅ 완료 | 4001 |
 | 3차 | Inventory Service | ✅ 완료 | 4002 |
-| 4차 | Order Service | 🔲 미구현 | 4003 |
+| 4차 | Order Service | ✅ 완료 | 4003 |
 | 5차 | Payment Service | 🔲 미구현 | 4004 |
 
 ### 프로젝트 구조
@@ -527,7 +548,8 @@ msa_shoply/
 │   │   └── src/routes/products.ts  # GET /products, GET /products/:id
 │   ├── inventory/            # Inventory Service — ✅
 │   │   └── src/routes/inventory.ts # GET /:id, POST /reserve|deduct|release
-│   ├── order/                # Order Service — 🔲 미구현
+│   ├── order/                # Order Service — ✅
+│   │   └── src/routes/orders.ts    # POST /orders, GET /orders/:id, PATCH /orders/:id/status
 │   └── payment/              # Payment Service — 🔲 미구현
 └── frontend/                 # Vite + React — ✅
     └── src/routes/
@@ -638,11 +660,63 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 | 문서 | 설명 |
 |---|---|
+| [MSA 구조 설계](문서/MSA_구조_설계.md) | 서비스별 API, 서비스 간 통신 흐름, 기술 스택, 배포 단계 |
 | [데이터 레이어 설계](문서/데이터.md) | PostgreSQL 테이블/인덱스 전략, Redis 캐싱 정책 및 API별 캐시 흐름 |
 | [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구 역할, Grafana 템플릿 패널, 직접 제작 패널 PromQL, 최종 대시보드 레이아웃 |
 | [DB 검증 가이드](문서/DB_검증_가이드.md) | PostgreSQL·Redis 기동 절차, 데이터 건수·정합성 검증 쿼리, 트러블슈팅 |
-| [서비스 테스트 가이드](문서/테스트.md) | 1~3차 서비스 curl 테스트, 동시성 검증, 전체 흐름 통합 테스트 |
+| [서비스 테스트 가이드](문서/테스트.md) | 1~4차 서비스 curl 테스트, 동시성 검증, 전체 흐름 통합 테스트 |
 | [프로젝트 원본 정리](문서/온프레미스_vs_EKS_프로젝트_정리.md) | 초기 기획 원문 (방향성, 스토리 흐름, 전체 구조 상세) |
+
+---
+
+## 기술 스택
+
+### 인프라 / 컨테이너
+
+| 항목 | 버전 |
+|---|---|
+| Docker Compose | v2 |
+| PostgreSQL | 16-alpine |
+| Redis | 7-alpine |
+| Nginx | alpine (프론트 정적 서빙) |
+| Node.js | 22-alpine (모든 서비스 기반) |
+
+### 백엔드 서비스 공통
+
+| 패키지 | 버전 |
+|---|---|
+| Express.js | 4.18.2 |
+| TypeScript | 5.3.3 |
+| ts-node-dev | 2.0.0 |
+| prom-client | 15.1.0 |
+| pg (node-postgres) | 8.11.3 |
+
+### 서비스별 추가 패키지
+
+| 서비스 | 패키지 | 버전 |
+|---|---|---|
+| User Service | bcryptjs | 2.4.3 |
+| User Service | jsonwebtoken | 9.0.2 |
+| Product Service | ioredis | 5.3.2 |
+| API Gateway | http-proxy-middleware | 3.0.2 |
+| API Gateway | jsonwebtoken | 9.0.2 |
+
+### 프론트엔드
+
+| 패키지 | 버전 |
+|---|---|
+| React | 19 |
+| Vite | 6 |
+| TanStack Router | 1.168 |
+| Tailwind CSS | 4 |
+| lucide-react | 0.475 |
+
+### 시드 데이터 생성
+
+| 항목 | 내용 |
+|---|---|
+| AWS Bedrock | Claude 3.5 Sonnet v2 (apac) |
+| 리전 | ap-northeast-2 (서울) |
 
 ---
 
