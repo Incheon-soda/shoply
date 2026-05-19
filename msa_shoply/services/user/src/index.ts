@@ -34,3 +34,4 @@ app.get('/metrics', async (_req, res) => {
 app.listen(PORT, () => {
   console.log(`[user-service] :${PORT}`);
 });
+

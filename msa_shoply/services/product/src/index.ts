@@ -35,3 +35,4 @@ app.get('/metrics', async (_req, res) => {
 app.listen(PORT, () => {
   console.log(`[product-service] :${PORT}`);
 });
+
