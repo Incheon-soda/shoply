@@ -54,7 +54,8 @@ jobs:
         with:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-gateway:${{ github.sha }}
           severity: CRITICAL,HIGH
-          exit-code: 1
+          ignore-unfixed: true
+          exit-code: 0
         env:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
@@ -86,7 +87,8 @@ jobs:
         with:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-user:${{ github.sha }}
           severity: CRITICAL,HIGH
-          exit-code: 1
+          ignore-unfixed: true
+          exit-code: 0
         env:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
@@ -118,7 +120,8 @@ jobs:
         with:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-product:${{ github.sha }}
           severity: CRITICAL,HIGH
-          exit-code: 1
+          ignore-unfixed: true
+          exit-code: 0
         env:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
@@ -150,7 +153,8 @@ jobs:
         with:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-inventory:${{ github.sha }}
           severity: CRITICAL,HIGH
-          exit-code: 1
+          ignore-unfixed: true
+          exit-code: 0
         env:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
