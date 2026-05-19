@@ -55,6 +55,9 @@ jobs:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-gateway:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: 1
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   build-user:
     needs: changes
@@ -84,6 +87,9 @@ jobs:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-user:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: 1
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   build-product:
     needs: changes
@@ -113,6 +119,9 @@ jobs:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-product:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: 1
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   build-inventory:
     needs: changes
@@ -142,6 +151,9 @@ jobs:
           image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-inventory:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: 1
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
     needs: [build-gateway, build-user, build-product, build-inventory]
