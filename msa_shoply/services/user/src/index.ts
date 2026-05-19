@@ -3,6 +3,7 @@ import { pool } from './db';
 import authRouter from './routes/auth';
 import { register, httpDuration } from './metrics';
 
+
 const app = express();
 const PORT = Number(process.env.USER_PORT) || 4005;
 
