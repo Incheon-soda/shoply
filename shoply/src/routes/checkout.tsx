@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { apiFetch } from "@/lib/auth";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -47,9 +48,8 @@ function CheckoutPage() {
     setFailReason(null);
     try {
       // 1) Create order (reserves stock)
-      const orderRes = await fetch("/api/orders", {
+      const orderRes = await apiFetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: mockOrder.map((i) => ({
             productId: i.id,
@@ -71,9 +71,8 @@ function CheckoutPage() {
       setOrderId(orderData.orderId);
 
       // 2) Process payment
-      const payRes = await fetch("/api/payments", {
+      const payRes = await apiFetch("/api/payments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: orderData.orderId, method }),
       });
       const payData = (await payRes.json()) as

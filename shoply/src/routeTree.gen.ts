@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimesaleRouteImport } from './routes/timesale'
 import { Route as StatsRouteImport } from './routes/stats'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
@@ -19,6 +20,7 @@ import { Route as ApiProductsRouteImport } from './routes/api/products'
 import { Route as ApiPaymentsRouteImport } from './routes/api/payments'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as ApiProductsIdRouteImport } from './routes/api/products.$id'
+import { Route as ApiAuthLoginRouteImport } from './routes/api/auth.login'
 
 const TimesaleRoute = TimesaleRouteImport.update({
   id: '/timesale',
@@ -28,6 +30,11 @@ const TimesaleRoute = TimesaleRouteImport.update({
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
   path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -70,10 +77,16 @@ const ApiProductsIdRoute = ApiProductsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiProductsRoute,
 } as any)
+const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
+  id: '/api/auth/login',
+  path: '/api/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
   '/stats': typeof StatsRoute
   '/timesale': typeof TimesaleRoute
   '/api/orders': typeof ApiOrdersRoute
@@ -81,11 +94,13 @@ export interface FileRoutesByFullPath {
   '/api/products': typeof ApiProductsRouteWithChildren
   '/api/stats': typeof ApiStatsRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/products/$id': typeof ApiProductsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
   '/stats': typeof StatsRoute
   '/timesale': typeof TimesaleRoute
   '/api/orders': typeof ApiOrdersRoute
@@ -93,12 +108,14 @@ export interface FileRoutesByTo {
   '/api/products': typeof ApiProductsRouteWithChildren
   '/api/stats': typeof ApiStatsRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/products/$id': typeof ApiProductsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/login': typeof LoginRoute
   '/stats': typeof StatsRoute
   '/timesale': typeof TimesaleRoute
   '/api/orders': typeof ApiOrdersRoute
@@ -106,6 +123,7 @@ export interface FileRoutesById {
   '/api/products': typeof ApiProductsRouteWithChildren
   '/api/stats': typeof ApiStatsRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
   '/api/products/$id': typeof ApiProductsIdRoute
 }
 export interface FileRouteTypes {
@@ -113,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/checkout'
+    | '/login'
     | '/stats'
     | '/timesale'
     | '/api/orders'
@@ -120,11 +139,13 @@ export interface FileRouteTypes {
     | '/api/products'
     | '/api/stats'
     | '/products/$productId'
+    | '/api/auth/login'
     | '/api/products/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/checkout'
+    | '/login'
     | '/stats'
     | '/timesale'
     | '/api/orders'
@@ -132,11 +153,13 @@ export interface FileRouteTypes {
     | '/api/products'
     | '/api/stats'
     | '/products/$productId'
+    | '/api/auth/login'
     | '/api/products/$id'
   id:
     | '__root__'
     | '/'
     | '/checkout'
+    | '/login'
     | '/stats'
     | '/timesale'
     | '/api/orders'
@@ -144,12 +167,14 @@ export interface FileRouteTypes {
     | '/api/products'
     | '/api/stats'
     | '/products/$productId'
+    | '/api/auth/login'
     | '/api/products/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
+  LoginRoute: typeof LoginRoute
   StatsRoute: typeof StatsRoute
   TimesaleRoute: typeof TimesaleRoute
   ApiOrdersRoute: typeof ApiOrdersRoute
@@ -157,6 +182,7 @@ export interface RootRouteChildren {
   ApiProductsRoute: typeof ApiProductsRouteWithChildren
   ApiStatsRoute: typeof ApiStatsRoute
   ProductsProductIdRoute: typeof ProductsProductIdRoute
+  ApiAuthLoginRoute: typeof ApiAuthLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -173,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/stats'
       fullPath: '/stats'
       preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -231,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProductsIdRouteImport
       parentRoute: typeof ApiProductsRoute
     }
+    '/api/auth/login': {
+      id: '/api/auth/login'
+      path: '/api/auth/login'
+      fullPath: '/api/auth/login'
+      preLoaderRoute: typeof ApiAuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -249,6 +289,7 @@ const ApiProductsRouteWithChildren = ApiProductsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
+  LoginRoute: LoginRoute,
   StatsRoute: StatsRoute,
   TimesaleRoute: TimesaleRoute,
   ApiOrdersRoute: ApiOrdersRoute,
@@ -256,6 +297,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiProductsRoute: ApiProductsRouteWithChildren,
   ApiStatsRoute: ApiStatsRoute,
   ProductsProductIdRoute: ProductsProductIdRoute,
+  ApiAuthLoginRoute: ApiAuthLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

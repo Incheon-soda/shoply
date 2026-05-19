@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      gateway: ${{ steps.filter.outputs.gateway }}
+      user: ${{ steps.filter.outputs.user }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            gateway: ['msa_shoply/gateway/**']
+            user:    ['msa_shoply/services/user/**']
+
+  check-gateway:
+    needs: changes
+    if: needs.changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/gateway
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/gateway/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/gateway
+          push: false
+
+  check-user:
+    needs: changes
+    if: needs.changes.outputs.user == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/services/user
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/services/user/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/services/user
+          push: false

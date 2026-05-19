@@ -1,0 +1,118 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  GHCR: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      gateway: ${{ steps.filter.outputs.gateway }}
+      user: ${{ steps.filter.outputs.user }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            gateway: ['msa_shoply/gateway/**']
+            user:    ['msa_shoply/services/user/**']
+
+  build-gateway:
+    needs: changes
+    if: needs.changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 빌드 및 푸시
+        uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/gateway
+          push: true
+          tags: |
+            ${{ env.GHCR }}/shoply-gateway:${{ github.sha }}
+            ${{ env.GHCR }}/shoply-gateway:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Trivy 보안 스캔
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.GHCR }}/shoply-gateway:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+  build-user:
+    needs: changes
+    if: needs.changes.outputs.user == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: GHCR 로그인
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 빌드 및 푸시
+        uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/services/user
+          push: true
+          tags: |
+            ${{ env.GHCR }}/shoply-user:${{ github.sha }}
+            ${{ env.GHCR }}/shoply-user:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Trivy 보안 스캔
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.GHCR }}/shoply-user:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+  notify:
+    needs: [build-gateway, build-user]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack 알림
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "${{ contains(needs.*.result, 'failure') && ':x: 배포 실패' || ':white_check_mark: 배포 성공' }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*${{ contains(needs.*.result, 'failure') && ':x: 배포 실패' || ':white_check_mark: 배포 성공' }}*\n*커밋:* <${{ github.event.head_commit.url }}|${{ github.sha }}>\n*작성자:* ${{ github.actor }}\n*메시지:* ${{ github.event.head_commit.message }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

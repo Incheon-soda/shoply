@@ -30,58 +30,58 @@ services:
       retries: 10
 
   # ── 1차: user ──────────────────────────────────────────────
-  # user:
-  #   build: ./services/user
-  #   container_name: msa_user
-  #   env_file: .env
-  #   ports:
-  #     - "4005:4005"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+  user:
+    build: ./services/user
+    container_name: msa_user
+    env_file: .env
+    ports:
+      - "4005:4005"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # ── gateway ────────────────────────────────────────────────
-  # gateway:
-  #   build: ./gateway
-  #   container_name: msa_gateway
-  #   env_file: .env
-  #   ports:
-  #     - "4000:4000"
-  #   depends_on:
-  #     - user
+  gateway:
+    build: ./gateway
+    container_name: msa_gateway
+    env_file: .env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - user
 
   # ── frontend ───────────────────────────────────────────────
-  # frontend:
-  #   build: ./frontend
-  #   container_name: msa_frontend
-  #   ports:
-  #     - "3000:80"
-  #   depends_on:
-  #     - gateway
+  frontend:
+    build: ./frontend
+    container_name: msa_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
 
   # ── 2차: product ───────────────────────────────────────────
-  # product:
-  #   build: ./services/product
-  #   container_name: msa_product
-  #   env_file: .env
-  #   ports:
-  #     - "4001:4001"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
+  product:
+    build: ./services/product
+    container_name: msa_product
+    env_file: .env
+    ports:
+      - "4001:4001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   # ── 3차: inventory ─────────────────────────────────────────
-  # inventory:
-  #   build: ./services/inventory
-  #   container_name: msa_inventory
-  #   env_file: .env
-  #   ports:
-  #     - "4002:4002"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+  inventory:
+    build: ./services/inventory
+    container_name: msa_inventory
+    env_file: .env
+    ports:
+      - "4002:4002"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # ── 4차: order ─────────────────────────────────────────────
   # order:

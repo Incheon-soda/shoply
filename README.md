@@ -494,16 +494,49 @@ Grafana (t3.small)
 로컬에서 서비스를 단계별로 올리며 개발·검증하는 환경.  
 소스: `msa_shoply/`
 
+### 구현 현황
+
+| 차수 | 서비스 | 상태 | 포트 |
+|:---:|---|:---:|:---:|
+| 인프라 | PostgreSQL, Redis | ✅ 완료 | 5432 / 6379 |
+| 1차 | User Service + API Gateway + Frontend | ✅ 완료 | 4005 / 4000 / 3000 |
+| 2차 | Product Service | ✅ 완료 | 4001 |
+| 3차 | Inventory Service | ✅ 완료 | 4002 |
+| 4차 | Order Service | 🔲 미구현 | 4003 |
+| 5차 | Payment Service | 🔲 미구현 | 4004 |
+
 ### 프로젝트 구조
 
 ```
 msa_shoply/
-├── docker-compose.yml   # 로컬 개발용 컨테이너 구성
-├── .env.example         # 환경변수 템플릿
-├── .env                 # 실제 환경변수 (git 제외)
-└── db/
-    ├── schema.sql       # 테이블 및 인덱스 정의
-    └── seed.sql         # 초기 상품·재고·유저 데이터
+├── docker-compose.yml        # 로컬 개발용 컨테이너 구성
+├── .env.example              # 환경변수 템플릿
+├── .env                      # 실제 환경변수 (git 제외)
+├── db/
+│   ├── schema.sql            # 테이블 및 인덱스 정의
+│   ├── seed.sql              # 부하 테스트용 대규모 데이터
+│   └── generate-seed.js      # seed 생성 스크립트
+├── gateway/                  # API Gateway (Express.js) — ✅
+│   └── src/
+│       ├── index.ts          # 라우팅 + 프록시
+│       └── metrics.ts        # Prometheus prom-client
+├── services/
+│   ├── user/                 # User Service — ✅
+│   │   └── src/routes/auth.ts   # POST /login, GET /me
+│   ├── product/              # Product Service — ✅
+│   │   └── src/routes/products.ts  # GET /products, GET /products/:id
+│   ├── inventory/            # Inventory Service — ✅
+│   │   └── src/routes/inventory.ts # GET /:id, POST /reserve|deduct|release
+│   ├── order/                # Order Service — 🔲 미구현
+│   └── payment/              # Payment Service — 🔲 미구현
+└── frontend/                 # Vite + React — ✅
+    └── src/routes/
+        ├── index.tsx          # 메인 (상품 목록)
+        ├── login.tsx          # 로그인
+        ├── products.$productId.tsx  # 상품 상세
+        ├── timesale.tsx       # 타임세일
+        ├── checkout.tsx       # 주문/결제
+        └── stats.tsx          # 실패 현황
 ```
 
 ### 포트 구성
@@ -608,6 +641,7 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 | [데이터 레이어 설계](문서/데이터.md) | PostgreSQL 테이블/인덱스 전략, Redis 캐싱 정책 및 API별 캐시 흐름 |
 | [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구 역할, Grafana 템플릿 패널, 직접 제작 패널 PromQL, 최종 대시보드 레이아웃 |
 | [DB 검증 가이드](문서/DB_검증_가이드.md) | PostgreSQL·Redis 기동 절차, 데이터 건수·정합성 검증 쿼리, 트러블슈팅 |
+| [서비스 테스트 가이드](문서/테스트.md) | 1~3차 서비스 curl 테스트, 동시성 검증, 전체 흐름 통합 테스트 |
 | [프로젝트 원본 정리](문서/온프레미스_vs_EKS_프로젝트_정리.md) | 초기 기획 원문 (방향성, 스토리 흐름, 전체 구조 상세) |
 
 ---
