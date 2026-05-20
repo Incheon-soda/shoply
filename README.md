@@ -120,28 +120,34 @@ k8s 외부 인프라
 
 ### 전체 구조
 
-```
-온프레미스 팀 계정
-├── EC2 c8i.2xlarge — k8s 클러스터 재현
-│   └── KVM VM
-│       ├── VM1: k8s 마스터    (2vCPU / 4GB)
-│       ├── VM2: 워커노드 1    (2vCPU / 4GB)
-│       └── VM3: 워커노드 2    (2vCPU / 4GB)
-├── EC2 t3.medium  — PostgreSQL 직접 설치
-└── EC2 t3.micro   — Redis
+> **계정 구조:** 단일 AWS 계정 우선 — 크레딧 부족 시 2계정으로 전환 (설계는 전환해도 변경 최소화)
 
-AWS EKS 팀 계정
-├── EKS 클러스터
-│   ├── 워커노드 t3.medium × 2 (초기)
-│   └── Karpenter → t3.medium 자동 추가
-├── RDS db.t3.medium — PostgreSQL 관리형
-└── EC2 t3.micro     — Redis
-
-공통
-├── EC2 t3.small  — Prometheus + Grafana (모니터링)
-├── EC2 t3.medium — Locust (부하 테스트)
-└── CI/CD         — 미정
 ```
+AWS 단일 계정 (ap-northeast-2)
+
+VPC-A (10.0.0.0/16) — 온프레미스 재현 + 공통 인프라
+└── Public 서브넷 10.0.1.0/24 (ap-northeast-2a)
+    ├── c8i.2xlarge  [EIP]  — k8s 호스트 (KVM)
+    │   ├── VM1: k8s 마스터    192.168.122.2 (2vCPU/4GB)
+    │   ├── VM2: 워커노드 1    192.168.122.3 (2vCPU/4GB) ← traffic-node
+    │   └── VM3: 워커노드 2    192.168.122.4 (2vCPU/4GB) ← order-node
+    ├── t3.medium           — PostgreSQL 16 직접 설치
+    ├── t3.micro            — Redis 7 직접 설치
+    ├── t3.small   [EIP]   — Prometheus + Grafana (모니터링)
+    ├── t3.medium  [EIP]   — Locust-A (온프레미스 전용)
+    └── t3.medium  [EIP]   — Locust-B (EKS 전용)
+
+VPC-B (10.1.0.0/16) — EKS
+├── Public 서브넷 10.1.1.0/24 (ap-northeast-2a)
+├── Public 서브넷 10.1.2.0/24 (ap-northeast-2b)  ← EKS 최소 2 AZ
+├── EKS Worker t3.medium [EIP]  ← traffic-node (API GW, Product, Inventory)
+├── EKS Worker t3.medium [EIP]  ← order-node (Frontend, Order, Payment, User)
+├── RDS db.t3.medium            — PostgreSQL 관리형
+└── t3.micro                    — Redis 7 직접 설치
+```
+
+> **Locust 2대 분리 이유:** 시나리오 2에서 온프레미스가 응답 지연/에러 급증 시  
+> Locust-A의 쌓인 스레드가 EKS 부하에 영향을 주는 실험 결과 오염 방지
 
 ### EC2 스펙
 
@@ -163,10 +169,14 @@ AWS EKS 팀 계정
 
 #### 공통
 
-| 용도 | 인스턴스 | vCPU | RAM |
-|---|---|:---:|:---:|
-| 모니터링 (Prometheus + Grafana) | t3.small | 2 | 2GB |
-| 부하 테스트 (Locust) | t3.medium | 2 | 4GB |
+| 용도 | 인스턴스 | vCPU | RAM | EIP |
+|---|---|:---:|:---:|:---:|
+| 모니터링 (Prometheus + Grafana) | t3.small | 2 | 2GB | 필수 |
+| Locust-A (온프레미스 전용) | t3.medium | 2 | 4GB | 선택 |
+| Locust-B (EKS 전용) | t3.medium | 2 | 4GB | 필수 |
+
+> Monitoring EIP — EKS Worker Node SG 인바운드 화이트리스트 등록, 재시작 후 IP 변동 방지  
+> Locust-B EIP — EKS ALB SG 인바운드에 이 IP만 허용 (실험 외 트래픽 차단)
 
 ### 온프레미스 VM 구성 (c8i.2xlarge 내부)
 
@@ -197,9 +207,11 @@ HPA 발동으로 추가되는 Pod는 k8s 스케줄러가 자유 배치한다.
 | PostgreSQL EC2 (t3.medium) | $0.20 |
 | Redis EC2 (t3.micro) | $0.10 |
 | 모니터링 EC2 (t3.small) | $0.23 |
-| Locust EC2 (t3.medium) | $0.19 |
+| Locust-A EC2 (t3.medium) | $0.19 |
+| Locust-B EC2 (t3.medium) | $0.19 |
 | EKS 클러스터 | $1.00 |
 | EKS 노드 | $1.00 |
+| EKS Redis EC2 (t3.micro) | $0.10 |
 | **합계** | **약 $6~7** |
 | 여유 포함 | **약 $20~30 (한화 3~4만원)** |
 
@@ -218,9 +230,22 @@ HPA 발동으로 추가되는 Pod는 k8s 스케줄러가 자유 배치한다.
 
 ### 의도적으로 다른 것 (실험 핵심 변수)
 
-- PostgreSQL 운영 방식 (직접 설치 vs RDS 관리형)
-- 노드 확장 방식 (고정 vs Karpenter 자동 확장)
-- EC2 스펙
+- PostgreSQL 운영 방식 (EC2 직접 설치 vs RDS 관리형)
+- 노드 확장 방식 (고정 2대 vs Karpenter 자동 확장)
+- CNI (Flannel vs AWS VPC CNI)
+- 로드밸런서 (EC2 Nginx + MetalLB vs AWS ALB)
+
+### 실험 동시 시작 방법
+
+> **결정: Locust `--headless` 스케줄 기능 — 특정 시각에 자동 시작**
+
+```bash
+# Locust-A (온프레미스), Locust-B (EKS) 두 EC2에서 동시 실행
+locust -f locustfile.py --host http://<타겟-IP> \
+  --headless --users 200 --spawn-rate 200 --run-time 20m
+```
+
+동일 스크립트를 GitHub 공통 레포에서 pull 후 실행 → 수동 카운트다운 불필요
 
 ---
 
@@ -660,6 +685,8 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 | 문서 | 설명 |
 |---|---|
+| [전체 작업 목록](문서/전체_작업_목록.md) | 인프라 결정 사항, 온프레미스·EKS·공통 전체 작업 체크리스트, 현재 진행 상태 |
+| [인프라 설계](문서/인프라_설계.md) | VPC·SG 확정 구조, 파드 고정 배치·nodeAffinity·HPA 설정, 로드밸런서 구성 |
 | [MSA 구조 설계](문서/MSA_구조_설계.md) | 서비스별 API, 서비스 간 통신 흐름, 기술 스택, 배포 단계 |
 | [데이터 레이어 설계](문서/데이터.md) | PostgreSQL 테이블/인덱스 전략, Redis 캐싱 정책 및 API별 캐시 흐름 |
 | [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구 역할, Grafana 템플릿 패널, 직접 제작 패널 PromQL, 최종 대시보드 레이아웃 |
