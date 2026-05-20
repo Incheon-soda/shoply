@@ -16,6 +16,8 @@ jobs:
       user:      ${{ steps.filter.outputs.user }}
       product:   ${{ steps.filter.outputs.product }}
       inventory: ${{ steps.filter.outputs.inventory }}
+      order:     ${{ steps.filter.outputs.order }}
+      payment:   ${{ steps.filter.outputs.payment }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -26,6 +28,8 @@ jobs:
             user:      ['msa_shoply/services/user/**']
             product:   ['msa_shoply/services/product/**']
             inventory: ['msa_shoply/services/inventory/**']
+            order:     ['msa_shoply/services/order/**']
+            payment:   ['msa_shoply/services/payment/**']
 
   build-gateway:
     needs: changes
@@ -159,8 +163,74 @@ jobs:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
+  build-order:
+    needs: changes
+    if: needs.changes.outputs.order == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: vars
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/services/order
+          push: true
+          tags: |
+            ghcr.io/${{ steps.vars.outputs.owner }}/shoply-order:${{ github.sha }}
+            ghcr.io/${{ steps.vars.outputs.owner }}/shoply-order:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-order:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: 0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+  build-payment:
+    needs: changes
+    if: needs.changes.outputs.payment == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: vars
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/services/payment
+          push: true
+          tags: |
+            ghcr.io/${{ steps.vars.outputs.owner }}/shoply-payment:${{ github.sha }}
+            ghcr.io/${{ steps.vars.outputs.owner }}/shoply-payment:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ steps.vars.outputs.owner }}/shoply-payment:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: 0
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
   notify:
-    needs: [build-gateway, build-user, build-product, build-inventory]
+    needs: [build-gateway, build-user, build-product, build-inventory, build-order, build-payment]
     if: always()
     runs-on: ubuntu-latest
     steps:
