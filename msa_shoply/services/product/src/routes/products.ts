@@ -101,7 +101,7 @@ router.patch('/:id/timesale', async (req, res) => {
 
   try {
     if (enable) {
-      const rate = Math.min(Math.max(discountRate ?? 30, 10), 70);  // 10~70% 제한
+      const rate = discountRate ?? 30;
       const hours = durationHours ?? 1;
       const { rows } = await pool.query('SELECT price FROM products WHERE id = $1', [id]);
       if (!rows[0]) return res.status(404).json({ message: '상품을 찾을 수 없습니다.' });
@@ -136,7 +136,7 @@ router.post('/timesale/start', async (req, res) => {
     count?: number; discountRate?: number; durationHours?: number;
   };
   try {
-    const rate = Math.min(Math.max(discountRate, 10), 70);
+    const rate = discountRate;
     const saleEndsAt = new Date(Date.now() + durationHours * 3_600_000).toISOString();
 
     const { rowCount } = await pool.query(

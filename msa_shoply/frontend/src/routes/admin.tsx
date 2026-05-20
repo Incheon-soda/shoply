@@ -122,7 +122,7 @@ function AdminPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs text-neutral-600">할인율 (%)</label>
-                <input type="number" min={10} max={70} value={discountRate} onChange={(e) => setDiscountRate(Number(e.target.value))}
+                <input type="number" min={1} max={99} value={discountRate} onChange={(e) => setDiscountRate(Number(e.target.value))}
                   className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm" />
               </div>
               <div>
