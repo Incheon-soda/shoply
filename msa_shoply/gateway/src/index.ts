@@ -15,8 +15,15 @@ const SVC = {
 };
 
 // ── Prometheus ────────────────────────────────────────────────
+// route 라벨은 /api/{service} 수준으로 정규화 — UUID 포함 시 고카디널리티 방지
+function normalizeGatewayRoute(path: string): string {
+  const m = path.match(/^(\/api\/[^/]+)/);
+  return m ? m[1] : path;
+}
+
 app.use((req, res, next) => {
-  const end = httpDuration.startTimer({ method: req.method, route: req.path });
+  const route = normalizeGatewayRoute(req.path);
+  const end = httpDuration.startTimer({ method: req.method, route });
   res.on('finish', () => end({ status: String(res.statusCode) }));
   next();
 });
@@ -48,26 +55,26 @@ app.use('/api/inventory', createProxyMiddleware({
 }));
 
 // 4차: Order Service — /api/orders/*
-// app.use('/api/orders', createProxyMiddleware({
-//   target: SVC.order,
-//   changeOrigin: true,
-//   pathRewrite: { '^/api/orders': '/orders' },
-//   on: { error: (_err, _req, res) => (res as express.Response).status(503).json({ message: 'Order Service unavailable' }) },
-// }));
+app.use('/api/orders', createProxyMiddleware({
+  target: SVC.order,
+  changeOrigin: true,
+  pathRewrite: { '^': '/orders' },
+  on: { error: (_err, _req, res) => (res as express.Response).status(503).json({ message: 'Order Service unavailable' }) },
+}));
 
 // 5차: Payment Service — /api/payments/*, /api/stats
-// app.use('/api/payments', createProxyMiddleware({
-//   target: SVC.payment,
-//   changeOrigin: true,
-//   pathRewrite: { '^/api/payments': '/payments' },
-//   on: { error: (_err, _req, res) => (res as express.Response).status(503).json({ message: 'Payment Service unavailable' }) },
-// }));
-// app.use('/api/stats', createProxyMiddleware({
-//   target: SVC.payment,
-//   changeOrigin: true,
-//   pathRewrite: { '^/api/stats': '/stats' },
-//   on: { error: (_err, _req, res) => (res as express.Response).status(503).json({ message: 'Payment Service unavailable' }) },
-// }));
+app.use('/api/payments', createProxyMiddleware({
+  target: SVC.payment,
+  changeOrigin: true,
+  pathRewrite: { '^': '/payments' },
+  on: { error: (_err, _req, res) => (res as express.Response).status(503).json({ message: 'Payment Service unavailable' }) },
+}));
+app.use('/api/stats', createProxyMiddleware({
+  target: SVC.payment,
+  changeOrigin: true,
+  pathRewrite: { '^': '/payments/stats' },
+  on: { error: (_err, _req, res) => (res as express.Response).status(503).json({ message: 'Payment Service unavailable' }) },
+}));
 
 // ── 미등록 서비스 요청 → 503 ──────────────────────────────────
 app.use('/api', (_req, res) => {

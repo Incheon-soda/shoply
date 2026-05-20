@@ -3,13 +3,19 @@ import { pool } from './db';
 import inventoryRouter from './routes/inventory';
 import { register, httpDuration } from './metrics';
 
+// UUID → :id 정규화로 route 라벨 고카디널리티 방지
+function normalizeRoute(path: string): string {
+  return path.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, ':id');
+}
+
 const app = express();
 const PORT = Number(process.env.INVENTORY_PORT) || 4002;
 
 app.use(express.json());
 
 app.use((req, res, next) => {
-  const end = httpDuration.startTimer({ method: req.method, route: req.path });
+  const route = normalizeRoute(req.path);
+  const end = httpDuration.startTimer({ method: req.method, route });
   res.on('finish', () => end({ status: String(res.statusCode) }));
   next();
 });

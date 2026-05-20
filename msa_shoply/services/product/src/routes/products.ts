@@ -92,4 +92,88 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// PATCH /products/:id/timesale — 개별 타임세일 ON/OFF (어드민)
+router.patch('/:id/timesale', async (req, res) => {
+  const { id } = req.params;
+  const { enable, discountRate, durationHours } = req.body as {
+    enable: boolean; discountRate?: number; durationHours?: number;
+  };
+
+  try {
+    if (enable) {
+      const rate = Math.min(Math.max(discountRate ?? 30, 10), 70);  // 10~70% 제한
+      const hours = durationHours ?? 1;
+      const { rows } = await pool.query('SELECT price FROM products WHERE id = $1', [id]);
+      if (!rows[0]) return res.status(404).json({ message: '상품을 찾을 수 없습니다.' });
+
+      const salePrice = Math.round(rows[0].price * (1 - rate / 100) / 1000) * 1000;
+      const saleEndsAt = new Date(Date.now() + hours * 3_600_000).toISOString();
+
+      await pool.query(
+        'UPDATE products SET is_timesale=TRUE, sale_price=$1, sale_ends_at=$2 WHERE id=$3',
+        [salePrice, saleEndsAt, id],
+      );
+    } else {
+      await pool.query(
+        'UPDATE products SET is_timesale=FALSE, sale_price=NULL, sale_ends_at=NULL WHERE id=$1',
+        [id],
+      );
+    }
+
+    await redis.del('products:list');
+    await redis.del(`products:${id}`);
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('[PATCH /products/:id/timesale]', err);
+    return res.status(500).json({ message: '서버 오류' });
+  }
+});
+
+// POST /products/timesale/start — 시나리오 2 트리거: 상위 N개 타임세일 일괄 시작
+router.post('/timesale/start', async (req, res) => {
+  const { count = 20, discountRate = 40, durationHours = 1 } = req.body as {
+    count?: number; discountRate?: number; durationHours?: number;
+  };
+  try {
+    const rate = Math.min(Math.max(discountRate, 10), 70);
+    const saleEndsAt = new Date(Date.now() + durationHours * 3_600_000).toISOString();
+
+    const { rowCount } = await pool.query(
+      `UPDATE products
+       SET is_timesale  = TRUE,
+           sale_price   = ROUND(price * (1 - $1::numeric / 100) / 1000) * 1000,
+           sale_ends_at = $2
+       WHERE id IN (
+         SELECT id FROM products ORDER BY RANDOM() LIMIT $3
+       )`,
+      [rate, saleEndsAt, count],
+    );
+
+    await redis.del('products:list');
+
+    return res.json({ ok: true, updated: rowCount, discountRate: rate, durationHours, saleEndsAt });
+  } catch (err) {
+    console.error('[POST /products/timesale/start]', err);
+    return res.status(500).json({ message: '서버 오류' });
+  }
+});
+
+// POST /products/timesale/stop — 모든 타임세일 종료
+router.post('/timesale/stop', async (req, res) => {
+  try {
+    const { rowCount } = await pool.query(
+      'UPDATE products SET is_timesale=FALSE, sale_price=NULL, sale_ends_at=NULL WHERE is_timesale=TRUE',
+    );
+
+    const keys = await redis.keys('products:*');
+    if (keys.length) await redis.del(...keys);
+
+    return res.json({ ok: true, stopped: rowCount });
+  } catch (err) {
+    console.error('[POST /products/timesale/stop]', err);
+    return res.status(500).json({ message: '서버 오류' });
+  }
+});
+
 export default router;

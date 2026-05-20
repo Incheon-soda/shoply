@@ -84,26 +84,28 @@ services:
         condition: service_healthy
 
   # ── 4차: order ─────────────────────────────────────────────
-  # order:
-  #   build: ./services/order
-  #   container_name: msa_order
-  #   env_file: .env
-  #   ports:
-  #     - "4003:4003"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+  order:
+    build: ./services/order
+    container_name: msa_order
+    env_file: .env
+    ports:
+      - "4003:4003"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # ── 5차: payment ───────────────────────────────────────────
-  # payment:
-  #   build: ./services/payment
-  #   container_name: msa_payment
-  #   env_file: .env
-  #   ports:
-  #     - "4004:4004"
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+  payment:
+    build: ./services/payment
+    container_name: msa_payment
+    env_file: .env
+    ports:
+      - "4004:4004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:

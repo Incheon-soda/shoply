@@ -4,13 +4,19 @@ import authRouter from './routes/auth';
 import { register, httpDuration } from './metrics';
 
 
+// UUID → :id 정규화로 route 라벨 고카디널리티 방지
+function normalizeRoute(path: string): string {
+  return path.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, ':id');
+}
+
 const app = express();
 const PORT = Number(process.env.USER_PORT) || 4005;
 
 app.use(express.json());
 
 app.use((req, res, next) => {
-  const end = httpDuration.startTimer({ method: req.method, route: req.path });
+  const route = normalizeRoute(req.path);
+  const end = httpDuration.startTimer({ method: req.method, route });
   res.on('finish', () => end({ status: String(res.statusCode) }));
   next();
 });
