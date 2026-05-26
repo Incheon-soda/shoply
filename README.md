@@ -63,10 +63,11 @@
                  └─ User Service
 
 k8s 외부 인프라
-  ├─ PostgreSQL  (온프레미스: t3.medium EC2 / EKS: RDS db.t3.medium)
-  ├─ Redis       (t3.micro EC2)
-  ├─ Locust      (t3.medium EC2)
-  └─ 모니터링    (t3.small EC2)
+  ├─ PostgreSQL      (온프레미스: t3.medium EC2 / EKS: RDS db.t3.medium)
+  ├─ Redis           (t3.micro EC2)
+  ├─ Locust          (t3.medium EC2)
+  ├─ 모니터링        (t3.small EC2 — Prometheus + Grafana)
+  └─ OpenSearch      (Amazon OpenSearch Service — 로그 수집 및 에러 원인 분석)
 ```
 
 ### 서비스 간 통신 흐름
@@ -84,6 +85,9 @@ k8s 외부 인프라
 [Payment Service] ─ 결제성공 → POST /deduct  → [Inventory Service]
                   └ 결제실패 → POST /release → [Inventory Service]
 [Payment Service] ──── PATCH /:id/status ──→ [Order Service]
+
+[Admin Page] ──── POST /timesale/start ──→ [Product Service]  (시나리오 2 트리거)
+             └─── POST /timesale/stop  ──→ [Product Service]
 ```
 
 ---
@@ -98,23 +102,19 @@ k8s 외부 인프라
   "동일한 앱, 동일한 트래픽, 다른 인프라"
   "공정한 조건에서 비교했습니다"
 
-3단계 — 시나리오 1 (일반 사용자 흐름)
+3단계 — 시나리오 1 (일반 트래픽)
   "이 상황에서는 온프레미스도 충분합니다"
-  → 기준선 형성, 신뢰감 확보
+  → 신뢰감 형성
 
-4단계 — 시나리오 2 (동시 예약/주문 폭주)
-  "여기서 운영 방식의 차이가 드러납니다"
-  → 확장성 차이 데이터로 증명
+4단계 — 시나리오 2 (타임세일 트래픽 폭증)
+  "여기서 갈립니다"
+  → 데이터가 말하게 한다
 
-5단계 — 시나리오 3 (점진적 부하 증가)
-  "X RPS부터 온프레미스가 무너지기 시작합니다"
-  → 한계점과 자동 대응 시점 비교
+5단계 — 시나리오 3 (노드 장애)
+  "운영 관점에서 이런 차이가 납니다"
+  → 비용이 아닌 운영 리소스 차이로 어필
 
-6단계 — 시나리오 4 (장애 복구)
-  "복구 시간이 곧 비즈니스 손실입니다"
-  → 운영 복구력 차이 수치로 어필
-
-7단계 — 결론
+6단계 — 결론
   "이 차이가 비즈니스에 미치는 임팩트는 이렇습니다"
 ```
 
@@ -138,8 +138,8 @@ VPC-A (10.0.0.0/16) — 온프레미스 재현 + 공통 인프라
     ├── t3.medium           — PostgreSQL 16 직접 설치
     ├── t3.micro            — Redis 7 직접 설치
     ├── t3.small   [EIP]   — Prometheus + Grafana (모니터링)
-    ├── t3.medium  [EIP]   — Locust-A (온프레미스 전용)
-    └── t3.medium  [EIP]   — Locust-B (EKS 전용)
+    ├── t3.medium          — Locust-A (온프레미스 전용, EIP 불필요 — SG 참조 방식)
+    └── t3.medium  [EIP]   — Locust-B (EKS 전용, Worker Node SG 화이트리스트 등록용)
 
 VPC-B (10.1.0.0/16) — EKS
 ├── Public 서브넷 10.1.1.0/24 (ap-northeast-2a)
@@ -176,11 +176,12 @@ VPC-B (10.1.0.0/16) — EKS
 | 용도 | 인스턴스 | vCPU | RAM | EIP |
 |---|---|:---:|:---:|:---:|
 | 모니터링 (Prometheus + Grafana) | t3.small | 2 | 2GB | 필수 |
-| Locust-A (온프레미스 전용) | t3.medium | 2 | 4GB | 선택 |
+| Locust-A (온프레미스 전용) | t3.medium | 2 | 4GB | 불필요 |
 | Locust-B (EKS 전용) | t3.medium | 2 | 4GB | 필수 |
 
 > Monitoring EIP — EKS Worker Node SG 인바운드 화이트리스트 등록, 재시작 후 IP 변동 방지  
-> Locust-B EIP — EKS ALB SG 인바운드에 이 IP만 허용 (실험 외 트래픽 차단)
+> Locust-A EIP 불필요 — c8i.2xlarge SG가 Locust-A SG 참조 방식으로 허용 (IP 기반 아님)  
+> Locust-B EIP — Worker Node SG 인바운드에 이 IP만 허용 (ALB 미사용, NodePort 직접 연결)
 
 ### 온프레미스 VM 구성 (c8i.2xlarge 내부)
 
@@ -273,6 +274,7 @@ locust -f locustfile.py --host http://<타겟-IP> \
 | 타임세일 | 카운트다운 타이머, 실시간 재고 |
 | 주문 / 결제 | 장바구니 → 주문 → Mock 결제 |
 | 실패 현황 | 실패 건수 실시간, 성공률 |
+| 어드민 | 타임세일 제어판, 실험 체크리스트 (`admin@shoply.com` 전용) |
 
 ### API 구성
 
@@ -285,8 +287,11 @@ locust -f locustfile.py --host http://<타겟-IP> \
 | `/api/inventory/:productId` | GET | 재고 조회 |
 | `/api/orders` | POST | 주문 생성 (재고 자동 예약) |
 | `/api/orders/:id` | GET | 주문 조회 |
-| `/api/payments` | POST | 결제 처리 (Mock) |
-| `/api/stats` | GET | 실패 건수 / 성공률 실시간 |
+| `/api/payments` | POST | 결제 처리 (Mock 95% 성공) |
+| `/api/stats` | GET | 결제 성공/실패 통계 실시간 |
+| `/api/products/timesale/start` | POST | 타임세일 일괄 시작 (어드민) |
+| `/api/products/timesale/stop` | POST | 타임세일 전체 종료 (어드민) |
+| `/api/products/:id/timesale` | PATCH | 개별 상품 타임세일 ON/OFF (어드민) |
 
 ---
 
@@ -336,6 +341,11 @@ locust -f locustfile.py --host http://<타겟-IP> \
 
 ### 시나리오 2 — 동시 예약/주문 폭주 (20분)
 
+> **보여주는 것:** 갑자기 트래픽이 터졌을 때 두 환경이 어떻게 반응하는가
+> - 온프레미스: Pod CPU 차오름 → HPA 파드 추가 시도 → 노드 자원 없음 → Pending 쌓임 → Error Rate 급등
+> - EKS: Pod CPU 차오름 → HPA 시도 → Karpenter 노드 자동 추가 → Pending 해소 → Error Rate 0%
+> - Locust: **고정 토큰** 사용 (로그인 병목 제거, 주문/결제 측정에 집중)
+
 | 항목 | 내용 |
 |---|---|
 | 목적 | 확장성 차이 — 갑자기 요청이 몰릴 때 HPA + Karpenter 유무가 결과를 갈라놓음 |
@@ -372,6 +382,11 @@ locust -f locustfile.py --host http://<타겟-IP> \
 ---
 
 ### 시나리오 3 — 점진적 부하 증가 (20분)
+
+> **보여주는 것:** 몇 RPS부터 온프레미스가 한계에 도달하는지 숫자로 찍는 것 — "차는 느낌"
+> - 100 → 300 → 500 → 700 → 1000 RPS 단계별로 올리면서 CPU가 차오르고 Pending이 발생하는 구간 특정
+> - 시나리오 2가 "터진다"를 보여준다면, 시나리오 3은 "N RPS에서 터진다"는 한계점을 데이터로 증명
+> - Locust: **고정 토큰** 사용 (로그인 병목 제거, 주문/결제 측정에 집중)
 
 | 항목 | 내용 |
 |---|---|
@@ -411,6 +426,11 @@ locust -f locustfile.py --host http://<타겟-IP> \
 
 ### 시나리오 4 — 장애 복구 (20분)
 
+> **보여주는 것:** 노드가 죽었을 때 서비스가 언제 다시 살아나는가 (MTTR) + 부분 장애 현실
+> - 워커노드 2 종료 시 Order/Payment/User는 죽고, Product(노드 1)는 살아있어 상품 조회는 됨
+> - "상품은 보이는데 주문이 안 된다" — 이 시간 동안 발생한 결제 실패가 비즈니스 손실로 직결
+> - Locust: **실제 사용자 흐름** 사용 (로그인 포함 혼합 트래픽 — 장애가 현실처럼 보이게)
+
 | 항목 | 내용 |
 |---|---|
 | 목적 | 운영 복구력 — 장애 발생 시 복구 속도와 비즈니스 손실 차이 |
@@ -422,17 +442,19 @@ locust -f locustfile.py --host http://<타겟-IP> \
 
 | 구간 | RPS | 목적 |
 |---|:---:|---|
-| 0~5분 | 500 | 피크 트래픽 유지 |
+| 0~5분 | 500 | 실제 사용자 흐름 (로그인 + 조회 + 주문 + 결제 혼합) |
 | 5분 | — | **워커노드 2 강제 종료** |
 | 5~15분 | 500 | 복구 관찰 |
 | 15~20분 | 500 | 정상 확인 |
 
-**API 비율** (결제 흐름 집중)
+**API 비율** (실제 사용자 흐름)
 
 | 엔드포인트 | 비율 |
 |---|:---:|
-| POST /api/orders | 50% |
-| POST /api/payments | 50% |
+| POST /api/auth/login | 10% |
+| GET /api/products | 40% |
+| POST /api/orders | 30% |
+| POST /api/payments | 20% |
 
 | 환경 | 예상 결과 |
 |---|---|
@@ -473,21 +495,18 @@ locust -f locustfile.py --host http://<타겟-IP> \
 | Node Exporter | VM / 노드 | CPU, RAM, 디스크, 네트워크 |
 | PostgreSQL Exporter | PostgreSQL | Active Connection, 쿼리 응답시간, Lock 대기 |
 | Redis Exporter | Redis | 캐시 히트율, 메모리 사용량 |
+| Fluent Bit + OpenSearch | 모든 Pod 로그 | 에러 원인, MTTR 정밀 측정 |
 
 ### 수집 흐름
 
 ```
 각 서버 / Pod
-      ↓ scrape (5초 간격)
-Prometheus (t3.small)
-      ↓
-Grafana (t3.small)
-      ↓
-대시보드 (온프레미스 | EKS 나란히)
-```
+      ├─ scrape (15초 간격) → Prometheus → Grafana        (숫자: WHAT)
+      └─ 로그 전송          → OpenSearch → Dashboards     (로그: WHY)
 
-> Prometheus가 온프레미스 k8s + EKS 양쪽 동시 scrape → Grafana 하나에서 나란히 비교  
-> CloudWatch → EKS 보조 모니터링 (선택)
+Prometheus: 온프레미스 + EKS 양쪽 동시 scrape → Grafana 하나에서 나란히 비교
+OpenSearch: Fluent Bit이 양쪽 로그 수집 → 인덱스로 env 구분 (onprem / eks)
+```
 
 ### 대시보드 구성
 
@@ -568,15 +587,16 @@ Grafana (t3.small)
 
 ```
 코드 푸시
-  → GitHub Actions 자동 트리거  (미정)
-  → Docker 이미지 빌드
+  → GitHub Actions 자동 트리거
+  → Docker 이미지 빌드 + Trivy 보안 스캔
   → AWS ECR 푸시
   → 양쪽 환경 자동 배포
       ├── 온프레미스 k8s (kubectl apply)
       └── EKS (kubectl apply)
 ```
 
-> 이미지 버전 태그로 양쪽 환경에 완전히 동일한 이미지 배포를 보장한다.
+> 이미지 버전 태그로 양쪽 환경에 완전히 동일한 이미지 배포를 보장한다.  
+> ECR 인증 — EKS: 노드 IAM Role 자동 / 온프레미스: 실험 전 수동 갱신 (imagePullSecrets)
 
 ---
 
@@ -594,7 +614,7 @@ Grafana (t3.small)
 | 2차 | Product Service | ✅ 완료 | 4001 |
 | 3차 | Inventory Service | ✅ 완료 | 4002 |
 | 4차 | Order Service | ✅ 완료 | 4003 |
-| 5차 | Payment Service | 🔲 미구현 | 4004 |
+| 5차 | Payment Service | ✅ 완료 | 4004 |
 
 ### 프로젝트 구조
 
@@ -620,7 +640,8 @@ msa_shoply/
 │   │   └── src/routes/inventory.ts # GET /:id, POST /reserve|deduct|release
 │   ├── order/                # Order Service — ✅
 │   │   └── src/routes/orders.ts    # POST /orders, GET /orders/:id, PATCH /orders/:id/status
-│   └── payment/              # Payment Service — 🔲 미구현
+│   └── payment/              # Payment Service — ✅
+│       └── src/routes/payments.ts  # POST /payments, GET /stats
 └── frontend/                 # Vite + React — ✅
     └── src/routes/
         ├── index.tsx          # 메인 (상품 목록)
@@ -628,7 +649,8 @@ msa_shoply/
         ├── products.$productId.tsx  # 상품 상세
         ├── timesale.tsx       # 타임세일
         ├── checkout.tsx       # 주문/결제
-        └── stats.tsx          # 실패 현황
+        ├── stats.tsx          # 실패 현황
+        └── admin.tsx          # 어드민 (타임세일 제어판 — admin 전용)
 ```
 
 ### 포트 구성
@@ -747,11 +769,22 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 | 항목 | 버전 |
 |---|---|
-| Docker Compose | v2 |
+| Docker Engine | 29.3.1 |
+| Docker Compose | v5.1.1 |
 | PostgreSQL | 16-alpine |
 | Redis | 7-alpine |
 | Nginx | alpine (프론트 정적 서빙) |
 | Node.js | 22-alpine (모든 서비스 기반) |
+
+### 모니터링 / 로그
+
+| 항목 | 용도 |
+|---|---|
+| Prometheus | 메트릭 수집 (15초 간격) |
+| Grafana | 대시보드 시각화 |
+| Fluent Bit | Pod 로그 수집 → OpenSearch 전송 |
+| Amazon OpenSearch Service | 로그 저장 및 에러 원인 분석 |
+| OpenSearch Dashboards | 로그 시각화 및 MTTR 측정 |
 
 ### 백엔드 서비스 공통
 

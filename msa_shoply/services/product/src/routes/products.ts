@@ -41,6 +41,7 @@ router.get('/', async (_req, res) => {
       sale_price: r.sale_price,
       sale_ends_at: r.sale_ends_at,
       stock_status: stockStatus(Number(r.total_available)),
+      total_available: Number(r.total_available),  // 어드민 재고 확인용
     }));
 
     await redis.setex('products:list', TTL_LIST, JSON.stringify(result));
