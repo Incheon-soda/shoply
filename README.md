@@ -50,22 +50,18 @@
 ![아키텍처 다이어그램](image.png)
 
 ```
-사용자
-  └─ Load Balancer
-       └─ k8s 클러스터 (온프레미스 or EKS)
-            ├─ 프론트 (Vite + React)
-            ├─ API Gateway (Express.js)
-            └─ 서비스 레이어
-                 ├─ Product Service
-                 ├─ Inventory Service
-                 ├─ Order Service
-                 ├─ Payment Service
-                 └─ User Service
+[온프레미스]
+Locust-A → c8i.2xlarge:80 → EC2 Nginx → 192.168.122.3:30080 → kube-proxy → Nginx Ingress
+                                                                                    │
+[EKS]                                                                    /api/* → API Gateway Pod :4000
+Locust-B → Worker Node EIP:30080 → kube-proxy → Nginx Ingress ──────────/     → Product / Inventory / Order / Payment / User
+                                                                         \
+                                                                          / → → Frontend Pod :3000
 
 k8s 외부 인프라
   ├─ PostgreSQL      (온프레미스: t3.medium EC2 / EKS: RDS db.t3.medium)
   ├─ Redis           (t3.micro EC2)
-  ├─ Locust          (t3.medium EC2)
+  ├─ Locust-A / B    (t3.medium EC2 × 2 — 환경별 분리)
   ├─ 모니터링        (t3.small EC2 — Prometheus + Grafana)
   └─ OpenSearch      (Amazon OpenSearch Service — 로그 수집 및 에러 원인 분석)
 ```
@@ -79,15 +75,15 @@ k8s 외부 인프라
                         ├─ /api/products/*  → Product Service  :4001
                         ├─ /api/inventory/* → Inventory Service :4002
                         ├─ /api/orders/*    → Order Service    :4003
-                        └─ /api/payments/*  → Payment Service  :4004  (미구현)
+                        └─ /api/payments/*  → Payment Service  :4004
 
 [Order Service]   ──── POST /reserve ──────→ [Inventory Service]
 [Payment Service] ─ 결제성공 → POST /deduct  → [Inventory Service]
                   └ 결제실패 → POST /release → [Inventory Service]
 [Payment Service] ──── PATCH /:id/status ──→ [Order Service]
 
-[Admin Page] ──── POST /timesale/start ──→ [Product Service]  (시나리오 2 트리거)
-             └─── POST /timesale/stop  ──→ [Product Service]
+[Admin Page] ─→ [API Gateway] ─→ POST /timesale/start ──→ [Product Service]  (시나리오 2 트리거)
+                              └─→ POST /timesale/stop  ──→ [Product Service]
 ```
 
 ---
@@ -106,11 +102,11 @@ k8s 외부 인프라
   "이 상황에서는 온프레미스도 충분합니다"
   → 신뢰감 형성
 
-4단계 — 시나리오 2 (타임세일 트래픽 폭증)
-  "여기서 갈립니다"
+4단계 — 시나리오 2 (동시 예약/주문 폭주) + 시나리오 3 (점진적 한계점 탐색)
+  "여기서 갈립니다 — 그리고 N RPS에서 무너집니다"
   → 데이터가 말하게 한다
 
-5단계 — 시나리오 3 (노드 장애)
+5단계 — 시나리오 4 (장애 복구)
   "운영 관점에서 이런 차이가 납니다"
   → 비용이 아닌 운영 리소스 차이로 어필
 
@@ -131,21 +127,24 @@ AWS 단일 계정 (ap-northeast-2)
 
 VPC-A (10.0.0.0/16) — 온프레미스 재현 + 공통 인프라
 └── Public 서브넷 10.0.1.0/24 (ap-northeast-2a)
-    ├── c8i.2xlarge  [EIP]  — k8s 호스트 (KVM)
-    │   ├── VM1: k8s 마스터    192.168.122.2 (2vCPU/4GB)
-    │   ├── VM2: 워커노드 1    192.168.122.3 (2vCPU/4GB) ← traffic-node
-    │   └── VM3: 워커노드 2    192.168.122.4 (2vCPU/4GB) ← order-node
+    ├── c8i.2xlarge  [EIP]  — k8s 호스트 (LXD) + EC2 Nginx (:80 → VM NodePort)
+    │   ├── VM1: k8s 마스터    <LXD_IP_1> (Ubuntu 24.04.4, 2vCPU/4GB)
+    │   ├── VM2: 워커노드 1    <LXD_IP_2> (Ubuntu 24.04.4, 2vCPU/4GB) ← traffic-node
+    │   └── VM3: 워커노드 2    <LXD_IP_3> (Ubuntu 24.04.4, 2vCPU/4GB) ← order-node
+    │   ※ IP는 lxd init lxdbr0 대역 기준 — lxc list로 확인
+    │   k8s: EKS 버전과 동일하게 맞춤 (v1.32.x)
     ├── t3.medium           — PostgreSQL 16 직접 설치
     ├── t3.micro            — Redis 7 직접 설치
     ├── t3.small   [EIP]   — Prometheus + Grafana (모니터링)
     ├── t3.medium          — Locust-A (온프레미스 전용, EIP 불필요 — SG 참조 방식)
-    └── t3.medium  [EIP]   — Locust-B (EKS 전용, Worker Node SG 화이트리스트 등록용)
+    └── t3.medium  [EIP]   — Locust-B (EKS 전용, Worker Node NodePort 직접 연결)
 
-VPC-B (10.1.0.0/16) — EKS
+VPC-B (10.1.0.0/16) — EKS (k8s v1.32.12 확인됨)
 ├── Public 서브넷 10.1.1.0/24 (ap-northeast-2a)
 ├── Public 서브넷 10.1.2.0/24 (ap-northeast-2b)  ← EKS 최소 2 AZ
-├── EKS Worker t3.medium [EIP]  ← traffic-node (API GW, Product, Inventory)
-├── EKS Worker t3.medium [EIP]  ← order-node (Frontend, Order, Payment, User)
+├── EKS Worker t3.medium [EIP]  ← traffic-node (API GW, Product, Inventory) — 실험 고정
+├── EKS Worker t3.medium [EIP]  ← order-node (Frontend, Order, Payment, User) — 실험 고정
+├── EKS Worker t3.medium        ← Karpenter 확장용 (실험 초기 idle)
 ├── RDS db.t3.medium            — PostgreSQL 관리형
 └── t3.micro                    — Redis 7 직접 설치
 ```
@@ -167,7 +166,7 @@ VPC-B (10.1.0.0/16) — EKS
 
 | 용도 | 인스턴스 | vCPU | RAM | 비고 |
 |---|---|:---:|:---:|---|
-| EKS 워커노드 (초기) | t3.medium × 2 | 2 | 4GB | Karpenter 자동 확장 |
+| EKS 워커노드 (초기) | t3.medium × 3 | 2 | 4GB | 2개 실험 고정, 1개 Karpenter 확장용 |
 | PostgreSQL | RDS db.t3.medium | 2 | 4GB | 관리형 |
 | Redis | t3.micro | 2 | 1GB | 직접 설치 |
 
@@ -204,6 +203,88 @@ HPA 발동으로 추가되는 Pod는 k8s 스케줄러가 자유 배치한다.
 | 워커노드 2 | 프론트, Order Service, Payment Service, User Service |
 | 추가 Pod (HPA 발동 시) | k8s 스케줄러 자유 배치 |
 
+### 트래픽 진입점
+
+ALB, MetalLB 없음. 양쪽 모두 **Nginx Ingress Controller (NodePort)** 사용.  
+동일한 컴포넌트로 L7 라우팅 처리 → 실험 조건 동일.
+
+| | 온프레미스 | EKS |
+|---|---|---|
+| Locust 타겟 | `c8i.2xlarge:80` | `Worker Node EIP:30080` |
+| 중간 처리 | EC2 호스트 Nginx (proxy_pass → VM:30080) | 없음 (직접) |
+| kube-proxy 진입 | VM2 (traffic-node) :30080 | Worker Node (traffic-node) :30080 |
+| L7 라우팅 | Nginx Ingress Controller Pod | Nginx Ingress Controller Pod |
+| /api/* | → API Gateway Pod :4000 | → API Gateway Pod :4000 |
+| / | → Frontend Pod :3000 | → Frontend Pod :3000 |
+
+> 온프레미스는 LXD VM이 공인IP 없어 c8i.2xlarge 위 Nginx가 NAT 역할.  
+> API Gateway, Frontend 서비스는 ClusterIP — Nginx Ingress가 외부 라우팅 전담.
+
+**NodePort 고정 설정:**
+
+| 서비스 | 타입 | NodePort |
+|---|:---:|:---:|
+| Nginx Ingress Controller (진입점) | NodePort | 30080 |
+| Prometheus scrape용 (각 서비스 메트릭) | NodePort | 30090~ |
+
+```yaml
+# Nginx Ingress Controller Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    nodePort: 30080   # 온프레미스·EKS 동일하게 고정
+```
+
+```yaml
+# Ingress 규칙 (온프레미스·EKS 동일)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shoply-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 4000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 3000
+```
+
+**EC2 호스트 Nginx 설정 (온프레미스 전용 — NAT 역할):**
+
+```nginx
+server {
+    listen 80;
+    location / {
+        proxy_pass         http://<VM2_LXD_IP>:30080;    # Nginx Ingress NodePort — lxc list로 IP 확인
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+    }
+}
+```
+
 ### 예상 실험 비용 (10시간 기준)
 
 | 항목 | 비용 |
@@ -215,9 +296,10 @@ HPA 발동으로 추가되는 Pod는 k8s 스케줄러가 자유 배치한다.
 | Locust-A EC2 (t3.medium) | $0.19 |
 | Locust-B EC2 (t3.medium) | $0.19 |
 | EKS 클러스터 | $1.00 |
-| EKS 노드 | $1.00 |
+| EKS 워커노드 × 3 (t3.medium) | $1.25 |
+| EKS RDS (db.t3.medium) | $0.68 |
 | EKS Redis EC2 (t3.micro) | $0.10 |
-| **합계** | **약 $6~7** |
+| **합계** | **약 $7~8** |
 | 여유 포함 | **약 $20~30 (한화 3~4만원)** |
 
 ---
@@ -238,7 +320,7 @@ HPA 발동으로 추가되는 Pod는 k8s 스케줄러가 자유 배치한다.
 - PostgreSQL 운영 방식 (EC2 직접 설치 vs RDS 관리형)
 - 노드 확장 방식 (고정 2대 vs Karpenter 자동 확장)
 - CNI (Flannel vs AWS VPC CNI)
-- 로드밸런서 (EC2 Nginx + MetalLB vs AWS ALB)
+- 트래픽 진입 (EC2 Nginx → VM:30080 → Nginx Ingress vs Locust-B → Worker Node:30080 → Nginx Ingress)
 
 ### 실험 동시 시작 방법
 
@@ -260,7 +342,7 @@ locust -f locustfile.py --host http://<타겟-IP> \
 |---|---|
 | 프론트엔드 | Vite + React |
 | API Gateway | Express.js |
-| DB | PostgreSQL (k8s 외부 EC2) |
+| DB | PostgreSQL (온프레미스: EC2 직접 / EKS: RDS 관리형) |
 | 캐시 | Redis (k8s 외부 EC2) |
 | 컨테이너 | Docker 단일 이미지 |
 | 레지스트리 | AWS ECR |
@@ -269,6 +351,7 @@ locust -f locustfile.py --host http://<타겟-IP> \
 
 | 페이지 | 설명 |
 |---|---|
+| 로그인 | 이메일/비밀번호 로그인, JWT 발급 |
 | 메인 (상품 목록) | 상품 그리드, 타임세일 배너 |
 | 상품 상세 | 재고 수량 실시간, 구매 버튼 |
 | 타임세일 | 카운트다운 타이머, 실시간 재고 |
@@ -724,10 +807,10 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 | 항목 | 내용 |
 |---|---|
 | 서비스 | 5개 + PostgreSQL + Redis |
-| 페이지 | 5개 |
+| 페이지 | 7개 |
 | API | 5개 |
 | 시나리오 | 4개 |
-| 대시보드 | 템플릿 4개 + 직접 제작 8개 패널 |
+| 대시보드 | 템플릿 4개 + 직접 제작 12개 패널 |
 | 최대 부하 | Locust 1,000 RPS |
 
 ### Nice to Have
@@ -753,7 +836,7 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 | 문서 | 설명 |
 |---|---|
 | [전체 작업 목록](문서/전체_작업_목록.md) | 인프라 결정 사항, 온프레미스·EKS·공통 전체 작업 체크리스트, 현재 진행 상태 |
-| [인프라 설계](문서/인프라_설계.md) | VPC·SG 확정 구조, 파드 고정 배치·nodeAffinity·HPA 설정, 로드밸런서 구성 |
+| [인프라 설계](문서/인프라_설계.md) | VPC·SG 확정 구조, 파드 고정 배치·nodeAffinity·HPA 설정, 트래픽 경로 (NodePort 직접) |
 | [MSA 구조 설계](문서/MSA_구조_설계.md) | 서비스별 API, 서비스 간 통신 흐름, 기술 스택, 배포 단계 |
 | [데이터 레이어 설계](문서/데이터.md) | PostgreSQL 테이블/인덱스 전략, Redis 캐싱 정책 및 API별 캐시 흐름 |
 | [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구 역할, Grafana 템플릿 패널, 직접 제작 패널 PromQL, 최종 대시보드 레이아웃 |
@@ -769,6 +852,9 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 | 항목 | 버전 |
 |---|---|
+| Ubuntu (온프레미스 VM) | 24.04.4 LTS |
+| k8s (EKS 확인됨) | v1.32.12 |
+| k8s (온프레미스) | v1.32.x (EKS와 동일 맞춤) |
 | Docker Engine | 29.3.1 |
 | Docker Compose | v5.1.1 |
 | PostgreSQL | 16-alpine |
