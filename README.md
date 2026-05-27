@@ -133,8 +133,8 @@ VPC-A (10.0.0.0/16) — 온프레미스 재현 + 공통 인프라
     │   └── VM3: 워커노드 2    <LXD_IP_3> (Ubuntu 24.04.4, 2vCPU/4GB) ← order-node
     │   ※ IP는 lxd init lxdbr0 대역 기준 — lxc list로 확인
     │   k8s: EKS 버전과 동일하게 맞춤 (v1.32.x)
-    ├── t3.medium           — PostgreSQL 16 직접 설치
-    ├── t3.micro            — Redis 7 직접 설치
+    ├── t3.medium           — PostgreSQL 16 (Docker)
+    ├── t3.small            — Redis 7 (Docker)
     ├── t3.small   [EIP]   — Prometheus + Grafana (모니터링)
     ├── t3.medium          — Locust-A (온프레미스 전용, EIP 불필요 — SG 참조 방식)
     └── t3.medium  [EIP]   — Locust-B (EKS 전용, Worker Node NodePort 직접 연결)
@@ -159,8 +159,8 @@ VPC-B (10.1.0.0/16) — EKS (k8s v1.32.12 확인됨)
 | 용도 | 인스턴스 | vCPU | RAM | 비고 |
 |---|---|:---:|:---:|---|
 | k8s 클러스터 재현 | c8i.2xlarge | 8 | 16GB | 내부에 VM 3대 운영 |
-| PostgreSQL | t3.medium | 2 | 4GB | 직접 설치 |
-| Redis | t3.micro | 2 | 1GB | 직접 설치 |
+| PostgreSQL | t3.medium | 2 | 4GB | Docker 컨테이너 (10.0.2.128) |
+| Redis | t3.small | 2 | 2GB | Docker 컨테이너 (10.0.6.15) |
 
 #### EKS 팀
 
@@ -710,6 +710,10 @@ msa_shoply/
 │   ├── schema.sql            # 테이블 및 인덱스 정의
 │   ├── seed.sql              # 부하 테스트용 대규모 데이터
 │   └── generate-seed.js      # seed 생성 스크립트
+├── k8s/                      # Kubernetes 매니페스트 — ✅
+│   ├── common/               # 환경 공통 (Deployment, Service, HPA)
+│   ├── onprem/               # 온프레미스 전용 (ConfigMap IP, Ingress, NodePort)
+│   └── eks/                  # EKS 전용 (ALB, Karpenter, IRSA)
 ├── gateway/                  # API Gateway (Express.js) — ✅
 │   └── src/
 │       ├── index.ts          # 라우팅 + 프록시
@@ -835,14 +839,17 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 | 문서 | 설명 |
 |---|---|
+| [전체 구성 가이드](문서/전체_구성_가이드.md) | DB·Redis·K8s 배포 전체를 하나로 — 이 문서 하나로 처음부터 재현 가능 |
 | [전체 작업 목록](문서/전체_작업_목록.md) | 인프라 결정 사항, 온프레미스·EKS·공통 전체 작업 체크리스트, 현재 진행 상태 |
 | [인프라 설계](문서/인프라_설계.md) | VPC·SG 확정 구조, 파드 고정 배치·nodeAffinity·HPA 설정, 트래픽 경로 (NodePort 직접) |
-| [MSA 구조 설계](문서/MSA_구조_설계.md) | 서비스별 API, 서비스 간 통신 흐름, 기술 스택, 배포 단계 |
+| [데이터베이스 가이드](문서/데이터베이스_가이드.md) | PostgreSQL 스키마·서비스별 핵심 쿼리·SELECT FOR UPDATE 동시성·Redis 캐싱 구조 상세 |
 | [데이터 레이어 설계](문서/데이터.md) | PostgreSQL 테이블/인덱스 전략, Redis 캐싱 정책 및 API별 캐시 흐름 |
 | [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구 역할, Grafana 템플릿 패널, 직접 제작 패널 PromQL, 최종 대시보드 레이아웃 |
+| [K8s LXD 클러스터 구축 가이드](문서/k8s-lxd-guide.md) | LXD로 온프레미스 k8s 3노드 구성 단계별 가이드 (1단계~12단계 전 과정) |
+| [K8s LXD 트러블슈팅](문서/k8s-lxd-troubleshooting.md) | KVM 미지원·snap store 오류·kube-proxy CrashLoop 등 실제 발생 이슈와 해결 |
+| [온프레미스 설정값](문서/onpre-config.md) | 온프레미스 확정 설정값 (K8s 버전·CNI·Ingress·DB 정보·EKS 비교표) |
 | [DB 검증 가이드](문서/DB_검증_가이드.md) | PostgreSQL·Redis 기동 절차, 데이터 건수·정합성 검증 쿼리, 트러블슈팅 |
-| [서비스 테스트 가이드](문서/테스트.md) | 1~4차 서비스 curl 테스트, 동시성 검증, 전체 흐름 통합 테스트 |
-| [프로젝트 원본 정리](문서/온프레미스_vs_EKS_프로젝트_정리.md) | 초기 기획 원문 (방향성, 스토리 흐름, 전체 구조 상세) |
+| [서비스 테스트 가이드](문서/테스트.md) | 1~5차 서비스 curl 테스트, 동시성 검증, 전체 흐름 통합 테스트 |
 
 ---
 
@@ -853,8 +860,9 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 | 항목 | 버전 |
 |---|---|
 | Ubuntu (온프레미스 VM) | 24.04.4 LTS |
-| k8s (EKS 확인됨) | v1.32.12 |
-| k8s (온프레미스) | v1.32.x (EKS와 동일 맞춤) |
+| k8s | v1.32.12 (온프레미스·EKS 동일) |
+| CNI (온프레미스) | Flannel v0.26.7 |
+| CNI (EKS) | AWS VPC CNI |
 | Docker Engine | 29.3.1 |
 | Docker Compose | v5.1.1 |
 | PostgreSQL | 16-alpine |

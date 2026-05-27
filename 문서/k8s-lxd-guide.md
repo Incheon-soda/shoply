@@ -17,6 +17,8 @@
 | 8 | 노드 상태 확인 | ✅ |
 | 9 | Nginx Ingress + NodePort 설정 | ✅ |
 | 10 | 호스트 Nginx 설정 (EC2 → 컨테이너 포워딩) | ✅ |
+| 11 | PostgreSQL / Redis EC2 생성 | ✅ |
+| 12 | 서비스 배포 (MSA) | ✅ |
 
 ---
 
@@ -349,6 +351,80 @@ sudo apt install -y nginx
 
 # /etc/nginx/sites-available/default 에서 아래 내용으로 수정
 # proxy_pass http://<k8s-master-IP>:30080;
+```
+
+### 11단계 - PostgreSQL / Redis EC2 생성 ✅
+
+| 서버 | 인스턴스 | 프라이빗 IP |
+|---|---|---|
+| PostgreSQL | t3.medium | 10.0.2.128 |
+| Redis | t3.small | 10.0.6.15 |
+
+> EC2 User Data로 Docker 자동 설치 → SCP로 infra 폴더 전송 → docker compose up
+
+```bash
+# 1. EC2 생성 시 User Data에 Docker 설치 스크립트 넣기
+
+# 2. 로컬에서 infra 폴더 전송
+scp -i ~/key/aws-3tier-keypair.pem -r msa_shoply/infra/postgres ubuntu@<PostgreSQL-IP>:~/
+scp -i ~/key/aws-3tier-keypair.pem -r msa_shoply/infra/redis ubuntu@<Redis-IP>:~/
+
+# 3. 각 EC2에서 실행
+docker compose up -d
+
+# 4. seed.sql 적재 완료까지 대기
+docker compose logs -f
+```
+
+> 자세한 내용은 `msa_shoply/infra/EC2_설정_가이드.md` 참고
+
+### 12단계 - 서비스 배포 (MSA) ✅
+
+> 매니페스트는 맥 → EC2 → k8s-master 컨테이너 순으로 전달
+
+```bash
+# 1. 맥에서 EC2로 전송
+scp -i /Users/kimminseo/key/aws-3tier-keypair.pem \
+  -r /Users/kimminseo/shopping_k8s/msa_shoply/k8s \
+  ubuntu@43.203.67.58:~/k8s-manifests
+
+# 2. EC2에서 master 컨테이너로 전달
+lxc file push -r ~/k8s-manifests/k8s k8s-master/root/
+```
+
+```bash
+# 3. namespace / configmap / secret 적용
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/namespace.yaml
+
+# ghcr.io public 이미지라도 imagePullSecrets 참조가 있으면 secret이 존재해야 함
+lxc exec k8s-master -- kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=dummy \
+  --docker-password=dummy \
+  --namespace=shoply
+
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/configmap.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/onprem/configmap-patch.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/secret.yaml
+
+# 4. 서비스 배포
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/user.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/product.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/inventory.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/order.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/payment.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/gateway.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/common/frontend.yaml
+
+# 5. onprem 전용 설정
+lxc exec k8s-master -- kubectl apply -f /root/k8s/onprem/nodeport-services.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/onprem/resource-patch.yaml
+lxc exec k8s-master -- kubectl apply -f /root/k8s/onprem/ingress.yaml
+```
+
+```bash
+# 배포 상태 확인
+lxc exec k8s-master -- kubectl get pods -n shoply
 ```
 
 ---

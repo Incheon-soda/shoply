@@ -53,6 +53,20 @@
 
 ---
 
+## 외부 데이터베이스
+
+| 서버 | 인스턴스 | 프라이빗 IP | 포트 |
+|---|---|---|---|
+| PostgreSQL | t3.medium (gp3 20GB) | 10.0.2.128 | 5432 |
+| Redis | t3.small | 10.0.6.15 | 6379 |
+
+- DB/Redis는 K8s 클러스터 외부 EC2에서 Docker Compose로 운영
+- 같은 VPC 내 프라이빗 IP로 통신
+- 보안그룹으로 K8s EC2에서만 접근 허용
+- 스키마/시드 데이터: `msa_shoply/infra/postgres/init/` 참고
+
+---
+
 ## 패키지 매니저
 
 | 항목 | 버전 |

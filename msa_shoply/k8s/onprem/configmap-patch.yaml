@@ -7,11 +7,11 @@ data:
   # PostgreSQL — 온프레미스 EC2 주소로 변경
   POSTGRES_DB: "shoply"
   POSTGRES_USER: "shoply"
-  POSTGRES_HOST: "192.168.0.10"   # 실제 온프레미스 PostgreSQL EC2 IP
+  POSTGRES_HOST: "10.0.2.128"
   POSTGRES_PORT: "5432"
 
   # Redis — 온프레미스 EC2 주소로 변경
-  REDIS_HOST: "192.168.0.11"      # 실제 온프레미스 Redis EC2 IP
+  REDIS_HOST: "10.0.6.15"
   REDIS_PORT: "6379"
 
   # Service URLs

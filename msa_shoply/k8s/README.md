@@ -32,6 +32,21 @@ k8s/
 
 ---
 
+## GHCR 인증 Secret 생성 (배포 전 필수)
+
+GHCR은 기본 private이므로 k8s가 이미지를 pull하려면 아래 명령으로 Secret을 먼저 만들어야 한다.
+GitHub PAT은 `read:packages` 권한만 있으면 됨.
+
+```bash
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io \
+  --docker-username=incheon-soda \
+  --docker-password=<YOUR_GITHUB_TOKEN> \
+  --namespace=shoply
+```
+
+---
+
 ## 적용 순서
 
 ### 온프레미스
@@ -39,6 +54,10 @@ k8s/
 ```bash
 # 1. 네임스페이스 + 공통 리소스
 kubectl apply -f k8s/common/namespace.yaml
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io --docker-username=incheon-soda \
+  --docker-password=<YOUR_GITHUB_TOKEN> \
+  --namespace=shoply
 kubectl apply -f k8s/onprem/configmap-patch.yaml   # DB/Redis IP 먼저 설정
 kubectl apply -f k8s/common/secret.yaml
 
