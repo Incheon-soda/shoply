@@ -9,6 +9,8 @@ const router = Router();
 const ORDER_URL     = process.env.ORDER_SERVICE_URL     || 'http://localhost:4003';
 const INVENTORY_URL = process.env.INVENTORY_SERVICE_URL || 'http://localhost:4002';
 
+const FETCH_TIMEOUT = 10_000;
+
 const FAIL_REASONS = ['PAYMENT_GATEWAY_ERROR', 'INSUFFICIENT_STOCK'] as const;
 type FailReason = typeof FAIL_REASONS[number] | 'INVENTORY_DEDUCT_FAILED';
 
@@ -17,7 +19,9 @@ type Order = { id: string; status: string; total_price: number; items: OrderItem
 
 async function getOrder(orderId: string): Promise<Order | null> {
   try {
-    const res = await fetch(`${ORDER_URL}/orders/${orderId}`);
+    const res = await fetch(`${ORDER_URL}/orders/${orderId}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
     if (!res.ok) return null;
     return await res.json() as Order;
   } catch {
@@ -31,6 +35,7 @@ async function updateOrderStatus(orderId: string, status: string, failedReason?:
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status, failedReason }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
     });
   } catch {
     console.error(`[updateOrderStatus] ${orderId} → ${status} 실패`);
@@ -46,6 +51,7 @@ async function adjustInventory(action: 'deduct' | 'release', items: OrderItem[])
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId: item.product_id, size: item.size, quantity: item.quantity }),
+        signal: AbortSignal.timeout(FETCH_TIMEOUT),
       });
       if (!res.ok) {
         console.error(`[adjustInventory] ${action} HTTP ${res.status}`, item);

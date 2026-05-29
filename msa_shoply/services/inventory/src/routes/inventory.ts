@@ -1,8 +1,29 @@
 import { Router } from 'express';
 import { pool } from '../db';
+import { redis } from '../redis';
 import { stockConflicts } from '../metrics';
 
 const router = Router();
+
+const STOCK_KEY = (productId: string, size: number) => `stock:${productId}:${size}`;
+
+// Redis 키 없으면 DB에서 available 로드 후 SET NX (원자적 초기화)
+async function ensureStockKey(productId: string, size: number): Promise<boolean> {
+  const key = STOCK_KEY(productId, size);
+  const exists = await redis.exists(key);
+  if (exists) return true;
+
+  const { rows } = await pool.query<{ available: number }>(
+    `SELECT GREATEST(0, quantity - reserved)::int AS available
+     FROM inventory WHERE product_id = $1 AND size = $2`,
+    [productId, size],
+  );
+  if (!rows[0]) return false;
+
+  // SET NX: 동시에 여러 요청이 초기화 시도해도 한 번만 적용
+  await redis.set(key, rows[0].available, 'NX');
+  return true;
+}
 
 // GET /inventory/:productId — 상품별 전체 사이즈 재고 조회
 router.get('/:productId', async (req, res) => {
@@ -25,7 +46,7 @@ router.get('/:productId', async (req, res) => {
   }
 });
 
-// POST /inventory/reserve — 재고 예약 (주문 생성 시 호출)
+// POST /inventory/reserve — 재고 예약 (Redis DECRBY — lock 없음)
 router.post('/reserve', async (req, res) => {
   const { productId, size, quantity } = req.body as {
     productId?: string; size?: number; quantity?: number;
@@ -35,56 +56,48 @@ router.post('/reserve', async (req, res) => {
     return res.status(400).json({ message: '잘못된 요청입니다.' });
   }
 
-  const client = await pool.connect();
+  const key = STOCK_KEY(productId, size);
+
+  // 1. Redis 키 초기화 (없으면 DB에서 로드)
+  const found = await ensureStockKey(productId, size);
+  if (!found) {
+    return res.status(404).json({ message: '해당 상품/사이즈를 찾을 수 없습니다.' });
+  }
+
+  // 2. DECRBY — atomic, lock 없음
+  const remaining = await redis.decrby(key, quantity);
+
+  if (remaining < 0) {
+    // 재고 부족 — 즉시 롤백
+    await redis.incrby(key, quantity);
+    stockConflicts.inc();
+    return res.status(409).json({
+      message: '재고가 부족합니다.',
+      available: remaining + quantity,
+      requested: quantity,
+    });
+  }
+
+  // 3. DB 예약 수량 반영 (Redis 결과 신뢰 — 정합성 유지용)
   try {
-    await client.query('BEGIN');
-
-    // SELECT FOR UPDATE — 동일 (productId, size)에 대한 동시 요청 직렬화
-    const { rows } = await client.query(
-      `SELECT id, quantity, reserved, version
-       FROM inventory
-       WHERE product_id = $1 AND size = $2
-       FOR UPDATE`,
-      [productId, size],
-    );
-
-    if (!rows[0]) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({ message: '해당 상품/사이즈를 찾을 수 없습니다.' });
-    }
-
-    const row = rows[0];
-    const available = row.quantity - row.reserved;
-
-    if (available < quantity) {
-      await client.query('ROLLBACK');
-      stockConflicts.inc();
-      return res.status(409).json({
-        message: '재고가 부족합니다.',
-        available,
-        requested: quantity,
-      });
-    }
-
-    await client.query(
+    await pool.query(
       `UPDATE inventory
        SET reserved = reserved + $1, version = version + 1
-       WHERE id = $2`,
-      [quantity, row.id],
+       WHERE product_id = $2 AND size = $3`,
+      [quantity, productId, size],
     );
-
-    await client.query('COMMIT');
-    return res.json({ ok: true, available: available - quantity });
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('[POST /inventory/reserve]', err);
+    // DB 실패 시 Redis 롤백
+    await redis.incrby(key, quantity);
+    console.error('[POST /inventory/reserve] DB 업데이트 실패', err);
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-  } finally {
-    client.release();
   }
+
+  return res.json({ ok: true, available: remaining });
 });
 
 // POST /inventory/deduct — 재고 실차감 (결제 성공 시 호출)
+// available = quantity - reserved → deduct 시 둘 다 줄어 available 불변 → Redis 변경 없음
 router.post('/deduct', async (req, res) => {
   const { productId, size, quantity } = req.body as {
     productId?: string; size?: number; quantity?: number;
@@ -94,42 +107,19 @@ router.post('/deduct', async (req, res) => {
     return res.status(400).json({ message: '잘못된 요청입니다.' });
   }
 
-  const client = await pool.connect();
   try {
-    await client.query('BEGIN');
-
-    const { rows } = await client.query(
-      `SELECT id, quantity, reserved, version
-       FROM inventory
-       WHERE product_id = $1 AND size = $2
-       FOR UPDATE`,
-      [productId, size],
-    );
-
-    if (!rows[0]) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({ message: '해당 상품/사이즈를 찾을 수 없습니다.' });
-    }
-
-    const row = rows[0];
-
-    await client.query(
+    await pool.query(
       `UPDATE inventory
        SET quantity = GREATEST(0, quantity - $1),
            reserved = GREATEST(0, reserved - $1),
            version  = version + 1
-       WHERE id = $2`,
-      [quantity, row.id],
+       WHERE product_id = $2 AND size = $3`,
+      [quantity, productId, size],
     );
-
-    await client.query('COMMIT');
     return res.json({ ok: true });
   } catch (err) {
-    await client.query('ROLLBACK');
     console.error('[POST /inventory/deduct]', err);
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-  } finally {
-    client.release();
   }
 });
 
@@ -143,39 +133,26 @@ router.post('/release', async (req, res) => {
     return res.status(400).json({ message: '잘못된 요청입니다.' });
   }
 
-  const client = await pool.connect();
+  // 1. Redis available 복구
+  const key = STOCK_KEY(productId, size);
+  const keyExists = await redis.exists(key);
+  if (keyExists) {
+    await redis.incrby(key, quantity);
+  }
+
+  // 2. DB reserved 복구
   try {
-    await client.query('BEGIN');
-
-    const { rows } = await client.query(
-      `SELECT id, reserved, version
-       FROM inventory
-       WHERE product_id = $1 AND size = $2
-       FOR UPDATE`,
-      [productId, size],
-    );
-
-    if (!rows[0]) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({ message: '해당 상품/사이즈를 찾을 수 없습니다.' });
-    }
-
-    await client.query(
+    await pool.query(
       `UPDATE inventory
        SET reserved = GREATEST(0, reserved - $1),
            version  = version + 1
-       WHERE id = $2`,
-      [quantity, rows[0].id],
+       WHERE product_id = $2 AND size = $3`,
+      [quantity, productId, size],
     );
-
-    await client.query('COMMIT');
     return res.json({ ok: true });
   } catch (err) {
-    await client.query('ROLLBACK');
     console.error('[POST /inventory/release]', err);
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-  } finally {
-    client.release();
   }
 });
 

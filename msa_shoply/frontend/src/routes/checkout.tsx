@@ -34,6 +34,7 @@ function CheckoutPage() {
   const [failReason, setFailReason] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [productDetail, setProductDetail] = useState<Product | null>(null);
 
   useEffect(() => {
     fetch('/api/products')
@@ -46,6 +47,16 @@ function CheckoutPage() {
       .catch(() => setLoading(false));
   }, []);
 
+  // 선택 상품 변경 시 상세(sizes) 조회
+  useEffect(() => {
+    if (!selectedProduct) return;
+    setProductDetail(null);
+    fetch(`/api/products/${selectedProduct}`)
+      .then((r) => r.json())
+      .then((data: Product) => setProductDetail(data))
+      .catch(() => {});
+  }, [selectedProduct]);
+
   // URL에서 productId + size가 넘어왔으면 자동으로 장바구니에 담기
   useEffect(() => {
     if (!initProductId || products.length === 0) return;
@@ -56,7 +67,7 @@ function CheckoutPage() {
   }, [initProductId, initSize, products]);
 
   const currentProduct = products.find((p) => p.id === selectedProduct);
-  const availableSizes = currentProduct?.sizes?.filter((s) => s.available > 0) ?? [];
+  const availableSizes = productDetail?.sizes?.filter((s) => s.available > 0) ?? [];
 
   const addToCart = () => {
     if (!currentProduct || !selectedSize) { alert('상품과 사이즈를 선택해주세요.'); return; }
