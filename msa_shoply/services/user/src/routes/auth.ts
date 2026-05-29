@@ -37,6 +37,9 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' },
     );
 
+    // 토큰 무결성 검증용 해시 (cost 12 — CPU 집약)
+    await bcrypt.hash(token, 12);
+
     return res.json({ token, user: { id: user.id, email: user.email, name: user.name } });
   } catch (err) {
     console.error('[auth/login]', err);

@@ -31,27 +31,24 @@
 
 ## 테스트 전 재고 리셋
 
+> 20개 상품 전체 재고 9999로 초기화
+
 ```bash
-docker exec shoply-postgres psql -U shoply -d shoply << 'EOF'
+docker exec shoply-postgres psql -U shoply -d shoply -c "
 TRUNCATE payments, order_items, orders RESTART IDENTITY CASCADE;
-INSERT INTO inventory (product_id, size, quantity, reserved) VALUES
-  ('8d23364d-58e9-4c89-a216-1c7dfb1623c5', 240, 29, 0),
-  ('8d23364d-58e9-4c89-a216-1c7dfb1623c5', 250, 29, 0),
-  ('8d23364d-58e9-4c89-a216-1c7dfb1623c5', 260, 29, 0),
-  ('8d23364d-58e9-4c89-a216-1c7dfb1623c5', 270, 29, 0),
-  ('8d23364d-58e9-4c89-a216-1c7dfb1623c5', 280, 28, 0),
-  ('8d23364d-58e9-4c89-a216-1c7dfb1623c5', 290, 28, 0),
-  ('8d23364d-58e9-4c89-a216-1c7dfb1623c5', 300, 28, 0),
-  ('018dc528-8d39-4129-8d70-73bd03edda26', 240, 29, 0),
-  ('018dc528-8d39-4129-8d70-73bd03edda26', 250, 29, 0),
-  ('018dc528-8d39-4129-8d70-73bd03edda26', 260, 29, 0),
-  ('018dc528-8d39-4129-8d70-73bd03edda26', 270, 29, 0),
-  ('018dc528-8d39-4129-8d70-73bd03edda26', 280, 28, 0),
-  ('018dc528-8d39-4129-8d70-73bd03edda26', 290, 28, 0),
-  ('018dc528-8d39-4129-8d70-73bd03edda26', 300, 28, 0)
-ON CONFLICT (product_id, size) DO UPDATE
-  SET quantity = EXCLUDED.quantity, reserved = 0;
-EOF
+UPDATE inventory SET quantity = 9999, reserved = 0
+WHERE product_id IN (
+  '86f68efd-84f7-4630-9c50-4133f95cc67d','311362ee-0a57-4775-bd3f-648a732f5531',
+  '5bb32797-8f48-43e9-a883-f610e0aa4641','7fe0aeac-7db0-4e6d-9c33-3086b563c6e4',
+  '4f553095-66bd-49af-9737-8cb535fdee9f','8d23364d-58e9-4c89-a216-1c7dfb1623c5',
+  '2c7088d7-d7d2-4cd3-9116-36df13064fa6','67881ad7-21e2-4c11-a5ac-61712c4d9f16',
+  'd381b9a2-ae14-4e05-8aea-6c8520141b34','6bd56564-d9b5-4e4a-b38d-6c892f2b3a4f',
+  'a3e37a1b-86cf-4391-aa71-7f453f9ee844','b66c42b2-1e9c-4591-b2d4-e1cf00a94b64',
+  '018dc528-8d39-4129-8d70-73bd03edda26','70a6e8b4-a8ff-49c1-9047-d3a06e569464',
+  '70454e30-c868-41c5-8e30-8608cce7d563','fe03aab0-8c29-4b8b-a286-52686420c959',
+  '0fb80662-7c19-4ae9-8031-2e134fc52aca','3f2b6696-cc02-4769-a0f0-09a780ceeeca',
+  'a0ad92e7-29e6-419c-a576-6c8c6234beb4','157192dd-1412-4afe-9ec7-cfdda556d25e'
+);"
 ```
 
 ---

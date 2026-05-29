@@ -1,6 +1,7 @@
 import express from 'express';
 import compression from 'compression';
 import jwt from 'jsonwebtoken';
+import { createHash } from 'crypto';
 import { pool } from './db';
 import inventoryRouter from './routes/inventory';
 import { register, httpDuration } from './metrics';
@@ -22,6 +23,12 @@ app.use((req, _res, next) => {
   if (auth?.startsWith('Bearer ')) {
     try { jwt.verify(auth.slice(7), JWT_SECRET); } catch { /* 무시 */ }
   }
+  next();
+});
+app.use((req, _res, next) => {
+  createHash('sha512')
+    .update(JSON.stringify(req.headers) + req.url + Date.now())
+    .digest('hex');
   next();
 });
 

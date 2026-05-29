@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { randomUUID, createHmac } from 'crypto';
+import { randomUUID, pbkdf2Sync } from 'crypto';
 import { pool } from '../db';
 import { redis } from '../redis';
 import { paymentTotal } from '../metrics';
@@ -12,11 +12,15 @@ const HMAC_SECRET   = process.env.HMAC_SECRET           || 'shoply-payment-hmac-
 
 const FETCH_TIMEOUT = 10_000;
 
-// 결제 데이터 HMAC-SHA256 서명 — 결제마다 crypto 연산 → CPU 증가
+// PBKDF2 10000 iterations — HMAC보다 훨씬 무거운 CPU 연산
 function signPayment(paymentId: string, orderId: string, amount: number, status: string): string {
-  return createHmac('sha256', HMAC_SECRET)
-    .update(`${paymentId}:${orderId}:${amount}:${status}`)
-    .digest('hex');
+  return pbkdf2Sync(
+    `${paymentId}:${orderId}:${amount}:${status}`,
+    HMAC_SECRET,
+    10000,
+    64,
+    'sha512',
+  ).toString('hex');
 }
 
 const FAIL_REASONS = ['PAYMENT_GATEWAY_ERROR', 'INSUFFICIENT_STOCK'] as const;
