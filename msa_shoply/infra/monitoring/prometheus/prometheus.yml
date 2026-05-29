@@ -1,0 +1,76 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+
+  - job_name: 'app-onprem'
+    static_configs:
+      - targets:
+          - '10.0.1.204:30400'
+          - '10.0.1.204:30401'
+          - '10.0.1.204:30402'
+          - '10.0.1.204:30403'
+          - '10.0.1.204:30404'
+    relabel_configs:
+      - target_label: env
+        replacement: onprem
+
+  - job_name: 'node-onprem'
+    static_configs:
+      - targets:
+          - '10.0.1.204:9100'    # K8s EC2 호스트
+          - '10.0.1.204:39101'   # k8s-worker1 (10.101.164.9)
+          - '10.0.1.204:39102'   # k8s-worker2 (10.101.164.216)
+    relabel_configs:
+      - target_label: env
+        replacement: onprem
+
+  - job_name: 'node-db-onprem'
+    static_configs:
+      - targets:
+          - '10.0.14.211:9100'
+          - '10.0.4.229:9100'
+    relabel_configs:
+      - target_label: env
+        replacement: onprem
+
+  - job_name: 'postgres-onprem'
+    static_configs:
+      - targets: ['10.0.14.211:9187']
+    relabel_configs:
+      - target_label: env
+        replacement: onprem
+
+  - job_name: 'redis-onprem'
+    static_configs:
+      - targets: ['10.0.4.229:9121']
+    relabel_configs:
+      - target_label: env
+        replacement: onprem
+
+  - job_name: 'kube-state-onprem'
+    static_configs:
+      - targets: ['10.0.1.204:30800']
+    relabel_configs:
+      - target_label: env
+        replacement: onprem
+
+  # ── LXD 컨테이너 메트릭 (워커별 CPU/메모리) ─────────────────
+  - job_name: 'lxd-onprem'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    static_configs:
+      - targets: ['10.0.1.204:9292']
+    metrics_path: '/1.0/metrics'
+    relabel_configs:
+      - target_label: env
+        replacement: onprem
+
+  # EKS 항목 - EKS 구성 완료 후 추가
+  # - job_name: 'app-eks'
+  # - job_name: 'node-eks'
+  # - job_name: 'kube-state-eks'
+  # - job_name: 'postgres-eks'
+  # - job_name: 'redis-eks'

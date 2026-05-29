@@ -75,18 +75,4 @@ spec:
       targetPort: 4004
       nodePort: 30404
   type: NodePort
----
-# 프론트엔드 외부 접근용 NodePort
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-nodeport
-  namespace: shoply
-spec:
-  selector:
-    app: frontend
-  ports:
-    - port: 80
-      targetPort: 80
-      nodePort: 30080
-  type: NodePort
+# frontend는 ingress-nginx(30080)를 통해 접근 — 별도 NodePort 불필요

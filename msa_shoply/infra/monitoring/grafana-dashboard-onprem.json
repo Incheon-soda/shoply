@@ -1,0 +1,186 @@
+{
+  "title": "Shoply 온프레미스 — 부하 실험",
+  "uid": "shoply-onprem-v3",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-20m", "to": "now" },
+  "panels": [
+
+    { "id": 1, "title": "📊 전체 현황", "type": "row", "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "collapsed": false },
+
+    { "id": 2, "title": "동시 접속 VUs", "type": "stat",
+      "gridPos": { "x": 0, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "sum(k6_vus)" }],
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "thresholds" },
+        "thresholds": { "steps": [{ "color": "blue", "value": null }, { "color": "orange", "value": 500 }, { "color": "red", "value": 1500 }] }
+      }}
+    },
+    { "id": 3, "title": "전체 RPS", "type": "stat",
+      "gridPos": { "x": 6, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "sum(rate(gateway_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m])) + sum(rate(order_service_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m])) + sum(rate(payment_service_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m]))" }],
+      "fieldConfig": { "defaults": { "unit": "reqps",
+        "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 300 }, { "color": "red", "value": 700 }] }
+      }}
+    },
+    { "id": 4, "title": "결제 성공률", "type": "stat",
+      "gridPos": { "x": 12, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "sum(rate(payment_processed_total{status=\"PAID\"}[2m])) / (sum(rate(payment_processed_total{status=\"PAID\"}[2m])) + sum(rate(payment_processed_total{status=\"FAILED\"}[2m]))) * 100" }],
+      "fieldConfig": { "defaults": { "unit": "percent",
+        "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 80 }, { "color": "green", "value": 95 }] }
+      }}
+    },
+    { "id": 5, "title": "⚠️ Pending Pods", "type": "stat",
+      "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or vector(0)" }],
+      "fieldConfig": { "defaults": { "unit": "short",
+        "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 5 }] }
+      }}
+    },
+
+    { "id": 10, "title": "📈 k6 부하 현황", "type": "row", "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 }, "collapsed": false },
+
+    { "id": 11, "title": "VU 추이", "type": "timeseries",
+      "gridPos": { "x": 0, "y": 6, "w": 8, "h": 8 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "sum(k6_vus)", "legendFormat": "VUs" }],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2, "fillOpacity": 10 } } }
+    },
+    { "id": 12, "title": "k6 요청 성공 / 실패", "type": "timeseries",
+      "gridPos": { "x": 8, "y": 6, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(k6_http_reqs_total{expected_response=\"true\"}[1m]))", "legendFormat": "성공" },
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(k6_http_reqs_total{expected_response=\"false\"}[1m]))", "legendFormat": "실패" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } } }
+    },
+    { "id": 13, "title": "k6 P95 / P99 응답시간", "type": "timeseries",
+      "gridPos": { "x": 16, "y": 6, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(k6_http_req_duration_bucket[1m])))", "legendFormat": "P95" },
+        { "datasource": { "type": "prometheus" }, "expr": "histogram_quantile(0.99, sum by (le) (rate(k6_http_req_duration_bucket[1m])))", "legendFormat": "P99" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 2 } } }
+    },
+
+    { "id": 20, "title": "🚨 핵심 비교 지표 (온프레미스 한계)", "type": "row", "gridPos": { "x": 0, "y": 14, "w": 24, "h": 1 }, "collapsed": false },
+
+    { "id": 21, "title": "Pending Pod 추이", "type": "timeseries",
+      "gridPos": { "x": 0, "y": 15, "w": 8, "h": 8 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or vector(0)", "legendFormat": "Pending" }],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 3, "fillOpacity": 20 },
+        "color": { "fixedColor": "red", "mode": "fixed" }
+      }}
+    },
+    { "id": 22, "title": "HPA Current vs Desired", "type": "timeseries",
+      "gridPos": { "x": 8, "y": 15, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "kube_horizontalpodautoscaler_status_current_replicas{namespace=\"shoply\"}", "legendFormat": "현재: {{horizontalpodautoscaler}}" },
+        { "datasource": { "type": "prometheus" }, "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=\"shoply\"}", "legendFormat": "목표: {{horizontalpodautoscaler}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
+    },
+    { "id": 23, "title": "PostgreSQL 활성 커넥션 (max 200)", "type": "timeseries",
+      "gridPos": { "x": 16, "y": 15, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "pg_stat_activity_count{state=\"active\", job=\"postgres-onprem\"}", "legendFormat": "활성 커넥션" },
+        { "datasource": { "type": "prometheus" }, "expr": "vector(200)", "legendFormat": "max 한계선" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
+    },
+
+    { "id": 30, "title": "⚡ 서비스 성능", "type": "row", "gridPos": { "x": 0, "y": 23, "w": 24, "h": 1 }, "collapsed": false },
+
+    { "id": 31, "title": "서비스별 RPS", "type": "timeseries",
+      "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(gateway_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m]))", "legendFormat": "gateway" },
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(product_service_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m]))", "legendFormat": "product" },
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(order_service_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m]))", "legendFormat": "order" },
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(payment_service_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m]))", "legendFormat": "payment" },
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(inventory_service_http_duration_seconds_count{route!~\"/health|/metrics\"}[1m]))", "legendFormat": "inventory" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } } }
+    },
+    { "id": 32, "title": "서비스별 P95 응답시간", "type": "timeseries",
+      "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(gateway_http_duration_seconds_bucket{route!~\"/health|/metrics\"}[1m])))", "legendFormat": "gateway" },
+        { "datasource": { "type": "prometheus" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(order_service_http_duration_seconds_bucket{route!~\"/health|/metrics\"}[1m])))", "legendFormat": "order" },
+        { "datasource": { "type": "prometheus" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(payment_service_http_duration_seconds_bucket{route!~\"/health|/metrics\"}[1m])))", "legendFormat": "payment" },
+        { "datasource": { "type": "prometheus" }, "expr": "histogram_quantile(0.95, sum by (le) (rate(inventory_service_http_duration_seconds_bucket{route!~\"/health|/metrics\"}[1m])))", "legendFormat": "inventory" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 2 } } }
+    },
+
+    { "id": 40, "title": "💳 결제 & 주문", "type": "row", "gridPos": { "x": 0, "y": 32, "w": 24, "h": 1 }, "collapsed": false },
+
+    { "id": 41, "title": "결제 성공 / 실패", "type": "timeseries",
+      "gridPos": { "x": 0, "y": 33, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "rate(payment_processed_total{status=\"PAID\"}[1m])", "legendFormat": "성공 (PAID)" },
+        { "datasource": { "type": "prometheus" }, "expr": "rate(payment_processed_total{status=\"FAILED\"}[1m])", "legendFormat": "실패 (FAILED)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } } }
+    },
+    { "id": 42, "title": "주문 상태별 RPS", "type": "timeseries",
+      "gridPos": { "x": 8, "y": 33, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(order_service_http_duration_seconds_count{method=\"POST\", status=\"201\"}[1m]))", "legendFormat": "성공 (201)" },
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(order_service_http_duration_seconds_count{method=\"POST\", status=\"409\"}[1m]))", "legendFormat": "재고 부족 (409)" },
+        { "datasource": { "type": "prometheus" }, "expr": "sum(rate(order_service_http_duration_seconds_count{method=\"POST\", status=~\"5..\"}[1m]))", "legendFormat": "에러 (5xx)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "lineWidth": 2 } } }
+    },
+    { "id": 43, "title": "Redis 캐시 히트율", "type": "timeseries",
+      "gridPos": { "x": 16, "y": 33, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "rate(redis_keyspace_hits_total{job=\"redis-onprem\"}[1m]) / (rate(redis_keyspace_hits_total{job=\"redis-onprem\"}[1m]) + rate(redis_keyspace_misses_total{job=\"redis-onprem\"}[1m])) * 100", "legendFormat": "히트율 %" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineWidth": 2 } } }
+    },
+
+    { "id": 50, "title": "🖥️ 인프라 & 파드", "type": "row", "gridPos": { "x": 0, "y": 41, "w": 24, "h": 1 }, "collapsed": false },
+
+    { "id": 51, "title": "워커 CPU 사용률", "type": "timeseries",
+      "gridPos": { "x": 0, "y": 42, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "sum by (name) (rate(lxd_cpu_seconds_total{name=~\"k8s-worker.*\", job=\"lxd-onprem\"}[1m])) / sum by (name) (lxd_cpu_effective_total{name=~\"k8s-worker.*\", job=\"lxd-onprem\"}) * 100", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "lineWidth": 2 },
+        "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] }
+      }}
+    },
+    { "id": 52, "title": "워커 메모리 사용량 (GB / 4GB)", "type": "timeseries",
+      "gridPos": { "x": 8, "y": 42, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "(lxd_memory_MemTotal_bytes{name=~\"k8s-worker.*\", job=\"lxd-onprem\"} - lxd_memory_MemAvailable_bytes{name=~\"k8s-worker.*\", job=\"lxd-onprem\"}) / 1024 / 1024 / 1024", "legendFormat": "{{name}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "decgbytes", "custom": { "lineWidth": 2 },
+        "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 3 }, { "color": "red", "value": 3.8 }] }
+      }}
+    },
+    { "id": 53, "title": "서비스별 파드 수 (HPA)", "type": "timeseries",
+      "gridPos": { "x": 16, "y": 42, "w": 8, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "kube_deployment_status_replicas_available{namespace=\"shoply\"}", "legendFormat": "{{deployment}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2, "fillOpacity": 5 } } }
+    },
+    { "id": 54, "title": "파드 상태 (Running / Pending / Failed)", "type": "timeseries",
+      "gridPos": { "x": 0, "y": 50, "w": 12, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Running\"})", "legendFormat": "Running" },
+        { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or vector(0)", "legendFormat": "Pending" },
+        { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Failed\"}) or vector(0)", "legendFormat": "Failed" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
+    },
+    { "id": 55, "title": "파드 재시작 수 (5분)", "type": "timeseries",
+      "gridPos": { "x": 12, "y": 50, "w": 12, "h": 8 },
+      "targets": [
+        { "datasource": { "type": "prometheus" }, "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"shoply\"}[5m])", "legendFormat": "{{pod}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
+    }
+  ]
+}

@@ -839,17 +839,13 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 | 문서 | 설명 |
 |---|---|
-| [전체 구성 가이드](문서/전체_구성_가이드.md) | DB·Redis·K8s 배포 전체를 하나로 — 이 문서 하나로 처음부터 재현 가능 |
-| [전체 작업 목록](문서/전체_작업_목록.md) | 인프라 결정 사항, 온프레미스·EKS·공통 전체 작업 체크리스트, 현재 진행 상태 |
-| [인프라 설계](문서/인프라_설계.md) | VPC·SG 확정 구조, 파드 고정 배치·nodeAffinity·HPA 설정, 트래픽 경로 (NodePort 직접) |
-| [데이터베이스 가이드](문서/데이터베이스_가이드.md) | PostgreSQL 스키마·서비스별 핵심 쿼리·SELECT FOR UPDATE 동시성·Redis 캐싱 구조 상세 |
-| [데이터 레이어 설계](문서/데이터.md) | PostgreSQL 테이블/인덱스 전략, Redis 캐싱 정책 및 API별 캐시 흐름 |
-| [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구 역할, Grafana 템플릿 패널, 직접 제작 패널 PromQL, 최종 대시보드 레이아웃 |
-| [K8s LXD 클러스터 구축 가이드](문서/k8s-lxd-guide.md) | LXD로 온프레미스 k8s 3노드 구성 단계별 가이드 (1단계~12단계 전 과정) |
-| [K8s LXD 트러블슈팅](문서/k8s-lxd-troubleshooting.md) | KVM 미지원·snap store 오류·kube-proxy CrashLoop 등 실제 발생 이슈와 해결 |
-| [온프레미스 설정값](문서/onpre-config.md) | 온프레미스 확정 설정값 (K8s 버전·CNI·Ingress·DB 정보·EKS 비교표) |
-| [DB 검증 가이드](문서/DB_검증_가이드.md) | PostgreSQL·Redis 기동 절차, 데이터 건수·정합성 검증 쿼리, 트러블슈팅 |
+| [인프라 가이드](문서/인프라_가이드.md) | VPC·SG·파드배치·nodeAffinity·HPA + LXD K8s 구축 12단계 + 트러블슈팅 + 확정 설정값 |
+| [데이터베이스 가이드](문서/데이터베이스_가이드.md) | PostgreSQL 스키마·핵심 쿼리·SELECT FOR UPDATE·Redis 캐싱·EC2/RDS 구축·검증·관리 쿼리 |
+| [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구·PromQL·Grafana 대시보드·Exporter 설치·iptables DNAT·실제 배포 정보 |
 | [서비스 테스트 가이드](문서/테스트.md) | 1~5차 서비스 curl 테스트, 동시성 검증, 전체 흐름 통합 테스트 |
+| [전체 작업 목록](문서/전체_작업_목록.md) | 인프라 결정 사항, 온프레미스·EKS·공통 전체 작업 체크리스트, 현재 진행 상태 |
+| [온프레미스 현황 요약](문서/onpre-summary.md) | 실제 배포된 온프레미스 환경 요약 (EC2 IP, k8s 버전, 배포 서비스, 파일 위치) |
+| [K8s 진단 명령어](문서/k8s-debug-commands.md) | 사이트 접속 불가 체크 순서, Pod·서비스·ConfigMap 확인, Deployment 재시작, 리소스 조회 |
 
 ---
 

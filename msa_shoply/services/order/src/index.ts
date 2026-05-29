@@ -1,7 +1,11 @@
 import express from 'express';
+import compression from 'compression';
+import jwt from 'jsonwebtoken';
 import { pool } from './db';
 import ordersRouter from './routes/orders';
 import { register, httpDuration } from './metrics';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
 
 // UUID → :id 정규화로 route 라벨 고카디널리티 방지
 function normalizeRoute(path: string): string {
@@ -11,7 +15,15 @@ function normalizeRoute(path: string): string {
 const app = express();
 const PORT = Number(process.env.ORDER_PORT) || 4003;
 
+app.use(compression());
 app.use(express.json());
+app.use((req, _res, next) => {
+  const auth = req.headers.authorization;
+  if (auth?.startsWith('Bearer ')) {
+    try { jwt.verify(auth.slice(7), JWT_SECRET); } catch { /* 무시 */ }
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   const route = normalizeRoute(req.path);

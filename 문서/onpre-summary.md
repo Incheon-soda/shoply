@@ -45,11 +45,15 @@ ingress-nginx (NodePort 30080)
 | 항목 | 값 |
 |---|---|
 | 가상화 | LXD (KVM 미지원으로 대체) |
-| K8s 버전 | 1.32.12 |
+| K8s 버전 | 1.34.8 |
 | 노드 | master 1 + worker 2 (LXD 컨테이너) |
+| 노드 스펙 | 2 core / 4GB RAM / 30GB disk (각각) |
 | CNI | Flannel v0.26.7 |
 | Ingress | ingress-nginx 4.9.0 (NodePort 30080) |
 | Helm | v3.14.0 |
+| metrics-server | v0.8.0 |
+| kube-state-metrics | v2.19.0 |
+| HPA | CPU 기반 (gateway/product/inventory/order/payment) |
 
 ---
 
@@ -88,9 +92,9 @@ ingress-nginx (NodePort 30080)
 | `msa_shoply/k8s/eks/` | EKS 전용 설정 |
 | `msa_shoply/infra/postgres/` | PostgreSQL Docker Compose + 스키마/시드 |
 | `msa_shoply/infra/redis/` | Redis Docker Compose |
-| `문서/k8s-lxd-guide.md` | 클러스터 구축 상세 가이드 |
-| `문서/k8s-lxd-troubleshooting.md` | 트러블슈팅 기록 |
-| `문서/onpre-config.md` | 설정값 및 EKS 비교표 |
+| `msa_shoply/infra/monitoring/` | Prometheus + Grafana Docker Compose |
+| `문서/인프라_가이드.md` | 아키텍처 설계 + LXD K8s 구축 + 트러블슈팅 + 확정 설정값 |
+| `문서/모니터링.md` | 모니터링 전략 + Exporter 설치 + Grafana 대시보드 |
 
 ---
 
@@ -117,12 +121,12 @@ curl http://43.203.67.58/
 ```bash
 # PostgreSQL EC2
 scp -i ~/key/aws-3tier-keypair.pem -r msa_shoply/infra/postgres ubuntu@10.0.2.128:~/
-ssh -i ~/key/aws-3tier-keypair.pem ubuntu@10.0.2.128
+ssh -i ~/key/aws-3tier-keypair.pem ubuntu@10.0.2.112
 cd postgres && docker compose up -d
 docker compose logs -f   # seed.sql 적재 완료까지 대기
 
 # Redis EC2
-scp -i ~/key/aws-3tier-keypair.pem -r msa_shoply/infra/redis ubuntu@10.0.6.15:~/
-ssh -i ~/key/aws-3tier-keypair.pem ubuntu@10.0.6.15
+scp -i ~/key/aws-3tier-keypair.pem -r msa_shoply/infra/redis ubuntu@10.0.7.99:~/
+ssh -i ~/key/aws-3tier-keypair.pem ubuntu@10.0.7.99
 cd redis && docker compose up -d
 ```

@@ -1,5 +1,4 @@
 import express from 'express';
-import compression from 'compression';
 import jwt from 'jsonwebtoken';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { register, httpDuration } from './metrics';
@@ -17,10 +16,7 @@ const SVC = {
   payment:   process.env.PAYMENT_SERVICE_URL   || 'http://localhost:4004',
 };
 
-// ── gzip 압축 — 모든 응답 압축 → CPU 증가 ────────────────────
-app.use(compression());
-
-// ── JWT 검증 미들웨어 — /api/auth 제외 전체 적용 ─────────────
+// ── JWT 검증 + X-User 헤더 주입 — /api/auth 제외 전체 적용 ──
 app.use('/api', (req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (req.path.startsWith('/auth')) return next();
 
@@ -29,7 +25,9 @@ app.use('/api', (req: express.Request, res: express.Response, next: express.Next
     return res.status(401).json({ message: '인증이 필요합니다.' });
   }
   try {
-    jwt.verify(auth.slice(7), JWT_SECRET);
+    const decoded = jwt.verify(auth.slice(7), JWT_SECRET) as { userId: string; email: string };
+    req.headers['x-user-id']    = decoded.userId;
+    req.headers['x-user-email'] = decoded.email;
     next();
   } catch {
     return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
