@@ -8,7 +8,7 @@ const router = Router();
 const TTL_LIST   = 60;   // Redis 캐시 TTL (초)
 const TTL_DETAIL = 30;
 // LRU: L1 인메모리 캐시 — Redis 앞단, 메모리 사용 증가 목적
-const lru = new LRUCache<string, unknown>({
+const lru = new LRUCache<string, object>({
   max: 600,              // 최대 600개 항목 (상품 500개 + 목록 1개 + 여유)
   ttl: 30_000,           // 30초 TTL (ms)
 });
