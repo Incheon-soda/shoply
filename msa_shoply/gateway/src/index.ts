@@ -1,11 +1,9 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { register, httpDuration } from './metrics';
 
 const app = express();
 const PORT = Number(process.env.GATEWAY_PORT) || 4000;
-const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
 
 // ── 서비스 URL ────────────────────────────────────────────────
 const SVC = {
@@ -15,24 +13,6 @@ const SVC = {
   order:     process.env.ORDER_SERVICE_URL     || 'http://localhost:4003',
   payment:   process.env.PAYMENT_SERVICE_URL   || 'http://localhost:4004',
 };
-
-// ── JWT 검증 + X-User 헤더 주입 — /api/auth 제외 전체 적용 ──
-app.use('/api', (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (req.path.startsWith('/auth')) return next();
-
-  const auth = req.headers['authorization'];
-  if (!auth?.startsWith('Bearer ')) {
-    return res.status(401).json({ message: '인증이 필요합니다.' });
-  }
-  try {
-    const decoded = jwt.verify(auth.slice(7), JWT_SECRET) as { userId: string; email: string };
-    req.headers['x-user-id']    = decoded.userId;
-    req.headers['x-user-email'] = decoded.email;
-    next();
-  } catch {
-    return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
-  }
-});
 
 // ── Prometheus ────────────────────────────────────────────────
 // route 라벨은 /api/{service} 수준으로 정규화 — UUID 포함 시 고카디널리티 방지

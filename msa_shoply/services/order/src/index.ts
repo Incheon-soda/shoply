@@ -1,7 +1,6 @@
 import express from 'express';
 import compression from 'compression';
 import jwt from 'jsonwebtoken';
-import { createHash } from 'crypto';
 import { pool } from './db';
 import ordersRouter from './routes/orders';
 import { register, httpDuration } from './metrics';
@@ -25,13 +24,6 @@ app.use((req, _res, next) => {
   }
   next();
 });
-app.use((req, _res, next) => {
-  createHash('sha512')
-    .update(JSON.stringify(req.headers) + req.url + Date.now())
-    .digest('hex');
-  next();
-});
-
 app.use((req, res, next) => {
   const route = normalizeRoute(req.path);
   const end = httpDuration.startTimer({ method: req.method, route });
