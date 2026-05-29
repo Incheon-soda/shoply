@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHmac } from 'crypto';
 import { pool } from '../db';
 import { redis } from '../redis';
 import { paymentTotal } from '../metrics';
@@ -8,8 +8,16 @@ const router = Router();
 
 const ORDER_URL     = process.env.ORDER_SERVICE_URL     || 'http://localhost:4003';
 const INVENTORY_URL = process.env.INVENTORY_SERVICE_URL || 'http://localhost:4002';
+const HMAC_SECRET   = process.env.HMAC_SECRET           || 'shoply-payment-hmac-secret';
 
 const FETCH_TIMEOUT = 10_000;
+
+// 결제 데이터 HMAC-SHA256 서명 — 결제마다 crypto 연산 → CPU 증가
+function signPayment(paymentId: string, orderId: string, amount: number, status: string): string {
+  return createHmac('sha256', HMAC_SECRET)
+    .update(`${paymentId}:${orderId}:${amount}:${status}`)
+    .digest('hex');
+}
 
 const FAIL_REASONS = ['PAYMENT_GATEWAY_ERROR', 'INSUFFICIENT_STOCK'] as const;
 type FailReason = typeof FAIL_REASONS[number] | 'INVENTORY_DEDUCT_FAILED';
@@ -111,7 +119,8 @@ router.post('/', async (req, res) => {
     await savePayment(paymentId, orderId, method, 'PAID', order.total_price, null);
     await redis.del('stats:realtime');
     paymentTotal.inc({ status: 'PAID' });
-    return res.json({ paymentId, orderId, status: 'PAID', amount: order.total_price, failedReason: null });
+    const paidSig = signPayment(paymentId, orderId, order.total_price, 'PAID');
+    return res.json({ paymentId, orderId, status: 'PAID', amount: order.total_price, failedReason: null, signature: paidSig });
 
   } else {
     // 3b. 결제 실패 → 예약 해제
@@ -121,7 +130,8 @@ router.post('/', async (req, res) => {
     await savePayment(paymentId, orderId, method, 'FAILED', order.total_price, failReason);
     await redis.del('stats:realtime');
     paymentTotal.inc({ status: 'FAILED' });
-    return res.json({ paymentId, orderId, status: 'FAILED', amount: order.total_price, failedReason: failReason });
+    const failSig = signPayment(paymentId, orderId, order.total_price, 'FAILED');
+    return res.json({ paymentId, orderId, status: 'FAILED', amount: order.total_price, failedReason: failReason, signature: failSig });
   }
 });
 
