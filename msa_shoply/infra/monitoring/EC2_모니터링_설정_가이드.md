@@ -14,7 +14,7 @@
 |------|------|------|
 | 22 | Admin IP/32 | SSH |
 | 9090 | Admin IP/32 | Prometheus UI |
-| 3001 | Admin IP/32 | Grafana 대시보드 |
+| 3000 | Admin IP/32 | Grafana 대시보드 |
 
 - 보안그룹 아웃바운드:
 
@@ -112,7 +112,7 @@ docker compose ps
 
 **접속:**
 - Prometheus: `http://<Monitoring-EIP>:9090`
-- Grafana: `http://<Monitoring-EIP>:3001`
+- Grafana: `http://<Monitoring-EIP>:3000`
   - ID: `admin` / PW: `admin1234`
 
 ---

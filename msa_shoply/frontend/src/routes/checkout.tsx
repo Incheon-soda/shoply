@@ -40,7 +40,7 @@ function CheckoutPage() {
     fetch('/api/products')
       .then((r) => r.json())
       .then((data: Product[]) => {
-        setProducts(data.slice(0, 20));
+        setProducts(data);
         if (!selectedProduct && data[0]) setSelectedProduct(data[0].id);
         setLoading(false);
       })

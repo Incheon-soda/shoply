@@ -109,6 +109,6 @@ Dashboards → Import → ID 입력
 
 ## 테스트 계정
 
-- 이메일: `test1@shoply.com` ~ `test300@shoply.com`
+- 이메일: `test1@shoply.com` ~ `test2000@shoply.com`
 - 비밀번호: `Test1234!`
-- 매 이터레이션마다 1~300 중 랜덤 선택
+- 매 이터레이션마다 1~2000 중 랜덤 선택

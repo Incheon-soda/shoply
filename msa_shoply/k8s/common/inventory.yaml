@@ -19,6 +19,15 @@ spec:
         prometheus.io/port: "4002"
         prometheus.io/path: "/metrics"
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: experiment-role
+                operator: In
+                values: ["worker1"]
       containers:
         - name: inventory
           image: ghcr.io/incheon-soda/shoply-inventory:latest
@@ -32,14 +41,14 @@ spec:
                 name: shoply-secret
           resources:
             requests:
-              cpu: "150m"
+              cpu: "100m"
               memory: "128Mi"
             limits:
-              cpu: "600m"
+              cpu: "500m"
               memory: "512Mi"
           livenessProbe:
             httpGet:
-              path: /health
+              path: /livez
               port: 4002
             initialDelaySeconds: 20
             periodSeconds: 20

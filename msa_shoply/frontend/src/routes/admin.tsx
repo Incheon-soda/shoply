@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { getToken, USER_KEY } from '@/lib/auth';
+import { getToken, USER_KEY, apiFetch } from '@/lib/auth';
 
 export const Route = createFileRoute('/admin')({ component: AdminPage });
 
@@ -48,9 +48,8 @@ function AdminPage() {
     setLoading(true);
     setMsg('');
     try {
-      const res = await fetch('/api/products/timesale/start', {
+      const res = await apiFetch('/api/products/timesale/start', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify({ count, discountRate, durationHours }),
       });
       const data = await res.json() as { ok: boolean; updated: number; saleEndsAt: string };
@@ -66,9 +65,8 @@ function AdminPage() {
     setLoading(true);
     setMsg('');
     try {
-      const res = await fetch('/api/products/timesale/stop', {
+      const res = await apiFetch('/api/products/timesale/stop', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json() as { ok: boolean; stopped: number };
       if (data.ok) {

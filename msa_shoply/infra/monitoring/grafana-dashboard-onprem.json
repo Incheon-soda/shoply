@@ -32,7 +32,7 @@
     },
     { "id": 5, "title": "⚠️ Pending Pods", "type": "stat",
       "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
-      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or vector(0)" }],
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or on() vector(0)" }],
       "fieldConfig": { "defaults": { "unit": "short",
         "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 5 }] }
       }}
@@ -66,7 +66,7 @@
 
     { "id": 21, "title": "Pending Pod 추이", "type": "timeseries",
       "gridPos": { "x": 0, "y": 15, "w": 8, "h": 8 },
-      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or vector(0)", "legendFormat": "Pending" }],
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or on() vector(0)", "legendFormat": "Pending" }],
       "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 3, "fillOpacity": 20 },
         "color": { "fixedColor": "red", "mode": "fixed" }
       }}
@@ -79,11 +79,11 @@
       ],
       "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
     },
-    { "id": 23, "title": "PostgreSQL 활성 커넥션 (max 200)", "type": "timeseries",
+    { "id": 23, "title": "PostgreSQL 활성 커넥션 (max 300)", "type": "timeseries",
       "gridPos": { "x": 16, "y": 15, "w": 8, "h": 8 },
       "targets": [
         { "datasource": { "type": "prometheus" }, "expr": "pg_stat_activity_count{state=\"active\", job=\"postgres-onprem\"}", "legendFormat": "활성 커넥션" },
-        { "datasource": { "type": "prometheus" }, "expr": "vector(200)", "legendFormat": "max 한계선" }
+        { "datasource": { "type": "prometheus" }, "expr": "vector(300)", "legendFormat": "max 한계선" }
       ],
       "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
     },
@@ -170,8 +170,8 @@
       "gridPos": { "x": 0, "y": 50, "w": 12, "h": 8 },
       "targets": [
         { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Running\"})", "legendFormat": "Running" },
-        { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or vector(0)", "legendFormat": "Pending" },
-        { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Failed\"}) or vector(0)", "legendFormat": "Failed" }
+        { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"}) or on() vector(0)", "legendFormat": "Pending" },
+        { "datasource": { "type": "prometheus" }, "expr": "count(kube_pod_status_phase{namespace=\"shoply\", phase=\"Failed\"}) or on() vector(0)", "legendFormat": "Failed" }
       ],
       "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
     },
@@ -180,6 +180,28 @@
       "targets": [
         { "datasource": { "type": "prometheus" }, "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"shoply\"}[5m])", "legendFormat": "{{pod}}" }
       ],
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
+    },
+
+    { "id": 60, "title": "🔄 DB 페일오버 (시나리오 C)", "type": "row", "gridPos": { "x": 0, "y": 58, "w": 24, "h": 1 }, "collapsed": false },
+
+    { "id": 61, "title": "DB Up / Down (1=정상, 0=다운) ★MTTR", "type": "timeseries",
+      "gridPos": { "x": 0, "y": 59, "w": 8, "h": 8 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "pg_up{job=\"postgres-onprem\"}", "legendFormat": "Primary" }],
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0, "max": 1, "custom": { "lineWidth": 3, "fillOpacity": 20 },
+        "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+      }}
+    },
+    { "id": 62, "title": "Replication Lag (초)", "type": "timeseries",
+      "gridPos": { "x": 8, "y": 59, "w": 8, "h": 8 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "pg_replication_lag_seconds{job=\"postgres-onprem\"}", "legendFormat": "복제 지연" }],
+      "fieldConfig": { "defaults": { "unit": "s", "custom": { "lineWidth": 2 },
+        "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 5 }] }
+      }}
+    },
+    { "id": 63, "title": "DB 활성 커넥션 (페일오버 재연결 추적)", "type": "timeseries",
+      "gridPos": { "x": 16, "y": 59, "w": 8, "h": 8 },
+      "targets": [{ "datasource": { "type": "prometheus" }, "expr": "pg_stat_activity_count{state=\"active\", job=\"postgres-onprem\"}", "legendFormat": "활성 커넥션" }],
       "fieldConfig": { "defaults": { "unit": "short", "custom": { "lineWidth": 2 } } }
     }
   ]

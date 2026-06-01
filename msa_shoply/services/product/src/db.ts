@@ -6,5 +6,7 @@ export const pool = new Pool({
   database: process.env.POSTGRES_DB || 'shoply',
   user: process.env.POSTGRES_USER || 'shoply',
   password: process.env.POSTGRES_PASSWORD || 'shoply1234',
-  max: 10,
+  max: 8,
+  connectionTimeoutMillis: 5000,  // 죽은 Primary 연결 5초 후 포기 (DB 페일오버 대응)
+  keepAlive: true,                // TCP keepalive로 끊긴 연결 빠르게 감지
 });

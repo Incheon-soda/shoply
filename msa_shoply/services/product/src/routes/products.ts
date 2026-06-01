@@ -1,18 +1,11 @@
 import { Router } from 'express';
-import { LRUCache } from 'lru-cache';
 import { pool } from '../db';
 import { redis } from '../redis';
 
 const router = Router();
 
-const TTL_LIST   = 60;   // Redis 캐시 TTL (초)
-const TTL_DETAIL = 30;
-// LRU: L1 인메모리 캐시 — Redis 앞단, 메모리 사용 증가 목적
-const lru = new LRUCache<string, object>({
-  max: 600,              // 최대 600개 항목 (상품 500개 + 목록 1개 + 여유)
-  ttl: 30_000,           // 30초 TTL (ms)
-});
-
+const TTL_LIST   = 60;  // 상품 목록 캐시 60초
+const TTL_DETAIL = 30;  // 상품 상세 캐시 30초
 // 재고 수량은 캐싱 안 함 — 항상 DB 직접 조회
 
 function stockStatus(total: number): '재고 있음' | '재고 부족' | '품절' {
@@ -24,19 +17,9 @@ function stockStatus(total: number): '재고 있음' | '재고 부족' | '품절
 // GET /products
 router.get('/', async (_req, res) => {
   try {
-    // L1: LRU 인메모리
-    const lruHit = lru.get('products:list');
-    if (lruHit) return res.json(lruHit);
+    const cached = await redis.get('products:list');
+    if (cached) return res.json(JSON.parse(cached));
 
-    // L2: Redis
-    const redisHit = await redis.get('products:list');
-    if (redisHit) {
-      const parsed = JSON.parse(redisHit);
-      lru.set('products:list', parsed);
-      return res.json(parsed);
-    }
-
-    // L3: DB
     const { rows } = await pool.query(`
       SELECT
         p.id, p.name, p.price, p.description, p.image_url,
@@ -58,11 +41,10 @@ router.get('/', async (_req, res) => {
       sale_price: r.sale_price,
       sale_ends_at: r.sale_ends_at,
       stock_status: stockStatus(Number(r.total_available)),
-      total_available: Number(r.total_available),
+      total_available: Number(r.total_available),  // 어드민 재고 확인용
     }));
 
     await redis.setex('products:list', TTL_LIST, JSON.stringify(result));
-    lru.set('products:list', result);
     return res.json(result);
   } catch (err) {
     console.error('[GET /products]', err);
@@ -74,28 +56,21 @@ router.get('/', async (_req, res) => {
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    // 상품 기본 정보 — L1 LRU → L2 Redis → L3 DB
+    // 상품 기본 정보 — 캐시 사용
     let product: Record<string, unknown>;
-    const lruProduct = lru.get(`products:${id}`) as Record<string, unknown> | undefined;
-    if (lruProduct) {
-      product = lruProduct;
+    const cachedProduct = await redis.get(`products:${id}`);
+    if (cachedProduct) {
+      product = JSON.parse(cachedProduct);
     } else {
-      const cachedProduct = await redis.get(`products:${id}`);
-      if (cachedProduct) {
-        product = JSON.parse(cachedProduct);
-        lru.set(`products:${id}`, product);
-      } else {
-        const { rows } = await pool.query(
-          `SELECT id, name, price, description, image_url,
-                  is_timesale, sale_price, sale_ends_at
-           FROM products WHERE id = $1`,
-          [id],
-        );
-        if (!rows[0]) return res.status(404).json({ message: '상품을 찾을 수 없습니다.' });
-        product = rows[0];
-        await redis.setex(`products:${id}`, TTL_DETAIL, JSON.stringify(product));
-        lru.set(`products:${id}`, product);
-      }
+      const { rows } = await pool.query(
+        `SELECT id, name, price, description, image_url,
+                is_timesale, sale_price, sale_ends_at
+         FROM products WHERE id = $1`,
+        [id],
+      );
+      if (!rows[0]) return res.status(404).json({ message: '상품을 찾을 수 없습니다.' });
+      product = rows[0];
+      await redis.setex(`products:${id}`, TTL_DETAIL, JSON.stringify(product));
     }
 
     // 재고 — 항상 DB 직접 조회 (캐시 안 함)
@@ -148,8 +123,6 @@ router.patch('/:id/timesale', async (req, res) => {
 
     await redis.del('products:list');
     await redis.del(`products:${id}`);
-    lru.delete('products:list');
-    lru.delete(`products:${id}`);
 
     return res.json({ ok: true });
   } catch (err) {
@@ -179,7 +152,6 @@ router.post('/timesale/start', async (req, res) => {
     );
 
     await redis.del('products:list');
-    lru.clear();  // 타임세일 시작 시 전체 LRU 무효화
 
     return res.json({ ok: true, updated: rowCount, discountRate: rate, durationHours, saleEndsAt });
   } catch (err) {
@@ -197,7 +169,6 @@ router.post('/timesale/stop', async (req, res) => {
 
     const keys = await redis.keys('products:*');
     if (keys.length) await redis.del(...keys);
-    lru.clear();  // 타임세일 종료 시 전체 LRU 무효화
 
     return res.json({ ok: true, stopped: rowCount });
   } catch (err) {

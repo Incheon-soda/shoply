@@ -1,11 +1,7 @@
 import express from 'express';
-import compression from 'compression';
-import jwt from 'jsonwebtoken';
 import { pool } from './db';
 import ordersRouter from './routes/orders';
 import { register, httpDuration } from './metrics';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'change-me-in-production';
 
 // UUID → :id 정규화로 route 라벨 고카디널리티 방지
 function normalizeRoute(path: string): string {
@@ -15,15 +11,7 @@ function normalizeRoute(path: string): string {
 const app = express();
 const PORT = Number(process.env.ORDER_PORT) || 4003;
 
-app.use(compression());
 app.use(express.json());
-app.use((req, _res, next) => {
-  const auth = req.headers.authorization;
-  if (auth?.startsWith('Bearer ')) {
-    try { jwt.verify(auth.slice(7), JWT_SECRET); } catch { /* 무시 */ }
-  }
-  next();
-});
 app.use((req, res, next) => {
   const route = normalizeRoute(req.path);
   const end = httpDuration.startTimer({ method: req.method, route });
@@ -32,6 +20,8 @@ app.use((req, res, next) => {
 });
 
 app.use('/orders', ordersRouter);
+
+app.get('/livez', (_req, res) => res.status(200).json({ status: 'alive' }));
 
 app.get('/health', async (_req, res) => {
   try {
@@ -47,6 +37,12 @@ app.get('/metrics', async (_req, res) => {
   res.end(await register.metrics());
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`[order-service] :${PORT}`);
+});
+
+// Graceful shutdown — 진행 중 요청 처리 후 종료 (시나리오 B/C MTTR 정밀도)
+process.on('SIGTERM', () => {
+  console.log('[SIGTERM] graceful shutdown');
+  server.close(() => process.exit(0));
 });

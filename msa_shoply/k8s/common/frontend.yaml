@@ -15,6 +15,15 @@ spec:
       labels:
         app: frontend
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: experiment-role
+                operator: In
+                values: ["worker2"]
       containers:
         - name: frontend
           image: ghcr.io/incheon-soda/shoply-frontend:latest

@@ -15,6 +15,15 @@ spec:
       labels:
         app: user
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: experiment-role
+                operator: In
+                values: ["worker2"]
       containers:
         - name: user
           image: ghcr.io/incheon-soda/shoply-user:latest
@@ -35,7 +44,7 @@ spec:
               memory: "512Mi"
           livenessProbe:
             httpGet:
-              path: /health
+              path: /livez
               port: 4005
             initialDelaySeconds: 20
             periodSeconds: 20

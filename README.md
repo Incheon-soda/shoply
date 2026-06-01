@@ -47,7 +47,7 @@
 
 ## 아키텍처
 
-![아키텍처 다이어그램](image.png)
+![아키텍처 다이어그램]()
 
 ```
 [온프레미스]
@@ -127,19 +127,19 @@ AWS 단일 계정 (ap-northeast-2)
 
 VPC-A (10.0.0.0/16) — 온프레미스 재현 + 공통 인프라
 └── Public 서브넷 10.0.1.0/24 (ap-northeast-2a)
-    ├── c8i.2xlarge  [EIP]  — k8s 호스트 (LXD) + EC2 Nginx (:80 → VM NodePort)
-    │   ├── VM1: k8s 마스터    <LXD_IP_1> (Ubuntu 24.04.4, 2vCPU/4GB)
-    │   ├── VM2: 워커노드 1    <LXD_IP_2> (Ubuntu 24.04.4, 2vCPU/4GB) ← traffic-node
-    │   └── VM3: 워커노드 2    <LXD_IP_3> (Ubuntu 24.04.4, 2vCPU/4GB) ← order-node
-    │   ※ IP는 lxd init lxdbr0 대역 기준 — lxc list로 확인
-    │   k8s: EKS 버전과 동일하게 맞춤 (v1.32.x)
+    ├── c8i.2xlarge  [EIP]  — k8s 호스트 (LXD 컨테이너) + EC2 Nginx (:80 → 컨테이너 NodePort)
+    │   ├── 노드1: k8s 마스터   <LXD_IP_1> (Ubuntu 24.04.4, 2vCPU/4GB)
+    │   ├── 노드2: 워커노드 1   <LXD_IP_2> (Ubuntu 24.04.4, 2vCPU/4GB) ← traffic-node
+    │   └── 노드3: 워커노드 2   <LXD_IP_3> (Ubuntu 24.04.4, 2vCPU/4GB) ← order-node
+    │   ※ VM 아닌 LXD 시스템 컨테이너 (c8i-flex는 KVM 미지원) — IP는 lxc list로 확인
+    │   k8s: EKS 버전과 동일하게 맞춤 (v1.34.x)
     ├── t3.medium           — PostgreSQL 16 (Docker)
     ├── t3.small            — Redis 7 (Docker)
     ├── t3.small   [EIP]   — Prometheus + Grafana (모니터링)
     ├── t3.medium          — Locust-A (온프레미스 전용, EIP 불필요 — SG 참조 방식)
     └── t3.medium  [EIP]   — Locust-B (EKS 전용, Worker Node NodePort 직접 연결)
 
-VPC-B (10.1.0.0/16) — EKS (k8s v1.32.12 확인됨)
+VPC-B (10.1.0.0/16) — EKS (k8s v1.34.x 확인됨)
 ├── Public 서브넷 10.1.1.0/24 (ap-northeast-2a)
 ├── Public 서브넷 10.1.2.0/24 (ap-northeast-2b)  ← EKS 최소 2 AZ
 ├── EKS Worker t3.medium [EIP]  ← traffic-node (API GW, Product, Inventory) — 실험 고정
@@ -148,6 +148,12 @@ VPC-B (10.1.0.0/16) — EKS (k8s v1.32.12 확인됨)
 ├── RDS db.t3.medium            — PostgreSQL 관리형
 └── t3.micro                    — Redis 7 직접 설치
 ```
+
+> **온프레미스 노드 = LXD 시스템 컨테이너 (VM 아님):**  
+> c8i-flex.2xlarge는 AWS Nitro 하이퍼바이저라 중첩 가상화(KVM, `vmx`/`svm` 플래그)를 게스트에 노출하지 않는다.
+> 따라서 `lxc launch --vm`(중첩 VM)은 불가하고, **LXD 시스템 컨테이너**로 워커노드 3개를 구성했다.
+> 컨테이너지만 호스트 커널을 공유할 뿐 kubeadm 노드로는 완전히 동작한다.  
+> → 발표 설명: *"물리서버 1대에 LXD 컨테이너로 k8s 노드 3개를 올렸다"* (중첩 가상화 미지원이라 VM 대신 컨테이너 선택)
 
 > **Locust 2대 분리 이유:** 시나리오 2에서 온프레미스가 응답 지연/에러 급증 시  
 > Locust-A의 쌓인 스레드가 EKS 부하에 영향을 주는 실험 결과 오염 방지
@@ -158,7 +164,7 @@ VPC-B (10.1.0.0/16) — EKS (k8s v1.32.12 확인됨)
 
 | 용도 | 인스턴스 | vCPU | RAM | 비고 |
 |---|---|:---:|:---:|---|
-| k8s 클러스터 재현 | c8i.2xlarge | 8 | 16GB | 내부에 VM 3대 운영 |
+| k8s 클러스터 재현 | c8i.2xlarge | 8 | 16GB | 내부에 LXD 컨테이너 3대 운영 (KVM 미지원이라 VM 아닌 컨테이너) |
 | PostgreSQL | t3.medium | 2 | 4GB | Docker 컨테이너 (10.0.2.128) |
 | Redis | t3.small | 2 | 2GB | Docker 컨테이너 (10.0.6.15) |
 
@@ -182,15 +188,16 @@ VPC-B (10.1.0.0/16) — EKS (k8s v1.32.12 확인됨)
 > Locust-A EIP 불필요 — c8i.2xlarge SG가 Locust-A SG 참조 방식으로 허용 (IP 기반 아님)  
 > Locust-B EIP — Worker Node SG 인바운드에 이 IP만 허용 (ALB 미사용, NodePort 직접 연결)
 
-### 온프레미스 VM 구성 (c8i.2xlarge 내부)
+### 온프레미스 노드 구성 (c8i.2xlarge 내부, LXD 컨테이너)
 
-| VM | 역할 | vCPU | RAM |
+| 노드 | 역할 | vCPU | RAM |
 |---|---|:---:|:---:|
-| VM1 | k8s 마스터 | 2 | 4GB |
-| VM2 | 워커노드 1 | 2 | 4GB |
-| VM3 | 워커노드 2 | 2 | 4GB |
+| 노드1 | k8s 마스터 | 2 | 4GB |
+| 노드2 | 워커노드 1 | 2 | 4GB |
+| 노드3 | 워커노드 2 | 2 | 4GB |
 
-> 워커노드 VM 스펙 = EKS 워커노드 스펙(t3.medium급) — 공정한 비교를 위해 동일하게 맞춤
+> 워커노드 스펙 = EKS 워커노드 스펙(t3.medium급) — 공정한 비교를 위해 동일하게 맞춤  
+> ※ VM이 아닌 LXD 시스템 컨테이너 (c8i-flex KVM 미지원) — 자세한 이유는 위 인프라 구조 참고
 
 ### 워커노드 초기 고정 배치
 
@@ -217,8 +224,15 @@ ALB, MetalLB 없음. 양쪽 모두 **Nginx Ingress Controller (NodePort)** 사�
 | /api/* | → API Gateway Pod :4000 | → API Gateway Pod :4000 |
 | / | → Frontend Pod :3000 | → Frontend Pod :3000 |
 
-> 온프레미스는 LXD VM이 공인IP 없어 c8i.2xlarge 위 Nginx가 NAT 역할.  
+> 온프레미스는 LXD 컨테이너가 공인IP 없어 c8i.2xlarge 위 Nginx가 NAT 역할.  
 > API Gateway, Frontend 서비스는 ClusterIP — Nginx Ingress가 외부 라우팅 전담.
+
+> **경로 비대칭에 대하여 (왜 이렇게 했는가):**  
+> 온프레미스만 EC2 호스트 Nginx 홉이 한 단계 더 있다. LXD 컨테이너는 공인IP가 없어 c8i.2xlarge가
+> NAT 역할을 해야 하기 때문이며, 이는 제거할 수 없는 **온프레미스의 구조적 특성**이다.
+> 이 홉은 약간의 지연을 추가하므로, **두 환경의 응답시간을 절대값으로 직접 비교하지 않는다.**
+> 대신 각 환경의 저부하 베이스라인을 기준점으로 잡고, 부하 증가에 따른 **상대적 악화율(%)** 을 비교한다.
+> (홉 오버헤드는 베이스라인에 이미 포함되어 상쇄됨 → 부하 증가가 만드는 *변화*만 순수 비교)
 
 **NodePort 고정 설정:**
 
@@ -306,9 +320,25 @@ server {
 
 ## 실험 공정성 기준
 
+### 실험 프레임 — 무엇을 비교하는가
+
+이 실험은 *"어느 환경이 더 빠른가"* 를 가리는 것이 아니라,
+**"고정 자원의 한계(온프레미스) vs 탄력적 노드 확장(EKS)이 만드는 운영 특성 차이"** 를 측정한다.
+
+- **온프레미스**: 고정된 워커노드 2대에서 **HPA(파드 수평 확장)만으로** 부하를 감당한다.
+  노드 자원이 소진되면 HPA가 추가하려는 Pod는 갈 곳이 없어 **Pending** 으로 쌓이고, 처리 지연·실패로 한계가 드러난다.
+- **EKS**: 동일한 HPA + **Karpenter(노드 자동 확장)**. Pending이 발생하면 노드를 새로 띄워 해소한다.
+
+> **→ 온프레미스에서 Pending이 쌓이고 Error Rate가 오르는 것은 "패배"가 아니라 측정하려는 현상 그 자체다.**
+> 멘토 질문 *"노드를 못 늘려서 진 것 아니냐"* 에 대한 답: **노드 확장 유무가 곧 이 실험의 독립변수**다.
+> 그래서 온프레미스에 의도적으로 추가 노드 여력을 주지 않는다 (주면 EKS와 동일해져 비교 자체가 사라짐).
+
 ### 반드시 같아야 하는 것
 
-- Docker 이미지 (완전히 동일한 버전)
+- Docker 이미지 (완전히 동일한 버전) — **`:latest` 금지, 커밋 SHA 태그로 고정**
+  > `latest`는 CD가 push할 때마다 가리키는 실제 이미지가 바뀌는 "떠다니는 딱지"다.
+  > 온프레미스와 EKS가 서로 다른 시각에 `latest`를 pull하면 그 사이 새 push로 인해 **다른 이미지**를 받아 공정성이 깨진다.
+  > → 실험 배포 시 `image: ...:latest` 를 `image: ...:<커밋SHA>` 로 고정해 양쪽이 100% 동일 이미지를 받게 한다.
 - Locust 스크립트 (GitHub 공통 레포 관리)
 - RPS 설정 (동일한 부하량)
 - 실험 시간 (동일한 시간대, 동시 시작)
@@ -345,7 +375,8 @@ locust -f locustfile.py --host http://<타겟-IP> \
 | DB | PostgreSQL (온프레미스: EC2 직접 / EKS: RDS 관리형) |
 | 캐시 | Redis (k8s 외부 EC2) |
 | 컨테이너 | Docker 단일 이미지 |
-| 레지스트리 | AWS ECR |
+| 레지스트리 | GHCR (ghcr.io/incheon-soda) |
+| 부하 도구 | **k6** (Docker Compose, Prometheus remote write) |
 
 ### 페이지 구성
 
@@ -856,7 +887,7 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 | 항목 | 버전 |
 |---|---|
 | Ubuntu (온프레미스 VM) | 24.04.4 LTS |
-| k8s | v1.32.12 (온프레미스·EKS 동일) |
+| k8s | v1.34.x (온프레미스·EKS 동일) |
 | CNI (온프레미스) | Flannel v0.26.7 |
 | CNI (EKS) | AWS VPC CNI |
 | Docker Engine | 29.3.1 |

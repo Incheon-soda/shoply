@@ -89,8 +89,13 @@ app.get('/metrics', async (_req, res) => {
   res.end(await register.metrics());
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`[gateway] :${PORT}`);
   console.log(`  /api/auth  → ${SVC.user}`);
 });
 
+
+process.on('SIGTERM', () => {
+  console.log('[SIGTERM] graceful shutdown');
+  server.close(() => process.exit(0));
+});
