@@ -4,71 +4,66 @@ global:
 
 scrape_configs:
 
+  # ── 온프레미스 앱 메트릭 ──────────────────────────────────────
   - job_name: 'app-onprem'
     static_configs:
       - targets:
-          - '10.0.1.204:30400'
-          - '10.0.1.204:30401'
-          - '10.0.1.204:30402'
-          - '10.0.1.204:30403'
-          - '10.0.1.204:30404'
+          - '10.0.15.180:30400'   # gateway
+          - '10.0.15.180:30401'   # product
+          - '10.0.15.180:30402'   # inventory
+          - '10.0.15.180:30403'   # order
+          - '10.0.15.180:30404'   # payment
     relabel_configs:
       - target_label: env
         replacement: onprem
 
+  # ── Node Exporter (K8s EC2 호스트 + KVM 워커) ───────────────
+  # KVM 워커는 EC2 호스트에서 iptables 포워딩 후 주석 해제
   - job_name: 'node-onprem'
     static_configs:
       - targets:
-          - '10.0.1.204:9100'    # K8s EC2 호스트
-          - '10.0.1.204:39101'   # k8s-worker1 (10.101.164.9)
-          - '10.0.1.204:39102'   # k8s-worker2 (10.101.164.216)
+          - '10.0.15.180:9100'    # K8s EC2 호스트
+          - '10.0.15.180:39101'   # KVM worker1 (iptables 포워딩)
+          - '10.0.15.180:39102'   # KVM worker2 (iptables 포워딩)
     relabel_configs:
       - target_label: env
         replacement: onprem
 
+  # ── Node Exporter (PostgreSQL / Redis EC2) ───────────────────
   - job_name: 'node-db-onprem'
     static_configs:
       - targets:
-          - '10.0.14.211:9100'
-          - '10.0.4.229:9100'
+          - '10.0.0.175:9100'    # PostgreSQL EC2
+          - '10.0.2.173:9100'    # Redis EC2
     relabel_configs:
       - target_label: env
         replacement: onprem
 
+  # ── PostgreSQL Exporter ───────────────────────────────────────
   - job_name: 'postgres-onprem'
     static_configs:
-      - targets: ['10.0.14.211:9187']
+      - targets: ['10.0.0.175:9187']
     relabel_configs:
       - target_label: env
         replacement: onprem
 
+  # ── Redis Exporter ────────────────────────────────────────────
   - job_name: 'redis-onprem'
     static_configs:
-      - targets: ['10.0.4.229:9121']
+      - targets: ['10.0.2.173:9121']
     relabel_configs:
       - target_label: env
         replacement: onprem
 
+  # ── kube-state-metrics ────────────────────────────────────────
   - job_name: 'kube-state-onprem'
     static_configs:
-      - targets: ['10.0.1.204:30800']
+      - targets: ['10.0.15.180:30800']
     relabel_configs:
       - target_label: env
         replacement: onprem
 
-  # ── LXD 컨테이너 메트릭 (워커별 CPU/메모리) ─────────────────
-  - job_name: 'lxd-onprem'
-    scheme: https
-    tls_config:
-      insecure_skip_verify: true
-    static_configs:
-      - targets: ['10.0.1.204:9292']
-    metrics_path: '/1.0/metrics'
-    relabel_configs:
-      - target_label: env
-        replacement: onprem
-
-  # EKS 항목 - EKS 구성 완료 후 추가
+  # ── EKS 항목 (EKS 구성 완료 후 주석 해제) ────────────────────
   # - job_name: 'app-eks'
   # - job_name: 'node-eks'
   # - job_name: 'kube-state-eks'

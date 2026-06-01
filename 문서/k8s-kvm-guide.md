@@ -119,19 +119,25 @@ done
 ```
 
 ```bash
-# cloud-init user-data 생성
-cat << 'EOF' > /tmp/user-data
+# 패스워드 해시 미리 생성 (ubuntu1234)
+HASH=$(openssl passwd -6 ubuntu1234)
+echo $HASH   # 값 확인
+
+# cloud-init user-data 생성 (해시값 직접 삽입)
+cat > /tmp/user-data << EOF
 #cloud-config
 users:
   - name: ubuntu
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     lock_passwd: false
-    passwd: "$6$$(python3 -c "import crypt; print(crypt.crypt('ubuntu1234', crypt.mksalt(crypt.METHOD_SHA512)))")"
+    passwd: "${HASH}"
 ssh_pwauth: true
 package_update: false
 EOF
 ```
+
+> ⚠️ `<<'EOF'` (따옴표 있음) 쓰면 `$HASH` 변수가 치환 안 됨 → 반드시 `<< EOF` (따옴표 없음) 사용
 
 ```bash
 # VM 생성 (각각 2vCPU / 4GB RAM)
@@ -141,7 +147,7 @@ for vm in k8s-master k8s-worker1 k8s-worker2; do
   echo "local-hostname: ${vm}" >> /tmp/meta-data-${vm}
 
   # cloud-init iso 생성
-  cloud-localds /var/lib/libvirt/images/${vm}-cloud-init.iso \
+  sudo cloud-localds /var/lib/libvirt/images/${vm}-cloud-init.iso \
     /tmp/user-data /tmp/meta-data-${vm}
 
   # VM 생성
@@ -161,10 +167,10 @@ done
 
 ```bash
 # VM 상태 확인
-virsh list --all
+sudo virsh list --all
 
 # VM IP 확인
-virsh net-dhcp-leases default
+sudo virsh net-dhcp-leases default
 ```
 
 > ⚠️ VM IP는 DHCP라 재부팅 시 바뀔 수 있음 → `virsh net-dhcp-leases default` 로 확인
@@ -175,7 +181,7 @@ virsh net-dhcp-leases default
 
 ```bash
 # IP 확인
-virsh net-dhcp-leases default
+sudo virsh net-dhcp-leases default
 
 # SSH 접속
 ssh ubuntu@<VM-IP>
@@ -183,6 +189,30 @@ ssh ubuntu@<VM-IP>
 # 또는 virsh console
 virsh console k8s-master
 ```
+
+---
+
+## 3-1단계 - DNS 설정 (EC2 호스트 + VM 3개 모두)
+
+> ⚠️ KVM 환경에서 EC2 호스트와 모든 VM이 DNS 불통 → 반드시 직접 설정 필수
+> 안 하면 ghcr.io 이미지 pull 실패, helm 설치 실패, wget 실패
+
+```bash
+# EC2 호스트 + 각 VM (master, worker1, worker2) 모두 실행
+sudo rm /etc/resolv.conf
+echo "nameserver 8.8.8.8
+nameserver 8.8.4.4" | sudo tee /etc/resolv.conf
+
+# 확인
+nslookup ghcr.io
+```
+
+> ⚠️ reboot 후 resolv.conf가 덮어써질 수 있음
+> systemd-resolved 완전 비활성화 방법:
+> ```bash
+> sudo systemctl disable systemd-resolved
+> sudo systemctl stop systemd-resolved
+> ```
 
 ---
 
@@ -252,9 +282,7 @@ systemctl enable containerd
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | \
   gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
-echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] \
-  https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' \
-  > /etc/apt/sources.list.d/kubernetes.list
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
 
 apt update
 apt-cache madison kubeadm | head -5   # 버전 확인
@@ -267,6 +295,28 @@ apt-mark hold kubeadm kubelet kubectl
 ---
 
 ## 7단계 - K8s 클러스터 초기화
+
+> ⚠️ init 전 반드시 확인
+
+```bash
+# ip_forward 설정 확인 및 적용
+cat /proc/sys/net/ipv4/ip_forward
+# 0이면 아래 실행
+echo 1 > /proc/sys/net/ipv4/ip_forward
+sysctl -w net.ipv4.ip_forward=1
+
+# sysctl 설정 파일이 없으면 생성
+cat > /etc/sysctl.d/k8s.conf << 'EOF'
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+sysctl --system
+
+# 커널 모듈 로드 확인
+modprobe overlay
+modprobe br_netfilter
+```
 
 ```bash
 # master VM에서 실행
@@ -344,20 +394,228 @@ server {
 EOF
 
 sudo nginx -t && sudo systemctl restart nginx
-```
+```n
 
 ---
 
 ## VM 관리 명령어
 
 ```bash
-virsh list --all                    # VM 목록
-virsh start k8s-master             # VM 시작
-virsh shutdown k8s-master          # VM 정상 종료
-virsh destroy k8s-master           # VM 강제 종료
-virsh net-dhcp-leases default      # VM IP 확인
-ssh ubuntu@<VM-IP>                 # VM SSH 접속
+sudo virsh list --all                    # VM 목록
+sudo virsh start k8s-master             # VM 시작
+sudo virsh shutdown k8s-master          # VM 정상 종료
+sudo virsh destroy k8s-master           # VM 강제 종료
+sudo virsh net-dhcp-leases default      # VM IP 확인
+ssh ubuntu@<VM-IP>                      # VM SSH 접속
 ```
+
+---
+
+---
+
+## 11단계 - 서비스 배포
+
+> master VM에 SSH 접속 후 실행
+
+```bash
+# 1. 맥에서 EC2로 매니페스트 전송
+scp -i ~/key/aws-3tier-keypair.pem -r \
+  /Users/kimminseo/shopping_k8s/msa_shoply/k8s \
+  ubuntu@<EC2-공인IP>:~/k8s-manifests
+
+# 2. EC2에서 master VM으로 전송
+scp -r ~/k8s-manifests ubuntu@<master-VM-IP>:~/
+
+# 3. master VM 접속
+ssh ubuntu@<master-VM-IP>
+sudo -i   # root로 전환
+```
+
+```bash
+# 4. namespace, configmap, secret 적용
+cat /home/ubuntu/k8s-manifests/common/namespace.yaml | kubectl apply -f -
+
+kubectl create secret docker-registry ghcr-secret \
+  --docker-server=ghcr.io --docker-username=dummy --docker-password=dummy \
+  --namespace=shoply 2>/dev/null || true
+
+cat /home/ubuntu/k8s-manifests/common/configmap.yaml | kubectl apply -f -
+cat /home/ubuntu/k8s-manifests/onprem/configmap-patch.yaml | kubectl apply -f -
+cat /home/ubuntu/k8s-manifests/common/secret.yaml | kubectl apply -f -
+
+# 5. 서비스 배포 (replicas: 1)
+for f in user product inventory order payment gateway frontend; do
+  cat /home/ubuntu/k8s-manifests/common/$f.yaml | kubectl apply -f -
+done
+
+cat /home/ubuntu/k8s-manifests/onprem/nodeport-services.yaml | kubectl apply -f -
+cat /home/ubuntu/k8s-manifests/onprem/ingress.yaml | kubectl apply -f -
+
+# 6. gateway 서비스 추가 (frontend DNS 해결용)
+kubectl expose deployment gateway \
+  --name=gateway --port=4000 --target-port=4000 \
+  --namespace=shoply 2>/dev/null || true
+
+# 7. 상태 확인
+kubectl get pods -n shoply
+```
+
+# 8. HPA 배포
+cat /home/ubuntu/k8s-manifests/common/hpa.yaml | kubectl apply -f -
+kubectl get hpa -n shoply
+```
+
+> ⚠️ root로 접속 시 `~/` = `/root/` → 반드시 `/home/ubuntu/k8s-manifests/` 절대경로 사용
+
+---
+
+## 현재 진행 현황 (2026-06-01 기준)
+
+> VM IP는 매번 바뀜 → `sudo virsh net-dhcp-leases default` 로 확인
+
+### 진행 상태
+
+| 단계 | 상태 | 비고 |
+|---|---|---|
+| 0. 중첩 가상화 활성화 | ✅ | `kvm-ok` 확인 |
+| 1. EC2 디스크 확장 | ✅ | |
+| 2. KVM 설치 | ✅ | |
+| 3. VM 3개 생성 | ✅ | ubuntu/ubuntu1234 |
+| 4. 공통 OS 설정 | ✅ | kubeadm init 전 ip_forward 수동 적용 |
+| 5. containerd 설치 | ✅ | |
+| 6. kubeadm 1.34.8 설치 | ✅ | |
+| 7. K8s 클러스터 초기화 | ✅ | master: 192.168.122.101 |
+| 8. Flannel CNI | ✅ | |
+| 9. Nginx Ingress | ✅ | helm ingress-nginx 4.9.0 |
+| 10. 호스트 Nginx | ✅ | EC2 → master-VM-IP:30080 |
+| 11. 서비스 배포 | ✅ | replicas: 1 |
+| 12. kube-state-metrics + node_exporter | ✅ | 모니터링용 |
+| 13. Prometheus iptables 포워딩 | ✅ | 30400~30404, 30800, 39101, 39102 |
+| 14. HPA 배포 | ✅ | maxReplicas: 99, scaleDown: 60s |
+| 15. metrics-server 설치 | ✅ | --kubelet-insecure-tls |
+
+### 트러블슈팅 기록
+
+| 문제 | 원인 | 해결 |
+|---|---|---|
+| virsh 명령 안 됨 | sudo 없이 실행 | `sudo virsh ...` |
+| cloud-init 로그인 불가 | passwd 해시 오류 (`<<'EOF'` 내 `$()` 미실행) | `openssl passwd -6`로 해시 미리 생성 |
+| kubernetes.list malformed | 백슬래시 줄바꿈 오류 | 한 줄 echo로 직접 작성 |
+| ip_forward 미설정 | 4단계 OS 설정 누락 | kubeadm init 전 수동 적용 |
+| k8s-manifests 경로 오류 | root로 접속 시 `~/` = `/root/` | `/home/ubuntu/k8s-manifests/` 절대경로 사용 |
+| EC2→master VM SSH 패스워드 안 됨 | VM SSH 키 미설정 | `sudo virsh console k8s-master`로 직접 접속 |
+| 404 Not Found (ingress) | ingress.yaml 미적용 | master VM에서 직접 ingress kubectl apply |
+| ImagePullBackOff (ghcr.io DNS 타임아웃) | KVM VM 내 systemd-resolved DNS 불통 | `/etc/resolv.conf` symlink 끊고 8.8.8.8 직접 설정 |
+| node_exporter 실행 안 됨 (EXEC 203) | 바이너리가 `/usr/local/bin`에 없음 | `sudo install -m 755` 로 설치 |
+| Prometheus 30800/30400 연결 안 됨 | iptables FORWARD 체인 차단 | `iptables -I FORWARD -d 192.168.122.0/24 -j ACCEPT` 추가 |
+| wget DNS 실패 (EC2 호스트) | EC2 호스트도 systemd-resolved 불통 | EC2 호스트 `/etc/resolv.conf`도 8.8.8.8로 교체 |
+| 서비스 CrashLoopBackOff → 자동 복구 | DB 연결 초기화 시간 필요 | 기다리면 자동 복구됨 (exponential backoff)|
+| inventory/order CrashLoopBackOff (liveness 404) | 이미지에 `/livez` 엔드포인트 없음 | inventory, order 이미지 재빌드 트리거 |
+
+### EC2에서 master VM으로 매니페스트 적용하는 법
+
+```bash
+# 방법 1: virsh console로 직접 접속
+sudo virsh console k8s-master
+
+# 방법 2: EC2에서 SSH 파이프 (키 인증 설정된 경우)
+cat ~/k8s-manifests/onprem/ingress.yaml | ssh ubuntu@<master-VM-IP> "kubectl apply -f -"
+
+# 방법 3: ingress 직접 apply (master VM에서)
+cat << 'EOF' | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shoply-ingress
+  namespace: shoply
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-svc
+                port:
+                  number: 4000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-svc
+                port:
+                  number: 80
+EOF
+```
+
+## 12단계 - kube-state-metrics + node_exporter 설치 (모니터링용)
+
+### kube-state-metrics (master VM에서)
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install kube-state-metrics prometheus-community/kube-state-metrics \
+  --namespace kube-system \
+  --set service.type=NodePort \
+  --set service.nodePort=30800
+```
+
+### node_exporter (worker1, worker2 VM 각각)
+
+```bash
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.0/node_exporter-1.8.0.linux-amd64.tar.gz
+tar xzf node_exporter-1.8.0.linux-amd64.tar.gz
+sudo mv node_exporter-1.8.0.linux-amd64/node_exporter /usr/local/bin/
+
+sudo tee /etc/systemd/system/node_exporter.service << 'EOF'
+[Unit]
+Description=Node Exporter
+[Service]
+ExecStart=/usr/local/bin/node_exporter
+Restart=always
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload && sudo systemctl enable --now node_exporter
+```
+
+### EC2 호스트 iptables 포워딩 (EC2에서)
+
+```bash
+# VM IP 확인
+sudo virsh net-dhcp-leases default
+
+MASTER_IP=<master-VM-IP>
+WORKER1_IP=<worker1-VM-IP>
+WORKER2_IP=<worker2-VM-IP>
+
+# 앱 메트릭 NodePort
+for port in 30400 30401 30402 30403 30404 30800; do
+  sudo iptables -t nat -A PREROUTING -p tcp --dport $port -j DNAT --to-destination $MASTER_IP:$port
+done
+
+# 워커 node_exporter
+sudo iptables -t nat -A PREROUTING -p tcp --dport 39101 -j DNAT --to-destination $WORKER1_IP:9100
+sudo iptables -t nat -A PREROUTING -p tcp --dport 39102 -j DNAT --to-destination $WORKER2_IP:9100
+sudo iptables -t nat -A POSTROUTING -j MASQUERADE
+
+sudo apt install -y iptables-persistent && sudo netfilter-persistent save
+```
+
+> **SG-K8s 보안그룹 인바운드 필수:**
+>
+> | 포트 | 소스 | 용도 |
+> |---|---|---|
+> | 9100 | 모니터링 SG | K8s EC2 호스트 node_exporter |
+> | 30400~30404 | 모니터링 SG | 앱 메트릭 NodePort |
+> | 30800 | 모니터링 SG | kube-state-metrics NodePort |
+> | 39101 | 모니터링 SG | KVM worker1 node_exporter |
+> | 39102 | 모니터링 SG | KVM worker2 node_exporter |
 
 ---
 

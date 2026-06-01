@@ -2,17 +2,19 @@
 
 ---
 
-## 시나리오 흐름 (로그인 포함)
+## 시나리오 흐름
 
 ```
+setup() - 테스트 시작 전 1회만 로그인 (test1@shoply.com) → JWT 토큰 발급
+         → 모든 VU가 토큰 공유 (user 서비스 과부하 방지)
+
 1. 홈페이지 접속         GET /
-2. 로그인                POST /api/auth/login  (test1~2000 랜덤, JWT 취득)
-3. 상품 페이지 접속      GET /api/products/:id  (20개 상품 중 랜덤)
-4. 무작위 사이즈 선택 후 주문  POST /api/orders
-5. 배송지 입력(a,a,a) 후 결제 POST /api/payments
+2. 상품 페이지 접속      GET /api/products/:id  (20개 상품 중 랜덤)
+3. 무작위 사이즈 선택 후 주문  POST /api/orders
+4. 배송지 입력(a,a,a) 후 결제 POST /api/payments
 ```
 
-> 3~5단계는 `Authorization: Bearer <token>` 헤더 포함 (Gateway JWT 검증)
+> 2~4단계는 `Authorization: Bearer <token>` 헤더 포함
 
 ---
 

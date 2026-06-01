@@ -30,40 +30,10 @@
 ### User Data (EC2 생성 시 붙여넣기)
 
 > AWS 콘솔 → EC2 인스턴스 시작 → 고급 세부 정보 → 사용자 데이터
+>
+> **파일 참고:** `msa_shoply/infra/userdata/postgresql.sh` 내용을 붙여넣기
 
-```bash
-#!/bin/bash
-# ── 로그 출력 설정 ─────────────────────────────────────────────
-exec > /var/log/user-data.log 2>&1
-set -e
-
-# ── 패키지 업데이트 ────────────────────────────────────────────
-apt-get update -y
-apt-get upgrade -y
-
-# ── Docker 설치 (공식 저장소) ──────────────────────────────────
-apt-get install -y ca-certificates curl gnupg
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-chmod a+r /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | tee /etc/apt/sources.list.d/docker.list
-apt-get update -y
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-systemctl enable docker
-systemctl start docker
-usermod -aG docker ubuntu
-
-# ── 작업 디렉토리 생성 ─────────────────────────────────────────
-mkdir -p /home/ubuntu/postgres/init
-chown -R ubuntu:ubuntu /home/ubuntu/postgres
-
-# ── 완료 마커 ─────────────────────────────────────────────────
-echo "USER_DATA_DONE" > /home/ubuntu/.userdata_complete
-echo "PostgreSQL EC2 User Data 완료: $(date)"
-```
-
-> User Data 완료 확인: `cat /var/log/user-data.log`  
-> 완료 마커 확인: `ls /home/ubuntu/.userdata_complete`
+> 완료 확인: `cat /var/log/user-data.log`
 
 ---
 
@@ -82,36 +52,7 @@ echo "PostgreSQL EC2 User Data 완료: $(date)"
 
 ### User Data (EC2 생성 시 붙여넣기)
 
-```bash
-#!/bin/bash
-# ── 로그 출력 설정 ─────────────────────────────────────────────
-exec > /var/log/user-data.log 2>&1
-set -e
-
-# ── 패키지 업데이트 ────────────────────────────────────────────
-apt-get update -y
-apt-get upgrade -y
-
-# ── Docker 설치 (공식 저장소) ──────────────────────────────────
-apt-get install -y ca-certificates curl gnupg
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-chmod a+r /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | tee /etc/apt/sources.list.d/docker.list
-apt-get update -y
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-systemctl enable docker
-systemctl start docker
-usermod -aG docker ubuntu
-
-# ── 작업 디렉토리 생성 ─────────────────────────────────────────
-mkdir -p /home/ubuntu/redis
-chown -R ubuntu:ubuntu /home/ubuntu/redis
-
-# ── 완료 마커 ─────────────────────────────────────────────────
-echo "USER_DATA_DONE" > /home/ubuntu/.userdata_complete
-echo "Redis EC2 User Data 완료: $(date)"
-```
+> **파일 참고:** `msa_shoply/infra/userdata/redis.sh` 내용을 붙여넣기
 
 ---
 

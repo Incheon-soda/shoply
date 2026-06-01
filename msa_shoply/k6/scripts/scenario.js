@@ -3,7 +3,7 @@ import { check } from 'k6';
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost';
 
-// 20개 상품으로 분산 → SELECT FOR UPDATE lock 경합 줄임
+// 20개 상품으로 분산
 const PRODUCTS = [
   '86f68efd-84f7-4630-9c50-4133f95cc67d',
   '311362ee-0a57-4775-bd3f-648a732f5531',
@@ -27,9 +27,6 @@ const PRODUCTS = [
   '157192dd-1412-4afe-9ec7-cfdda556d25e',
 ];
 
-// ── 시나리오 구성 ─────────────────────────────────────────────
-// 10개 웨이브 × 200명 = 총 2000명
-// 계정: test1~test2000@shoply.com / Test1234!
 export const options = {
   scenarios: {
     wave_A: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '0s',  tags: { wave: 'A' } },
@@ -49,32 +46,32 @@ export const options = {
   },
 };
 
-export default function () {
+// ── setup(): 테스트 시작 전 토큰 1개 발급 ───────────────────────
+export function setup() {
+  const res = http.post(
+    `${BASE_URL}/api/auth/login`,
+    JSON.stringify({ email: 'test1@shoply.com', password: 'Test1234!' }),
+    { headers: { 'Content-Type': 'application/json' } },
+  );
+  const token = res.status === 200 ? res.json('token') : '';
+  console.log(`로그인 ${res.status === 200 ? '성공' : '실패'}`);
+  return { token };
+}
+
+export default function (data) {
+
+  const authHeaders = {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${data.token}`,
+    },
+  };
 
   // ── 1. 홈페이지 접속 ────────────────────────────────────────
   const homeRes = http.get(`${BASE_URL}/`);
   check(homeRes, { '홈 200': (r) => r.status === 200 });
 
-  // ── 2. 로그인 (test1~2000 랜덤) ──────────────────────────────
-  const n = Math.floor(Math.random() * 2000) + 1;
-  const loginRes = http.post(
-    `${BASE_URL}/api/auth/login`,
-    JSON.stringify({ email: `test${n}@shoply.com`, password: 'Test1234!' }),
-    { headers: { 'Content-Type': 'application/json' } },
-  );
-  check(loginRes, { '로그인 200': (r) => r.status === 200 });
-
-  if (loginRes.status !== 200) return;
-
-  const token = loginRes.json('token');
-  const authHeaders = {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  // ── 3. 상품 페이지 접속 ──────────────────────────────────────
+  // ── 2. 상품 페이지 접속 ──────────────────────────────────────
   const productId = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
   const productRes = http.get(`${BASE_URL}/api/products/${productId}`, authHeaders);
   check(productRes, { '상품 200': (r) => r.status === 200 });
@@ -88,7 +85,7 @@ export default function () {
 
   const selectedSize = availableSizes[Math.floor(Math.random() * availableSizes.length)];
 
-  // ── 4. 주문 생성 ──────────────────────────────────────────────
+  // ── 3. 주문 생성 ──────────────────────────────────────────────
   const orderRes = http.post(
     `${BASE_URL}/api/orders`,
     JSON.stringify({
@@ -102,7 +99,7 @@ export default function () {
 
   const orderId = orderRes.json('orderId');
 
-  // ── 5. 결제 ───────────────────────────────────────────────────
+  // ── 4. 결제 ───────────────────────────────────────────────────
   const paymentRes = http.post(
     `${BASE_URL}/api/payments`,
     JSON.stringify({

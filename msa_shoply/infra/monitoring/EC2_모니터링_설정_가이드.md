@@ -32,31 +32,9 @@
 
 ## 1. EC2 User Data (인스턴스 생성 시)
 
-```bash
-#!/bin/bash
-exec > /var/log/user-data.log 2>&1
-set -e
-
-apt-get update -y
-apt-get upgrade -y
-
-# Docker 공식 저장소 설치
-apt-get install -y ca-certificates curl gnupg
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-chmod a+r /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | tee /etc/apt/sources.list.d/docker.list
-apt-get update -y
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-systemctl enable docker
-systemctl start docker
-usermod -aG docker ubuntu
-
-mkdir -p /home/ubuntu/monitoring/prometheus
-chown -R ubuntu:ubuntu /home/ubuntu/monitoring
-
-echo "USER_DATA_DONE" > /home/ubuntu/.userdata_complete
-```
+> **파일 참고:** `msa_shoply/infra/userdata/monitoring.sh` 내용을 User Data에 붙여넣기
+>
+> 완료 확인: `cat /var/log/user-data.log`
 
 ---
 
