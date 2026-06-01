@@ -106,13 +106,14 @@ virsh list --all
 > Ubuntu 24.04 cloud image 사용
 
 ```bash
-# cloud image 다운로드
-wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+# cloud image 다운로드 (libvirt 이미지 디렉토리에 직접)
+sudo wget -O /var/lib/libvirt/images/ubuntu-24.04-server-cloudimg-amd64.img \
+  https://cloud-images.ubuntu.com/releases/24.04/release/ubuntu-24.04-server-cloudimg-amd64.img
 
 # 각 VM용 디스크 이미지 생성 (30GB)
 for vm in k8s-master k8s-worker1 k8s-worker2; do
   sudo qemu-img create -f qcow2 -F qcow2 \
-    -b noble-server-cloudimg-amd64.img \
+    -b /var/lib/libvirt/images/ubuntu-24.04-server-cloudimg-amd64.img \
     /var/lib/libvirt/images/${vm}.qcow2 30G
 done
 ```
