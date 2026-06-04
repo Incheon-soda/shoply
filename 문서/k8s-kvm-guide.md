@@ -273,22 +273,24 @@ systemctl enable containerd
 
 ---
 
-## 6단계 - kubeadm / kubelet / kubectl 설치 (VM 3개)
+## 6단계 - kubeadm / kubelet / kubectl 설치 (VM 3개 각각)
 
-> EKS 버전 확인 후 동일 버전 설치
+> K8s 버전: **1.34.8** (EKS 버전과 동일)
 
 ```bash
-# 버전 확인
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | \
-  gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+# GPG 키 등록
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
+# 저장소 추가 (반드시 한 줄로 — 줄바꿈 시 malformed 오류)
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
 
 apt update
-apt-cache madison kubeadm | head -5   # 버전 확인
 
-# 설치 (버전은 EKS에 맞게)
-apt install -y kubeadm=<버전> kubelet=<버전> kubectl=<버전>
+# 설치 가능한 버전 확인
+apt-cache madison kubeadm | head -5
+
+# 설치
+apt install -y kubeadm=1.34.8-1.1 kubelet=1.34.8-1.1 kubectl=1.34.8-1.1
 apt-mark hold kubeadm kubelet kubectl
 ```
 
@@ -375,26 +377,180 @@ helm install ingress-nginx ingress-nginx/ingress-nginx \
 
 ## 10단계 - 호스트 Nginx 설정 (EC2 → VM 포워딩)
 
+> 서비스 배포 전에 반드시 완료해야 합니다.
+
 ```bash
-# EC2 호스트에서
-sudo apt install -y nginx
+# Nginx 설치
+sudo apt update && sudo apt install -y nginx
 
 # master VM IP 확인
-virsh net-dhcp-leases default
+sudo virsh net-dhcp-leases default
 
-sudo tee /etc/nginx/sites-available/default << 'EOF'
+# master IP 변수에 저장
+MASTER_IP=$(sudo virsh net-dhcp-leases default | grep k8s-master | awk '{print $5}' | cut -d'/' -f1)
+echo "Master IP: $MASTER_IP"
+
+# Nginx 설정
+sudo tee /etc/nginx/sites-available/default << EOF
 server {
     listen 80;
     location / {
-        proxy_pass http://<master-VM-IP>:30080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_pass http://${MASTER_IP}:30080;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 EOF
 
 sudo nginx -t && sudo systemctl restart nginx
-```n
+
+# 확인
+curl http://localhost/
+```
+
+---
+
+## 11단계 - 모니터링 포트 설정
+
+### ⚠️ 0. prometheus.yml K8s EC2 IP 업데이트 (EC2 새로 만들 때마다)
+
+```
+msa_shoply/infra/monitoring/prometheus/prometheus.yml
+```
+파일에서 K8s EC2 사설 IP를 실제 값으로 교체합니다.
+
+```bash
+# K8s EC2 사설 IP 확인
+hostname -I | awk '{print $1}'
+```
+
+→ `10.0.x.x` IP를 prometheus.yml의 30400~30404, 9100, 39101, 39102, 30800 타겟에 반영
+
+---
+
+### ⚠️ 1. SG-K8s 보안그룹 인바운드 먼저 추가 (빠뜨리면 no route to host)
+
+> **반드시 먼저** 설정해야 합니다. 빠뜨리면 Prometheus가 no route to host 에러
+
+| 포트 | 소스 | 용도 |
+|---|---|---|
+| 9100 | SG-모니터링 | EC2 호스트 node_exporter |
+| 30400 - 30404 | SG-모니터링 | 앱 메트릭 NodePort |
+| 30800 | SG-모니터링 | kube-state-metrics |
+| 39101 | SG-모니터링 | KVM worker1 node_exporter |
+| 39102 | SG-모니터링 | KVM worker2 node_exporter |
+
+---
+
+### 1. EC2 호스트에 node_exporter 설치 (포트 9100)
+
+```bash
+# EC2 호스트에서
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.0/node_exporter-1.8.0.linux-amd64.tar.gz
+tar xzf node_exporter-1.8.0.linux-amd64.tar.gz
+sudo install -m 755 node_exporter-1.8.0.linux-amd64/node_exporter /usr/local/bin/node_exporter
+
+sudo tee /etc/systemd/system/node_exporter.service << 'EOF'
+[Unit]
+Description=Node Exporter
+[Service]
+ExecStart=/usr/local/bin/node_exporter
+Restart=always
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload && sudo systemctl enable --now node_exporter
+```
+
+### 2. metrics-server 설치 (HPA 필수)
+
+> HPA가 CPU 메트릭을 읽으려면 metrics-server가 있어야 함
+> KVM 환경에서는 `--kubelet-insecure-tls` 플래그 필수
+
+```bash
+# master VM에서
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+helm install metrics-server metrics-server/metrics-server \
+  --namespace kube-system \
+  --set args={--kubelet-insecure-tls}
+
+# 1~2분 후 확인
+kubectl top nodes
+kubectl get hpa -n shoply   # TARGETS에 숫자가 나와야 정상
+```
+
+### 3. kube-state-metrics 설치 (포트 30800)
+
+```bash
+# master VM에서
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install kube-state-metrics prometheus-community/kube-state-metrics \
+  --namespace kube-system \
+  --set service.type=NodePort \
+  --set service.nodePort=30800
+```
+
+### 3. KVM 워커 VM에 node_exporter 설치 (포트 39101, 39102)
+
+```bash
+# worker1, worker2 VM 각각에서
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.0/node_exporter-1.8.0.linux-amd64.tar.gz
+tar xzf node_exporter-1.8.0.linux-amd64.tar.gz
+sudo install -m 755 node_exporter-1.8.0.linux-amd64/node_exporter /usr/local/bin/node_exporter
+
+sudo tee /etc/systemd/system/node_exporter.service << 'EOF'
+[Unit]
+Description=Node Exporter
+[Service]
+ExecStart=/usr/local/bin/node_exporter
+Restart=always
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload && sudo systemctl enable --now node_exporter
+```
+
+### 4. iptables 포워딩 설정 (EC2 호스트에서)
+
+```bash
+# VM IP 확인
+sudo virsh net-dhcp-leases default
+
+MASTER_IP=<master-VM-IP>
+WORKER1_IP=<worker1-VM-IP>
+WORKER2_IP=<worker2-VM-IP>
+
+# 앱 메트릭 + kube-state-metrics
+for port in 30400 30401 30402 30403 30404 30800; do
+  sudo iptables -t nat -A PREROUTING -p tcp --dport $port -j DNAT --to-destination $MASTER_IP:$port
+done
+
+# 워커 node_exporter
+sudo iptables -t nat -A PREROUTING -p tcp --dport 39101 -j DNAT --to-destination $WORKER1_IP:9100
+sudo iptables -t nat -A PREROUTING -p tcp --dport 39102 -j DNAT --to-destination $WORKER2_IP:9100
+sudo iptables -t nat -A POSTROUTING -j MASQUERADE
+
+# FORWARD 허용 (외부 → KVM VM 트래픽)
+sudo iptables -I FORWARD -d 192.168.122.0/24 -j ACCEPT
+sudo iptables -I FORWARD -s 192.168.122.0/24 -j ACCEPT
+
+# 저장
+sudo mkdir -p /etc/iptables
+sudo iptables-save | sudo tee /etc/iptables/rules.v4
+```
+
+### 5. SG-K8s 보안그룹 인바운드 추가
+
+| 포트 | 소스 | 용도 |
+|---|---|---|
+| 9100 | 모니터링 SG | EC2 호스트 node_exporter |
+| 30400~30404 | 모니터링 SG | 앱 메트릭 NodePort |
+| 30800 | 모니터링 SG | kube-state-metrics |
+| 39101 | 모니터링 SG | KVM worker1 node_exporter |
+| 39102 | 모니터링 SG | KVM worker2 node_exporter |
 
 ---
 
@@ -449,7 +605,36 @@ for f in user product inventory order payment gateway frontend; do
 done
 
 cat /home/ubuntu/k8s-manifests/onprem/nodeport-services.yaml | kubectl apply -f -
-cat /home/ubuntu/k8s-manifests/onprem/ingress.yaml | kubectl apply -f -
+
+# ingress.yaml 적용 (파일 없으면 아래 직접 apply 방법 사용)
+cat /home/ubuntu/k8s-manifests/onprem/ingress.yaml | kubectl apply -f - 2>/dev/null || \
+cat << 'INGRESS' | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shoply-ingress
+  namespace: shoply
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gateway-svc
+                port:
+                  number: 4000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-svc
+                port:
+                  number: 80
+INGRESS
 
 # 6. gateway 서비스 추가 (frontend DNS 해결용)
 kubectl expose deployment gateway \
