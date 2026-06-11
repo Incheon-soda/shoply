@@ -7,11 +7,11 @@ data:
   # PostgreSQL — 온프레미스 EC2 주소로 변경
   POSTGRES_DB: "shoply"
   POSTGRES_USER: "shoply"
-  POSTGRES_HOST: "10.0.0.175"
+  POSTGRES_HOST: "10.0.15.83"
   POSTGRES_PORT: "5432"
 
   # Redis — 온프레미스 EC2 주소로 변경
-  REDIS_HOST: "10.0.2.173"
+  REDIS_HOST: "10.0.8.188"
   REDIS_PORT: "6379"
 
   # Service URLs

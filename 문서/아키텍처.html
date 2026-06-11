@@ -7,152 +7,158 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-    background:#0d1117;color:#e6edf3;padding:30px 16px 70px}
-  .wrap{max-width:560px;margin:0 auto}
-  h1{font-size:22px;text-align:center;margin-bottom:4px}
-  .sub{text-align:center;color:#8b949e;font-size:13px;margin-bottom:24px}
-  .diagram{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:22px 18px;margin-bottom:26px}
-  .title{font-size:15px;font-weight:700;margin-bottom:16px;text-align:center;padding:7px;border-radius:8px}
+    background:#0d1117;color:#e6edf3;padding:30px 16px 70px;line-height:1.5}
+  .wrap{max-width:680px;margin:0 auto}
+  h1{font-size:23px;text-align:center;margin-bottom:4px}
+  .sub{text-align:center;color:#8b949e;font-size:13px;margin-bottom:26px}
+  .section{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:22px 18px;margin-bottom:22px}
+  .stitle{font-size:16px;font-weight:700;margin-bottom:16px;text-align:center;padding:8px;border-radius:8px}
   .t-on{background:#3a2a12;color:#fbbf24}
   .t-eks{background:#0d2a3a;color:#7dd3fc}
-  .node{border-radius:9px;padding:9px 12px;text-align:center;font-size:13px;font-weight:600;color:#fff;
+  .t-scn{background:#1c2128;color:#e6edf3;border:1px solid #30363d}
+  .node{border-radius:9px;padding:8px 11px;text-align:center;font-size:12.5px;font-weight:600;color:#fff;
     box-shadow:0 1px 3px rgba(0,0,0,.4)}
-  .node small{display:block;font-size:10px;font-weight:400;opacity:.8;margin-top:1px}
-  .user{background:#4b5563}
-  .lb{background:#4f46e5}
-  .ingress{background:#6d28d9}
-  .gw{background:#4f46e5}
-  .fe{background:#047857}
-  .svc{background:#1d4ed8}
-  .pg{background:#b45309}
-  .redis{background:#9f1239}
-  .load{background:#7f1d1d}
-  .mon{background:#15803d}
-  .karp{background:#0e7490}
-  .arrow{text-align:center;color:#6e7681;font-size:14px;margin:5px 0}
-  .row{display:flex;gap:8px;justify-content:center;margin:7px 0;flex-wrap:wrap}
-  .row .node{flex:1;min-width:90px}
-  .group{border:1px dashed #30363d;border-radius:10px;padding:12px 12px 8px;margin:9px 0;position:relative}
-  .group-label{position:absolute;top:-9px;left:12px;background:#161b22;padding:0 7px;font-size:11px;color:#8b949e}
-  .tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:5px;vertical-align:middle}
-  .tag-fix{background:#7f1d1d;color:#fca5a5}
-  .tag-auto{background:#14532d;color:#86efac}
-  .note{font-size:11.5px;color:#8b949e;margin-top:8px;text-align:center}
-  .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:11px;color:#8b949e;margin-top:6px}
-  .legend span::before{content:"●";margin-right:3px}
-  .diff{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:16px;font-size:13px}
-  .diff table{width:100%;border-collapse:collapse}
-  .diff td,.diff th{padding:7px 9px;border:1px solid #30363d;text-align:left}
-  .diff th{background:#21262d}
-  .on-c{color:#fbbf24;font-weight:700}
-  .eks-c{color:#7dd3fc;font-weight:700}
+  .node small{display:block;font-size:9.5px;font-weight:400;opacity:.82;margin-top:1px}
+  .k6{background:#4b5563}.host{background:#6d28d9}.ingress{background:#7c3aed}
+  .gw{background:#4f46e5}.fe{background:#047857}.svc{background:#1d4ed8}
+  .pg{background:#b45309}.redis{background:#9f1239}.mon{background:#15803d}.karp{background:#0e7490}
+  .arrow{text-align:center;color:#6e7681;font-size:13px;margin:4px 0}
+  .row{display:flex;gap:7px;justify-content:center;margin:6px 0;flex-wrap:wrap}
+  .row .node{flex:1;min-width:84px}
+  .group{border:1px dashed #30363d;border-radius:10px;padding:13px 11px 8px;margin:9px 0;position:relative}
+  .glabel{position:absolute;top:-9px;left:12px;background:#161b22;padding:0 7px;font-size:11px;color:#8b949e}
+  .tag{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:4px;margin-left:4px}
+  .tag-fix{background:#7f1d1d;color:#fca5a5}.tag-auto{background:#14532d;color:#86efac}
+  .note{font-size:11px;color:#8b949e;margin-top:8px;text-align:center}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12.5px}
+  td,th{padding:7px 9px;border:1px solid #30363d;text-align:left}
+  th{background:#21262d}
+  .on-c{color:#fbbf24;font-weight:700}.eks-c{color:#7dd3fc;font-weight:700}
+  .scn-row{display:grid;grid-template-columns:60px 1fr 1fr;gap:8px;align-items:center;margin:8px 0;font-size:12px}
+  .scn-h{font-weight:700;text-align:center;color:#8b949e}
+  .badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700}
+  .b-on{background:#3a2a12;color:#fbbf24}.b-eks{background:#0d2a3a;color:#7dd3fc}
+  .bar{font-family:Menlo,monospace;font-size:11px;letter-spacing:-1px}
+  .red{color:#f87171}.grn{color:#4ade80}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>아키텍처 구조</h1>
-  <div class="sub">온프레미스 k8s vs AWS EKS — 같은 앱, 다른 인프라</div>
+  <div class="sub">온프레미스 k8s (KVM) vs AWS EKS — 같은 앱, 다른 인프라</div>
 
-  <!-- 온프레미스 -->
-  <div class="diagram">
-    <div class="title t-on">🟠 온프레미스 (LXD 컨테이너 위 k8s)</div>
+  <!-- ===== 온프레미스 ===== -->
+  <div class="section">
+    <div class="stitle t-on">🟠 온프레미스 (AWS EC2 + KVM 가상머신)</div>
 
-    <div class="row"><div class="node user">k6 부하 (Locust-A)</div></div>
-    <div class="arrow">▼ :80</div>
-    <div class="row"><div class="node lb">EC2 Nginx <small>NAT — 컨테이너는 공인IP 없음</small></div></div>
-    <div class="arrow">▼ upstream (VM2:30080 / VM3:30080)</div>
-    <div class="row"><div class="node ingress">Nginx Ingress <small>경로 라우팅</small></div></div>
-    <div class="arrow">▼</div>
+    <div class="row"><div class="node k6">k6 부하</div></div>
+    <div class="arrow">▼ HTTP :80</div>
 
     <div class="group">
-      <span class="group-label">k8s 클러스터 — LXD 노드 2개 <span class="tag tag-fix">고정 (확장 X)</span></span>
-      <div class="row">
-        <div class="node fe">프론트 <small>:3000</small></div>
-        <div class="node gw">API Gateway <small>:4000</small></div>
-      </div>
-      <div class="row">
-        <div class="node svc">Product</div>
-        <div class="node svc">Inventory</div>
-        <div class="node svc">Order</div>
-      </div>
-      <div class="row">
-        <div class="node svc">Payment</div>
-        <div class="node svc">User</div>
+      <span class="glabel">c8i.2xlarge EC2 (공인IP)</span>
+      <div class="row"><div class="host">EC2 iptables DNAT <small>NAT 포워딩 · EC2:30080 → master_VM:30080</small></div></div>
+      <div class="arrow">▼ :30080 (NodePort, kube-proxy)</div>
+
+      <div class="group">
+        <span class="glabel">KVM 가상머신 3대 (virbr0) — 노드 <span class="tag tag-fix">고정 (확장 X)</span></span>
+        <div class="row">
+          <div class="node ingress" style="flex:0 0 100%">Nginx Ingress Pod <small>/api→Gateway, /→Frontend</small></div>
+        </div>
+        <div class="arrow">▼</div>
+        <div class="row">
+          <div class="node" style="background:#21262d;flex:0 0 48%">
+            <b>worker1</b><br><small style="opacity:1">Gateway·Product·Inventory</small></div>
+          <div class="node" style="background:#21262d;flex:0 0 48%">
+            <b>worker2</b><br><small style="opacity:1">Frontend·Order·Payment·User</small></div>
+        </div>
+        <div class="note">master는 컨트롤플레인 (kubeadm)</div>
       </div>
     </div>
 
     <div class="group">
-      <span class="group-label">외부 인프라 (k8s 외부 EC2)</span>
+      <span class="glabel">외부 EC2</span>
       <div class="row">
-        <div class="node pg">PostgreSQL <small>t3.medium EC2 · 수동복구</small></div>
-        <div class="node redis">Redis <small>t3.micro EC2</small></div>
-      </div>
-      <div class="row">
-        <div class="node mon">모니터링 <small>Prometheus+Grafana</small></div>
+        <div class="node pg">PostgreSQL <small>EC2 Docker · 수동복구</small></div>
+        <div class="node redis">Redis <small>EC2</small></div>
+        <div class="node mon">모니터링 <small>Prom+Grafana</small></div>
       </div>
     </div>
-    <div class="note">노드 꽉 차면 → Pending 누적 (확장 불가)</div>
+    <div class="note">트래픽: k6 → EC2 Nginx(통로) → Nginx Ingress(경로) → Gateway(서비스분배) → 각 서비스</div>
   </div>
 
-  <!-- EKS -->
-  <div class="diagram">
-    <div class="title t-eks">🔵 AWS EKS (관리형 k8s)</div>
+  <!-- ===== EKS ===== -->
+  <div class="section">
+    <div class="stitle t-eks">🔵 AWS EKS (관리형 k8s) — 예정</div>
 
-    <div class="row"><div class="node user">k6 부하 (Locust-B)</div></div>
-    <div class="arrow">▼ :30080 (직접 — NAT 불필요)</div>
-    <div class="row"><div class="node ingress">Nginx Ingress <small>경로 라우팅 (동일)</small></div></div>
-    <div class="arrow">▼</div>
+    <div class="row"><div class="node k6">k6 부하</div></div>
+    <div class="arrow">▼ :30080 (직접 — 공인IP 있어 NAT 불필요)</div>
 
     <div class="group">
-      <span class="group-label">EKS 클러스터 — 노드 2개 + <span class="tag tag-auto">Karpenter 자동확장</span></span>
+      <span class="glabel">EKS 클러스터 — 노드 <span class="tag tag-auto">Karpenter 자동확장</span></span>
       <div class="row">
-        <div class="node fe">프론트 <small>:3000</small></div>
-        <div class="node gw">API Gateway <small>:4000</small></div>
+        <div class="node ingress" style="flex:0 0 100%">Nginx Ingress Pod <small>온프레와 완전 동일</small></div>
       </div>
+      <div class="arrow">▼</div>
       <div class="row">
-        <div class="node svc">Product</div>
-        <div class="node svc">Inventory</div>
-        <div class="node svc">Order</div>
+        <div class="node" style="background:#21262d;flex:0 0 48%"><b>worker1</b><br><small style="opacity:1">Gateway·Product·Inventory</small></div>
+        <div class="node" style="background:#21262d;flex:0 0 48%"><b>worker2</b><br><small style="opacity:1">Frontend·Order·Payment·User</small></div>
       </div>
-      <div class="row">
-        <div class="node svc">Payment</div>
-        <div class="node svc">User</div>
-      </div>
-      <div class="row">
-        <div class="node karp">＋ Karpenter 신규 노드 <small>부하 폭증 시 자동 추가</small></div>
-      </div>
+      <div class="row"><div class="node karp" style="flex:0 0 100%">＋ Karpenter 신규 노드 <small>부하 폭증 시 자동 추가 (60~90초)</small></div></div>
     </div>
 
     <div class="group">
-      <span class="group-label">외부 / 관리형 인프라</span>
+      <span class="glabel">관리형 / 외부</span>
       <div class="row">
-        <div class="node pg">RDS PostgreSQL <small>Multi-AZ · 자동 페일오버</small></div>
-        <div class="node redis">Redis <small>t3.micro EC2</small></div>
-      </div>
-      <div class="row">
-        <div class="node mon">모니터링 <small>(공통 Prometheus)</small></div>
+        <div class="node pg">RDS PostgreSQL <small>Multi-AZ · 자동복구</small></div>
+        <div class="node redis">Redis <small>EC2</small></div>
+        <div class="node mon">모니터링 <small>(공통)</small></div>
       </div>
     </div>
-    <div class="note">노드 꽉 차면 → Karpenter가 노드 추가 → 계속 처리</div>
+    <div class="note">Nginx Ingress부터 백엔드까지 온프레와 완전 동일. 차이는 진입(NAT 홉)·노드확장·DB뿐.</div>
   </div>
 
-  <!-- 차이 요약 -->
-  <div class="diff">
+  <!-- ===== 시나리오 ===== -->
+  <div class="section">
+    <div class="stitle t-scn">⚡ 시나리오별 동작</div>
+
+    <div class="scn-row"><div></div><div class="scn-h on-c">온프레미스</div><div class="scn-h eks-c">EKS</div></div>
+
+    <div class="scn-row">
+      <div><span class="badge" style="background:#21262d;color:#86efac">1 안정</span></div>
+      <div>정상 처리 (Error 0)</div>
+      <div>정상 처리 (동일)</div>
+    </div>
+    <div class="note" style="text-align:left;margin:0 0 10px">→ "평상시엔 온프레도 충분" (신뢰 형성)</div>
+
+    <div class="scn-row">
+      <div><span class="badge" style="background:#3a2a12;color:#fbbf24">2 스파이크 ★</span></div>
+      <div>노드 못 늘림 → <b>Pending 지속</b></div>
+      <div>Karpenter 노드 추가 → <b>회복</b></div>
+    </div>
+    <div class="bar" style="margin:2px 0 0">온프레 <span class="red">▁▁████████████</span></div>
+    <div class="bar" style="margin:0 0 2px">EKS&nbsp;&nbsp; <span class="grn">▁▁███▁▁▁▁▁▁▁▁</span> ← 60~90초 후 흡수</div>
+    <div class="note" style="text-align:left;margin:0 0 10px">→ 급증 후 <b>유지</b>가 핵심. 흡수하느냐 못 하느냐</div>
+
+    <div class="scn-row">
+      <div><span class="badge" style="background:#3a1212;color:#fca5a5">3 노드장애</span></div>
+      <div>갈 노드 없음 → 수동복구 <b>수 분</b></div>
+      <div>Karpenter 자동 → <b>60초</b></div>
+    </div>
+    <div class="note" style="text-align:left;margin:0">→ worker1 종료 = 전체 worker2로 몰림 → Pending(못 버팀). MTTR = 비즈니스 손실</div>
+  </div>
+
+  <!-- ===== 비교 요약 ===== -->
+  <div class="section">
+    <div class="stitle t-scn">📊 차이 요약</div>
     <table>
       <tr><th>구간</th><th class="on-c">온프레미스</th><th class="eks-c">EKS</th></tr>
-      <tr><td>진입</td><td>EC2 Nginx(NAT) → :30080</td><td>Node :30080 직접</td></tr>
+      <tr><td>진입</td><td>EC2:30080→iptables→VM</td><td>Node :30080 직접</td></tr>
       <tr><td>Ingress~서비스</td><td colspan="2" style="text-align:center">완전 동일 (Nginx Ingress)</td></tr>
-      <tr><td><b>노드 확장</b></td><td class="on-c">❌ 고정 2개</td><td class="eks-c">✅ Karpenter 자동</td></tr>
-      <tr><td><b>DB 복구</b></td><td class="on-c">🔧 수동</td><td class="eks-c">⚡ RDS 자동</td></tr>
+      <tr><td><b>노드확장</b></td><td class="on-c">❌ 고정</td><td class="eks-c">✅ Karpenter</td></tr>
+      <tr><td>DB</td><td>EC2 (수동)</td><td>RDS (자동)</td></tr>
+      <tr><td>가상화</td><td>KVM VM</td><td>실제 EC2 노드</td></tr>
     </table>
-    <div class="legend">
-      <span style="color:#4f46e5">진입/Gateway</span>
-      <span style="color:#047857">프론트</span>
-      <span style="color:#1d4ed8">서비스</span>
-      <span style="color:#b45309">DB</span>
-      <span style="color:#9f1239">Redis</span>
-      <span style="color:#0e7490">Karpenter</span>
-    </div>
+    <div class="note">차이는 진입·노드확장·DB뿐. 나머지는 전부 동일 → "노드 탄력성"만 순수 비교.</div>
   </div>
 
 </div>

@@ -1,0 +1,654 @@
+LAST SEEN   TYPE      REASON                         OBJECT                                  MESSAGE
+99s         Normal    Scheduled                      pod/order-556547d684-9q9xj              Successfully assigned shoply/order-556547d684-9q9xj to k8s-worker2
+57m         Normal    Scheduled                      pod/payment-84d4c68676-bbn7b            Successfully assigned shoply/payment-84d4c68676-bbn7b to k8s-worker2
+69s         Normal    Scheduled                      pod/inventory-7c5c586469-rrrlv          Successfully assigned shoply/inventory-7c5c586469-rrrlv to k8s-worker1
+58m         Normal    Scheduled                      pod/gateway-7b76d459b9-tsjw5            Successfully assigned shoply/gateway-7b76d459b9-tsjw5 to k8s-worker1
+24s         Normal    Scheduled                      pod/inventory-7c5c586469-m7f8s          Successfully assigned shoply/inventory-7c5c586469-m7f8s to k8s-worker1
+57m         Normal    Scheduled                      pod/product-7f7cb5797d-jzsk8            Successfully assigned shoply/product-7f7cb5797d-jzsk8 to k8s-worker1
+53m         Normal    Scheduled                      pod/gateway-7b76d459b9-tqr9p            Successfully assigned shoply/gateway-7b76d459b9-tqr9p to k8s-worker1
+56m         Normal    Scheduled                      pod/gateway-7b76d459b9-72kmd            Successfully assigned shoply/gateway-7b76d459b9-72kmd to k8s-worker1
+52m         Warning   FailedScheduling               pod/gateway-7b76d459b9-tbj2j            0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+59m         Normal    Scheduled                      pod/product-7f7cb5797d-gjtfg            Successfully assigned shoply/product-7f7cb5797d-gjtfg to k8s-worker1
+59m         Normal    Scheduled                      pod/inventory-7c5c586469-lq6f8          Successfully assigned shoply/inventory-7c5c586469-lq6f8 to k8s-worker1
+4m39s       Normal    Scheduled                      pod/payment-84d4c68676-kjxzw            Successfully assigned shoply/payment-84d4c68676-kjxzw to k8s-worker2
+39s         Normal    Scheduled                      pod/product-7f7cb5797d-8l85p            Successfully assigned shoply/product-7f7cb5797d-8l85p to k8s-worker1
+56m         Normal    Scheduled                      pod/gateway-7b76d459b9-2r927            Successfully assigned shoply/gateway-7b76d459b9-2r927 to k8s-worker1
+4m39s       Normal    Scheduled                      pod/gateway-7b76d459b9-92tht            Successfully assigned shoply/gateway-7b76d459b9-92tht to k8s-worker1
+59m         Normal    Scheduled                      pod/order-556547d684-jzf6v              Successfully assigned shoply/order-556547d684-jzf6v to k8s-worker2
+55m         Warning   FailedScheduling               pod/payment-84d4c68676-2gdhh            0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+54m         Normal    Scheduled                      pod/payment-84d4c68676-2gdhh            Successfully assigned shoply/payment-84d4c68676-2gdhh to k8s-worker1
+4m54s       Normal    Scheduled                      pod/order-556547d684-zcbhh              Successfully assigned shoply/order-556547d684-zcbhh to k8s-worker2
+59m         Normal    Scheduled                      pod/gateway-7b76d459b9-b2gsh            Successfully assigned shoply/gateway-7b76d459b9-b2gsh to k8s-worker1
+53m         Normal    Scheduled                      pod/gateway-7b76d459b9-sszzk            Successfully assigned shoply/gateway-7b76d459b9-sszzk to k8s-worker1
+53m         Normal    Scheduled                      pod/product-7f7cb5797d-48lg7            Successfully assigned shoply/product-7f7cb5797d-48lg7 to k8s-worker1
+4m24s       Normal    Scheduled                      pod/order-556547d684-m6gfl              Successfully assigned shoply/order-556547d684-m6gfl to k8s-worker2
+53m         Normal    Scheduled                      pod/order-556547d684-d2fh6              Successfully assigned shoply/order-556547d684-d2fh6 to k8s-worker2
+39s         Normal    Scheduled                      pod/order-556547d684-v5fsl              Successfully assigned shoply/order-556547d684-v5fsl to k8s-worker2
+59m         Normal    Scheduled                      pod/order-556547d684-5cw6s              Successfully assigned shoply/order-556547d684-5cw6s to k8s-worker2
+53m         Normal    Scheduled                      pod/gateway-7b76d459b9-d9ss7            Successfully assigned shoply/gateway-7b76d459b9-d9ss7 to k8s-worker1
+53m         Normal    Scheduled                      pod/order-556547d684-mkx72              Successfully assigned shoply/order-556547d684-mkx72 to k8s-worker2
+52m         Normal    Scheduled                      pod/gateway-7b76d459b9-sl6ph            Successfully assigned shoply/gateway-7b76d459b9-sl6ph to k8s-worker1
+3m24s       Normal    Scheduled                      pod/gateway-7b76d459b9-v6tnz            Successfully assigned shoply/gateway-7b76d459b9-v6tnz to k8s-worker1
+51m         Warning   FailedScheduling               pod/product-7f7cb5797d-pfwrn            0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+24s         Normal    Scheduled                      pod/gateway-7b76d459b9-s7r7h            Successfully assigned shoply/gateway-7b76d459b9-s7r7h to k8s-worker1
+84s         Normal    Scheduled                      pod/gateway-7b76d459b9-dx5zq            Successfully assigned shoply/gateway-7b76d459b9-dx5zq to k8s-worker1
+55m         Normal    Scheduled                      pod/product-7f7cb5797d-zrxjg            Successfully assigned shoply/product-7f7cb5797d-zrxjg to k8s-worker1
+53m         Normal    Scheduled                      pod/inventory-7c5c586469-k54j5          Successfully assigned shoply/inventory-7c5c586469-k54j5 to k8s-worker1
+114s        Normal    Scheduled                      pod/gateway-7b76d459b9-qplgl            Successfully assigned shoply/gateway-7b76d459b9-qplgl to k8s-worker1
+2m9s        Normal    Scheduled                      pod/order-556547d684-p7jkh              Successfully assigned shoply/order-556547d684-p7jkh to k8s-worker2
+60m         Normal    Scheduled                      pod/gateway-7b76d459b9-gwgkz            Successfully assigned shoply/gateway-7b76d459b9-gwgkz to k8s-worker1
+54s         Normal    Scheduled                      pod/gateway-7b76d459b9-pl28d            Successfully assigned shoply/gateway-7b76d459b9-pl28d to k8s-worker1
+57m         Normal    Scheduled                      pod/order-556547d684-9lq9c              Successfully assigned shoply/order-556547d684-9lq9c to k8s-worker1
+114s        Normal    Scheduled                      pod/inventory-7c5c586469-cs555          Successfully assigned shoply/inventory-7c5c586469-cs555 to k8s-worker1
+39s         Normal    Scheduled                      pod/payment-84d4c68676-bm2nz            Successfully assigned shoply/payment-84d4c68676-bm2nz to k8s-worker2
+53m         Normal    Scheduled                      pod/order-556547d684-6dppq              Successfully assigned shoply/order-556547d684-6dppq to k8s-worker2
+2m9s        Normal    Scheduled                      pod/payment-84d4c68676-bwxlv            Successfully assigned shoply/payment-84d4c68676-bwxlv to k8s-worker2
+53m         Normal    Scheduled                      pod/gateway-7b76d459b9-hszdg            Successfully assigned shoply/gateway-7b76d459b9-hszdg to k8s-worker1
+55m         Warning   FailedScheduling               pod/payment-84d4c68676-fbv9g            0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+53m         Normal    Scheduled                      pod/payment-84d4c68676-fbv9g            Successfully assigned shoply/payment-84d4c68676-fbv9g to k8s-worker1
+54s         Normal    Scheduled                      pod/order-556547d684-7dddm              Successfully assigned shoply/order-556547d684-7dddm to k8s-worker2
+54m         Warning   FailedScheduling               pod/payment-84d4c68676-fbv9g            0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+69s         Normal    Scheduled                      pod/payment-84d4c68676-79qq4            Successfully assigned shoply/payment-84d4c68676-79qq4 to k8s-worker2
+59m         Normal    Scheduled                      pod/gateway-7b76d459b9-htlth            Successfully assigned shoply/gateway-7b76d459b9-htlth to k8s-worker1
+53m         Normal    Scheduled                      pod/gateway-7b76d459b9-kvspx            Successfully assigned shoply/gateway-7b76d459b9-kvspx to k8s-worker1
+99s         Normal    Scheduled                      pod/payment-84d4c68676-jdfrk            Successfully assigned shoply/payment-84d4c68676-jdfrk to k8s-worker2
+57m         Normal    Scheduled                      pod/order-556547d684-kk58j              Successfully assigned shoply/order-556547d684-kk58j to k8s-worker2
+60m         Normal    Pulled                         pod/payment-84d4c68676-h2msj            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 759ms (759ms including waiting). Image size: 62780980 bytes.
+60m         Normal    Pulled                         pod/payment-84d4c68676-k9bk8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 740ms (740ms including waiting). Image size: 62780980 bytes.
+60m         Normal    Pulling                        pod/gateway-7b76d459b9-gwgkz            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+60m         Normal    Pulled                         pod/payment-84d4c68676-7qj4t            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 758ms (758ms including waiting). Image size: 62780980 bytes.
+60m         Normal    Started                        pod/gateway-7b76d459b9-gwgkz            Started container gateway
+60m         Normal    Created                        pod/gateway-7b76d459b9-gwgkz            Created container: gateway
+60m         Normal    Pulled                         pod/gateway-7b76d459b9-gwgkz            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 844ms (844ms including waiting). Image size: 63587715 bytes.
+60m         Normal    Pulled                         pod/order-556547d684-skgcc              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 741ms (741ms including waiting). Image size: 69825511 bytes.
+60m         Normal    Pulled                         pod/inventory-7c5c586469-49v57          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 733ms (733ms including waiting). Image size: 63283423 bytes.
+60m         Normal    Pulled                         pod/order-556547d684-tths5              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 767ms (767ms including waiting). Image size: 69825511 bytes.
+59m         Warning   Unhealthy                      pod/inventory-7c5c586469-9vbbb          Readiness probe failed: Get "http://10.244.1.57:4002/health": dial tcp 10.244.1.57:4002: connect: connection refused
+59m         Normal    Pulled                         pod/inventory-7c5c586469-9vbbb          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 735ms (735ms including waiting). Image size: 63283423 bytes.
+59m         Normal    SuccessfulCreate               replicaset/product-7f7cb5797d           Created pod: product-7f7cb5797d-gjtfg
+59m         Normal    SuccessfulCreate               replicaset/order-556547d684             Created pod: order-556547d684-jzf6v
+59m         Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-556547d684 from 6 to 8
+59m         Normal    Pulling                        pod/product-7f7cb5797d-gjtfg            Pulling image "ghcr.io/incheon-soda/shoply-product:latest"
+59m         Normal    Pulled                         pod/payment-84d4c68676-xh6k8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 768ms (768ms including waiting). Image size: 62780980 bytes.
+59m         Normal    Pulled                         pod/order-556547d684-5cw6s              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 763ms (1.389s including waiting). Image size: 69825511 bytes.
+59m         Normal    Started                        pod/product-7f7cb5797d-gjtfg            Started container product
+59m         Normal    Pulled                         pod/product-7f7cb5797d-gjtfg            Successfully pulled image "ghcr.io/incheon-soda/shoply-product:latest" in 730ms (731ms including waiting). Image size: 64210416 bytes.
+59m         Normal    Created                        pod/product-7f7cb5797d-gjtfg            Created container: product
+59m         Normal    Pulled                         pod/order-556547d684-hjkww              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 761ms (1.276s including waiting). Image size: 69825511 bytes.
+59m         Normal    Pulled                         pod/order-556547d684-jzf6v              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 764ms (2.088s including waiting). Image size: 69825511 bytes.
+59m         Normal    Pulled                         pod/payment-84d4c68676-rzjnn            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 775ms (1.059s including waiting). Image size: 62780980 bytes.
+59m         Normal    Pulled                         pod/inventory-7c5c586469-dkg5s          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 740ms (740ms including waiting). Image size: 63283423 bytes.
+59m         Normal    SuccessfulCreate               replicaset/gateway-7b76d459b9           Created pod: gateway-7b76d459b9-htlth
+59m         Normal    Pulling                        pod/gateway-7b76d459b9-htlth            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+59m         Normal    Pulled                         pod/payment-84d4c68676-k9bk8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 742ms (742ms including waiting). Image size: 62780980 bytes.
+59m         Normal    Started                        pod/gateway-7b76d459b9-htlth            Started container gateway
+59m         Normal    Pulled                         pod/gateway-7b76d459b9-htlth            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 731ms (731ms including waiting). Image size: 63587715 bytes.
+59m         Normal    Created                        pod/gateway-7b76d459b9-htlth            Created container: gateway
+59m         Normal    Pulled                         pod/order-556547d684-2hcwc              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 712ms (712ms including waiting). Image size: 69825511 bytes.
+59m         Normal    Pulled                         pod/payment-84d4c68676-h2msj            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 732ms (732ms including waiting). Image size: 62780980 bytes.
+59m         Normal    Pulled                         pod/order-556547d684-5cw6s              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 718ms (718ms including waiting). Image size: 69825511 bytes.
+59m         Normal    SuccessfulCreate               replicaset/inventory-7c5c586469         Created pod: inventory-7c5c586469-lq6f8
+59m         Normal    Pulled                         pod/inventory-7c5c586469-lq6f8          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 748ms (748ms including waiting). Image size: 63283423 bytes.
+59m         Warning   BackOff                        pod/order-556547d684-tths5              Back-off restarting failed container order in pod order-556547d684-tths5_shoply(cf32974c-19ce-4404-9e62-5d3cb708eafd)
+59m         Normal    Pulled                         pod/payment-84d4c68676-7qj4t            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 711ms (711ms including waiting). Image size: 62780980 bytes.
+59m         Normal    Pulled                         pod/inventory-7c5c586469-49v57          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 791ms (791ms including waiting). Image size: 63283423 bytes.
+59m         Normal    Pulling                        pod/gateway-7b76d459b9-b2gsh            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+59m         Normal    Created                        pod/gateway-7b76d459b9-b2gsh            Created container: gateway
+59m         Normal    Pulled                         pod/gateway-7b76d459b9-b2gsh            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 732ms (732ms including waiting). Image size: 63587715 bytes.
+59m         Normal    Started                        pod/gateway-7b76d459b9-b2gsh            Started container gateway
+59m         Normal    Started                        pod/order-556547d684-tths5              Started container order
+59m         Normal    Created                        pod/order-556547d684-tths5              Created container: order
+59m         Normal    Pulled                         pod/order-556547d684-tths5              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 768ms (768ms including waiting). Image size: 69825511 bytes.
+59m         Normal    Pulled                         pod/payment-84d4c68676-xh6k8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 718ms (1.486s including waiting). Image size: 62780980 bytes.
+59m         Normal    Pulled                         pod/inventory-7c5c586469-9vbbb          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 745ms (745ms including waiting). Image size: 63283423 bytes.
+58m         Normal    SuccessfulDelete               replicaset/product-7f7cb5797d           Deleted pod: product-7f7cb5797d-gjtfg
+58m         Normal    Killing                        pod/product-7f7cb5797d-gjtfg            Stopping container product
+58m         Warning   Unhealthy                      pod/product-7f7cb5797d-gjtfg            Readiness probe failed: HTTP probe failed with statuscode: 503
+58m         Warning   Unhealthy                      pod/order-556547d684-tths5              Readiness probe failed: HTTP probe failed with statuscode: 503
+58m         Normal    Pulling                        pod/gateway-7b76d459b9-tsjw5            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+58m         Normal    Started                        pod/gateway-7b76d459b9-tsjw5            Started container gateway
+58m         Normal    Created                        pod/gateway-7b76d459b9-tsjw5            Created container: gateway
+58m         Normal    Pulled                         pod/gateway-7b76d459b9-tsjw5            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 715ms (715ms including waiting). Image size: 63587715 bytes.
+57m         Warning   Unhealthy                      pod/payment-84d4c68676-9f56k            Liveness probe failed: Get "http://10.244.2.40:4004/livez": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+57m         Warning   Unhealthy                      pod/payment-84d4c68676-9f56k            Readiness probe failed: Get "http://10.244.2.40:4004/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+57m         Normal    Pulling                        pod/product-7f7cb5797d-jzsk8            Pulling image "ghcr.io/incheon-soda/shoply-product:latest"
+57m         Normal    SuccessfulCreate               replicaset/product-7f7cb5797d           Created pod: product-7f7cb5797d-jzsk8
+57m         Normal    SuccessfulCreate               replicaset/payment-84d4c68676           Created pod: payment-84d4c68676-bbn7b
+57m         Normal    Started                        pod/product-7f7cb5797d-jzsk8            Started container product
+57m         Normal    Pulled                         pod/payment-84d4c68676-bbn7b            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 737ms (737ms including waiting). Image size: 62780980 bytes.
+57m         Normal    Created                        pod/product-7f7cb5797d-jzsk8            Created container: product
+57m         Normal    Pulled                         pod/product-7f7cb5797d-jzsk8            Successfully pulled image "ghcr.io/incheon-soda/shoply-product:latest" in 740ms (740ms including waiting). Image size: 64210416 bytes.
+57m         Normal    Pulled                         pod/order-556547d684-9lq9c              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 777ms (1.494s including waiting). Image size: 69825511 bytes.
+57m         Normal    Pulled                         pod/order-556547d684-kk58j              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 751ms (1.469s including waiting). Image size: 69825511 bytes.
+57m         Warning   Unhealthy                      pod/payment-84d4c68676-h2msj            Readiness probe failed: HTTP probe failed with statuscode: 503
+57m         Warning   Unhealthy                      pod/order-556547d684-hjkww              Readiness probe failed: HTTP probe failed with statuscode: 503
+57m         Normal    Killing                        pod/payment-84d4c68676-9f56k            Container payment failed liveness probe, will be restarted
+57m         Normal    Pulled                         pod/payment-84d4c68676-9f56k            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 744ms (744ms including waiting). Image size: 62780980 bytes.
+57m         Normal    Pulled                         pod/order-556547d684-jzf6v              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 766ms (766ms including waiting). Image size: 69825511 bytes.
+57m         Normal    Pulled                         pod/order-556547d684-zswk8              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 754ms (754ms including waiting). Image size: 69825511 bytes.
+57m         Normal    Pulled                         pod/order-556547d684-9lq9c              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 719ms (719ms including waiting). Image size: 69825511 bytes.
+57m         Normal    Pulled                         pod/inventory-7c5c586469-lq6f8          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 768ms (768ms including waiting). Image size: 63283423 bytes.
+57m         Normal    Pulled                         pod/payment-84d4c68676-k9bk8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 744ms (744ms including waiting). Image size: 62780980 bytes.
+56m         Normal    Pulled                         pod/payment-84d4c68676-h2msj            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 741ms (742ms including waiting). Image size: 62780980 bytes.
+56m         Warning   Unhealthy                      pod/inventory-7c5c586469-dkg5s          Liveness probe failed: Get "http://10.244.1.52:4002/livez": dial tcp 10.244.1.52:4002: connect: connection refused
+56m         Normal    Pulled                         pod/order-556547d684-2hcwc              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 718ms (718ms including waiting). Image size: 69825511 bytes.
+56m         Normal    Pulled                         pod/order-556547d684-5cw6s              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 768ms (1.076s including waiting). Image size: 69825511 bytes.
+56m         Normal    Pulled                         pod/order-556547d684-kk58j              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 755ms (804ms including waiting). Image size: 69825511 bytes.
+56m         Normal    Pulled                         pod/order-556547d684-skgcc              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 720ms (962ms including waiting). Image size: 69825511 bytes.
+56m         Normal    Pulled                         pod/payment-84d4c68676-rzjnn            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 712ms (1.675s including waiting). Image size: 62780980 bytes.
+56m         Normal    Pulled                         pod/payment-84d4c68676-9f56k            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 734ms (734ms including waiting). Image size: 62780980 bytes.
+56m         Normal    Pulled                         pod/inventory-7c5c586469-9vbbb          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 738ms (738ms including waiting). Image size: 63283423 bytes.
+56m         Warning   BackOff                        pod/inventory-7c5c586469-49v57          Back-off restarting failed container inventory in pod inventory-7c5c586469-49v57_shoply(c07b9954-8675-4523-bfa6-cebc36ff7386)
+56m         Normal    Pulled                         pod/payment-84d4c68676-bbn7b            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 741ms (741ms including waiting). Image size: 62780980 bytes.
+56m         Warning   BackOff                        pod/payment-84d4c68676-7qj4t            Back-off restarting failed container payment in pod payment-84d4c68676-7qj4t_shoply(d56d4dfa-ccbe-4dfe-8b40-6d048b41bf3c)
+56m         Normal    Pulled                         pod/inventory-7c5c586469-dkg5s          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 754ms (754ms including waiting). Image size: 63283423 bytes.
+56m         Normal    Pulling                        pod/order-556547d684-tths5              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+56m         Normal    Pulled                         pod/order-556547d684-zswk8              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 778ms (778ms including waiting). Image size: 69825511 bytes.
+56m         Normal    Pulled                         pod/order-556547d684-tths5              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 799ms (1.576s including waiting). Image size: 69825511 bytes.
+56m         Normal    Pulled                         pod/order-556547d684-9lq9c              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 791ms (791ms including waiting). Image size: 69825511 bytes.
+56m         Warning   Unhealthy                      pod/payment-84d4c68676-k9bk8            Readiness probe failed: Get "http://10.244.2.60:4004/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+56m         Normal    Pulling                        pod/inventory-7c5c586469-49v57          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+56m         Normal    Pulled                         pod/inventory-7c5c586469-49v57          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 777ms (777ms including waiting). Image size: 63283423 bytes.
+56m         Normal    Killing                        pod/gateway-7b76d459b9-kdr52            Stopping container gateway
+56m         Normal    Killing                        pod/product-7f7cb5797d-jzsk8            Stopping container product
+56m         Normal    Created                        pod/inventory-7c5c586469-49v57          Created container: inventory
+56m         Normal    Pulled                         pod/payment-84d4c68676-xh6k8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 740ms (740ms including waiting). Image size: 62780980 bytes.
+56m         Normal    SuccessfulDelete               replicaset/product-7f7cb5797d           Deleted pod: product-7f7cb5797d-jzsk8
+56m         Normal    Started                        pod/inventory-7c5c586469-49v57          Started container inventory
+56m         Normal    Killing                        pod/gateway-7b76d459b9-tsjw5            Stopping container gateway
+56m         Normal    Pulled                         pod/payment-84d4c68676-7qj4t            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 759ms (1.495s including waiting). Image size: 62780980 bytes.
+56m         Warning   Unhealthy                      pod/order-556547d684-skgcc              Readiness probe failed: HTTP probe failed with statuscode: 503
+56m         Normal    Pulled                         pod/order-556547d684-kk58j              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 751ms (751ms including waiting). Image size: 69825511 bytes.
+56m         Warning   Unhealthy                      pod/gateway-7b76d459b9-tsjw5            Readiness probe failed: Get "http://10.244.1.64:4000/health": dial tcp 10.244.1.64:4000: connect: connection refused
+56m         Normal    Pulling                        pod/gateway-7b76d459b9-72kmd            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+56m         Normal    Pulled                         pod/inventory-7c5c586469-lq6f8          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 767ms (767ms including waiting). Image size: 63283423 bytes.
+56m         Normal    Pulling                        pod/gateway-7b76d459b9-2r927            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+56m         Warning   Unhealthy                      pod/payment-84d4c68676-h2msj            Liveness probe failed: Get "http://10.244.2.53:4004/livez": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+56m         Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 10; reason: cpu resource utilization (percentage of request) above target
+56m         Normal    Pulled                         pod/gateway-7b76d459b9-2r927            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 770ms (771ms including waiting). Image size: 63587715 bytes.
+56m         Normal    Started                        pod/gateway-7b76d459b9-2r927            Started container gateway
+56m         Normal    Created                        pod/gateway-7b76d459b9-2r927            Created container: gateway
+56m         Normal    Pulled                         pod/gateway-7b76d459b9-72kmd            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 735ms (1.48s including waiting). Image size: 63587715 bytes.
+56m         Normal    Started                        pod/gateway-7b76d459b9-72kmd            Started container gateway
+56m         Normal    Created                        pod/gateway-7b76d459b9-72kmd            Created container: gateway
+56m         Warning   Unhealthy                      pod/gateway-7b76d459b9-kdr52            Readiness probe failed: Get "http://10.244.1.58:4000/health": dial tcp 10.244.1.58:4000: connect: connection refused
+56m         Normal    Pulled                         pod/order-556547d684-5cw6s              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 767ms (767ms including waiting). Image size: 69825511 bytes.
+55m         Normal    SuccessfulCreate               replicaset/product-7f7cb5797d           Created pod: product-7f7cb5797d-zrxjg
+55m         Normal    Pulling                        pod/product-7f7cb5797d-zrxjg            Pulling image "ghcr.io/incheon-soda/shoply-product:latest"
+55m         Normal    Pulled                         pod/payment-84d4c68676-9f56k            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 742ms (742ms including waiting). Image size: 62780980 bytes.
+55m         Normal    Started                        pod/payment-84d4c68676-9f56k            Started container payment
+55m         Normal    Created                        pod/product-7f7cb5797d-zrxjg            Created container: product
+55m         Normal    Started                        pod/product-7f7cb5797d-zrxjg            Started container product
+55m         Normal    Pulled                         pod/product-7f7cb5797d-zrxjg            Successfully pulled image "ghcr.io/incheon-soda/shoply-product:latest" in 781ms (781ms including waiting). Image size: 64210416 bytes.
+55m         Normal    Pulling                        pod/order-556547d684-2hcwc              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+55m         Normal    Created                        pod/order-556547d684-2hcwc              Created container: order
+55m         Normal    Started                        pod/order-556547d684-2hcwc              Started container order
+55m         Normal    Pulled                         pod/order-556547d684-2hcwc              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 723ms (723ms including waiting). Image size: 69825511 bytes.
+55m         Warning   Unhealthy                      pod/inventory-7c5c586469-dkg5s          Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Normal    Pulled                         pod/payment-84d4c68676-rzjnn            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 751ms (751ms including waiting). Image size: 62780980 bytes.
+55m         Warning   Unhealthy                      pod/payment-84d4c68676-7qj4t            Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/inventory-7c5c586469-lq6f8          Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Normal    Pulling                        pod/order-556547d684-skgcc              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+55m         Normal    Pulled                         pod/order-556547d684-skgcc              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 723ms (723ms including waiting). Image size: 69825511 bytes.
+55m         Normal    Created                        pod/order-556547d684-skgcc              Created container: order
+55m         Warning   Unhealthy                      pod/order-556547d684-2hcwc              Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/order-556547d684-kk58j              Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Normal    Started                        pod/order-556547d684-skgcc              Started container order
+55m         Warning   Unhealthy                      pod/inventory-7c5c586469-9vbbb          Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/payment-84d4c68676-rzjnn            Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/order-556547d684-zswk8              Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/inventory-7c5c586469-49v57          Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/order-556547d684-jzf6v              Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/payment-84d4c68676-xh6k8            Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/order-556547d684-5cw6s              Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   BackOff                        pod/order-556547d684-2hcwc              Back-off restarting failed container order in pod order-556547d684-2hcwc_shoply(4676007e-59cc-4ee5-84ce-548f2d48d41f)
+55m         Warning   Unhealthy                      pod/product-7f7cb5797d-zrxjg            Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   BackOff                        pod/inventory-7c5c586469-dkg5s          Back-off restarting failed container inventory in pod inventory-7c5c586469-dkg5s_shoply(a2f9691f-bee4-47aa-96d4-0768618d647f)
+55m         Warning   Unhealthy                      pod/order-556547d684-9lq9c              Readiness probe failed: HTTP probe failed with statuscode: 503
+55m         Warning   Unhealthy                      pod/payment-84d4c68676-bbn7b            Readiness probe failed: HTTP probe failed with statuscode: 503
+54m         Warning   BackOff                        pod/inventory-7c5c586469-9vbbb          Back-off restarting failed container inventory in pod inventory-7c5c586469-9vbbb_shoply(4bba39c0-2f3a-4063-83c0-de1c00cd17dc)
+54m         Normal    Pulled                         pod/order-556547d684-kk58j              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 750ms (750ms including waiting). Image size: 69825511 bytes.
+54m         Normal    Pulled                         pod/order-556547d684-jzf6v              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 765ms (765ms including waiting). Image size: 69825511 bytes.
+54m         Normal    Pulled                         pod/order-556547d684-zswk8              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 683ms (683ms including waiting). Image size: 69825511 bytes.
+54m         Normal    Pulled                         pod/inventory-7c5c586469-lq6f8          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 736ms (736ms including waiting). Image size: 63283423 bytes.
+54m         Normal    Pulled                         pod/order-556547d684-9lq9c              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 762ms (762ms including waiting). Image size: 69825511 bytes.
+54m         Normal    Pulled                         pod/payment-84d4c68676-bbn7b            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 730ms (730ms including waiting). Image size: 62780980 bytes.
+54m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/payment-hpa     failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+54m         Normal    SuccessfulDelete               replicaset/gateway-7b76d459b9           Deleted pod: gateway-7b76d459b9-72kmd
+54m         Normal    SuccessfulDelete               replicaset/product-7f7cb5797d           Deleted pod: product-7f7cb5797d-zrxjg
+54m         Normal    Killing                        pod/product-7f7cb5797d-zrxjg            Stopping container product
+54m         Normal    Killing                        pod/gateway-7b76d459b9-72kmd            Stopping container gateway
+54m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/payment-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+54m         Normal    Pulled                         pod/payment-84d4c68676-2gdhh            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 745ms (745ms including waiting). Image size: 62780980 bytes.
+54m         Normal    Pulled                         pod/payment-84d4c68676-rzjnn            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 800ms (800ms including waiting). Image size: 62780980 bytes.
+54m         Normal    Pulled                         pod/payment-84d4c68676-k9bk8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 737ms (737ms including waiting). Image size: 62780980 bytes.
+54m         Normal    Pulling                        pod/inventory-7c5c586469-9vbbb          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+54m         Normal    Started                        pod/inventory-7c5c586469-9vbbb          Started container inventory
+54m         Normal    Created                        pod/inventory-7c5c586469-9vbbb          Created container: inventory
+54m         Normal    Pulled                         pod/inventory-7c5c586469-9vbbb          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 797ms (797ms including waiting). Image size: 63283423 bytes.
+54m         Normal    Pulled                         pod/order-556547d684-5cw6s              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 728ms (728ms including waiting). Image size: 69825511 bytes.
+54m         Normal    Pulled                         pod/inventory-7c5c586469-dkg5s          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 723ms (723ms including waiting). Image size: 63283423 bytes.
+54m         Normal    Killing                        pod/gateway-7b76d459b9-2r927            Stopping container gateway
+54m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/payment-hpa     failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+54m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/payment-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+54m         Normal    Killing                        pod/gateway-7b76d459b9-b2gsh            Stopping container gateway
+54m         Normal    Killing                        pod/gateway-7b76d459b9-gwgkz            Stopping container gateway
+54m         Warning   BackOff                        pod/order-556547d684-skgcc              Back-off restarting failed container order in pod order-556547d684-skgcc_shoply(1824d18a-0999-408d-86b3-c37ed2f45f72)
+54m         Normal    Pulled                         pod/payment-84d4c68676-h2msj            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 764ms (764ms including waiting). Image size: 62780980 bytes.
+54m         Normal    Pulling                        pod/payment-84d4c68676-9f56k            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+54m         Normal    Created                        pod/payment-84d4c68676-9f56k            Created container: payment
+54m         Normal    Pulled                         pod/payment-84d4c68676-9f56k            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 751ms (751ms including waiting). Image size: 62780980 bytes.
+54m         Normal    Pulled                         pod/payment-84d4c68676-2gdhh            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 797ms (797ms including waiting). Image size: 62780980 bytes.
+54m         Warning   BackOff                        pod/payment-84d4c68676-rzjnn            Back-off restarting failed container payment in pod payment-84d4c68676-rzjnn_shoply(4c0749c8-dcb8-4ab6-a57b-353c2227b74e)
+53m         Warning   Unhealthy                      pod/gateway-7b76d459b9-72kmd            Readiness probe failed: Get "http://10.244.1.67:4000/health": dial tcp 10.244.1.67:4000: connect: connection refused
+53m         Normal    Killing                        pod/gateway-7b76d459b9-w28j9            Stopping container gateway
+53m         Normal    SuccessfulRescale              horizontalpodautoscaler/inventory-hpa   New size: 4; reason: All metrics below target
+53m         Normal    Killing                        pod/gateway-7b76d459b9-htlth            Stopping container gateway
+53m         Normal    Killing                        pod/gateway-7b76d459b9-x2bsp            Stopping container gateway
+53m         Normal    SuccessfulDelete               replicaset/inventory-7c5c586469         Deleted pod: inventory-7c5c586469-9vbbb
+53m         Normal    ScalingReplicaSet              deployment/inventory                    Scaled down replica set inventory-7c5c586469 from 5 to 4
+53m         Normal    SuccessfulDelete               replicaset/order-556547d684             Deleted pod: order-556547d684-skgcc
+53m         Normal    Killing                        pod/inventory-7c5c586469-9vbbb          Stopping container inventory
+53m         Normal    Pulled                         pod/order-556547d684-c4brx              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 737ms (737ms including waiting). Image size: 69825511 bytes.
+53m         Normal    Pulled                         pod/payment-84d4c68676-fbv9g            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 754ms (754ms including waiting). Image size: 62780980 bytes.
+53m         Warning   Unhealthy                      pod/gateway-7b76d459b9-b2gsh            Readiness probe failed: Get "http://10.244.1.63:4000/health": dial tcp 10.244.1.63:4000: connect: connection refused
+53m         Warning   Unhealthy                      pod/gateway-7b76d459b9-gwgkz            Readiness probe failed: Get "http://10.244.1.59:4000/health": dial tcp 10.244.1.59:4000: connect: connection refused
+53m         Warning   Unhealthy                      pod/gateway-7b76d459b9-2r927            Readiness probe failed: Get "http://10.244.1.68:4000/health": dial tcp 10.244.1.68:4000: connect: connection refused
+53m         Warning   BackOff                        pod/inventory-7c5c586469-lq6f8          Back-off restarting failed container inventory in pod inventory-7c5c586469-lq6f8_shoply(c72a2dca-4ac8-461a-95b1-56fb747355cb)
+53m         Warning   BackOff                        pod/payment-84d4c68676-9f56k            Back-off restarting failed container payment in pod payment-84d4c68676-9f56k_shoply(f84a2190-b587-4045-aa86-83cdde67fd86)
+53m         Normal    SuccessfulRescale              horizontalpodautoscaler/inventory-hpa   New size: 3; reason: All metrics below target
+53m         Normal    SuccessfulDelete               replicaset/inventory-7c5c586469         Deleted pod: inventory-7c5c586469-49v57
+53m         Warning   BackOff                        pod/payment-84d4c68676-k9bk8            Back-off restarting failed container payment in pod payment-84d4c68676-k9bk8_shoply(941bf8ca-d157-4950-be2b-06f37ecedf24)
+53m         Normal    ScalingReplicaSet              deployment/inventory                    Scaled down replica set inventory-7c5c586469 from 4 to 3
+53m         Normal    Pulling                        pod/gateway-7b76d459b9-sszzk            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+53m         Normal    Pulled                         pod/gateway-7b76d459b9-sszzk            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 969ms (969ms including waiting). Image size: 63587715 bytes.
+53m         Normal    Created                        pod/gateway-7b76d459b9-sszzk            Created container: gateway
+53m         Warning   BackOff                        pod/order-556547d684-jzf6v              Back-off restarting failed container order in pod order-556547d684-jzf6v_shoply(2badf234-251d-4063-a296-b4faa1f65cd5)
+53m         Normal    Started                        pod/gateway-7b76d459b9-sszzk            Started container gateway
+53m         Warning   Unhealthy                      pod/gateway-7b76d459b9-x2bsp            Readiness probe failed: Get "http://10.244.1.54:4000/health": dial tcp 10.244.1.54:4000: connect: connection refused
+53m         Warning   Unhealthy                      pod/gateway-7b76d459b9-w28j9            Readiness probe failed: Get "http://10.244.1.56:4000/health": dial tcp 10.244.1.56:4000: connect: connection refused
+53m         Warning   Unhealthy                      pod/payment-84d4c68676-h2msj            Readiness probe failed: Get "http://10.244.2.53:4004/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+53m         Normal    Pulled                         pod/payment-84d4c68676-7qj4t            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 796ms (796ms including waiting). Image size: 62780980 bytes.
+53m         Normal    Started                        pod/payment-84d4c68676-7qj4t            Started container payment
+53m         Normal    Pulled                         pod/payment-84d4c68676-xh6k8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 779ms (1.576s including waiting). Image size: 62780980 bytes.
+53m         Normal    Pulled                         pod/payment-84d4c68676-fbv9g            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 788ms (788ms including waiting). Image size: 62780980 bytes.
+53m         Warning   Unhealthy                      pod/gateway-7b76d459b9-htlth            Readiness probe failed: Get "http://10.244.1.61:4000/health": dial tcp 10.244.1.61:4000: connect: connection refused
+53m         Normal    Pulling                        pod/gateway-7b76d459b9-kvspx            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+53m         Normal    Pulling                        pod/gateway-7b76d459b9-d9ss7            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+53m         Normal    Pulled                         pod/order-556547d684-d2fh6              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 780ms (780ms including waiting). Image size: 69825511 bytes.
+53m         Normal    Pulled                         pod/payment-84d4c68676-2gdhh            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 811ms (811ms including waiting). Image size: 62780980 bytes.
+53m         Normal    Pulling                        pod/gateway-7b76d459b9-tqr9p            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+53m         Normal    Pulling                        pod/order-556547d684-mkx72              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+53m         Normal    Pulled                         pod/gateway-7b76d459b9-d9ss7            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 792ms (1.344s including waiting). Image size: 63587715 bytes.
+53m         Normal    Pulled                         pod/order-556547d684-mkx72              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 728ms (1.462s including waiting). Image size: 69825511 bytes.
+53m         Normal    Created                        pod/gateway-7b76d459b9-d9ss7            Created container: gateway
+53m         Normal    Started                        pod/gateway-7b76d459b9-d9ss7            Started container gateway
+53m         Normal    Started                        pod/order-556547d684-mkx72              Started container order
+53m         Normal    Created                        pod/order-556547d684-mkx72              Created container: order
+53m         Normal    Pulled                         pod/gateway-7b76d459b9-tqr9p            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 734ms (2.765s including waiting). Image size: 63587715 bytes.
+53m         Normal    Started                        pod/gateway-7b76d459b9-kvspx            Started container gateway
+53m         Normal    Created                        pod/gateway-7b76d459b9-kvspx            Created container: gateway
+53m         Normal    Pulled                         pod/gateway-7b76d459b9-kvspx            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 779ms (2.067s including waiting). Image size: 63587715 bytes.
+53m         Normal    Pulled                         pod/order-556547d684-hjkww              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 753ms (753ms including waiting). Image size: 69825511 bytes.
+53m         Normal    Created                        pod/gateway-7b76d459b9-tqr9p            Created container: gateway
+53m         Normal    Started                        pod/gateway-7b76d459b9-tqr9p            Started container gateway
+53m         Normal    Pulled                         pod/payment-84d4c68676-bbn7b            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 5.016s (5.016s including waiting). Image size: 62780980 bytes.
+53m         Normal    Pulled                         pod/order-556547d684-c4brx              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 764ms (2.832s including waiting). Image size: 69825511 bytes.
+53m         Normal    Pulled                         pod/order-556547d684-kk58j              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 757ms (3.539s including waiting). Image size: 69825511 bytes.
+53m         Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     (combined from similar events): New size: 8; reason: cpu resource utilization (percentage of request) above target
+53m         Normal    SuccessfulCreate               replicaset/product-7f7cb5797d           Created pod: product-7f7cb5797d-48lg7
+53m         Normal    SuccessfulCreate               replicaset/inventory-7c5c586469         Created pod: inventory-7c5c586469-k54j5
+53m         Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       New size: 10; reason: cpu resource utilization (percentage of request) above target
+53m         Normal    Pulled                         pod/inventory-7c5c586469-k54j5          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 740ms (740ms including waiting). Image size: 63283423 bytes.
+53m         Normal    Pulled                         pod/order-556547d684-6dppq              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 779ms (779ms including waiting). Image size: 69825511 bytes.
+53m         Normal    Pulling                        pod/product-7f7cb5797d-48lg7            Pulling image "ghcr.io/incheon-soda/shoply-product:latest"
+53m         Normal    Pulling                        pod/gateway-7b76d459b9-hszdg            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+53m         Normal    Pulled                         pod/gateway-7b76d459b9-hszdg            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 743ms (1.41s including waiting). Image size: 63587715 bytes.
+53m         Normal    Started                        pod/gateway-7b76d459b9-hszdg            Started container gateway
+53m         Normal    Created                        pod/gateway-7b76d459b9-hszdg            Created container: gateway
+53m         Normal    Started                        pod/product-7f7cb5797d-48lg7            Started container product
+53m         Normal    Created                        pod/product-7f7cb5797d-48lg7            Created container: product
+53m         Normal    Pulled                         pod/product-7f7cb5797d-48lg7            Successfully pulled image "ghcr.io/incheon-soda/shoply-product:latest" in 722ms (2.099s including waiting). Image size: 64210416 bytes.
+53m         Normal    Pulled                         pod/inventory-7c5c586469-lq6f8          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 780ms (780ms including waiting). Image size: 63283423 bytes.
+53m         Warning   BackOff                        pod/order-556547d684-5cw6s              Back-off restarting failed container order in pod order-556547d684-5cw6s_shoply(eb0b0bf7-8a13-4c19-bb30-46dc82b9f933)
+53m         Normal    Pulled                         pod/order-556547d684-d2fh6              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 711ms (711ms including waiting). Image size: 69825511 bytes.
+52m         Normal    Pulled                         pod/order-556547d684-jzf6v              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 769ms (769ms including waiting). Image size: 69825511 bytes.
+52m         Normal    Pulled                         pod/order-556547d684-6dppq              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 766ms (766ms including waiting). Image size: 69825511 bytes.
+52m         Warning   BackOff                        pod/payment-84d4c68676-fbv9g            Back-off restarting failed container payment in pod payment-84d4c68676-fbv9g_shoply(6b8f1499-0c94-42b2-a936-31378311d2b8)
+52m         Normal    Pulled                         pod/inventory-7c5c586469-k54j5          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 762ms (762ms including waiting). Image size: 63283423 bytes.
+52m         Normal    Pulling                        pod/payment-84d4c68676-fbv9g            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+52m         Normal    Pulled                         pod/payment-84d4c68676-fbv9g            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 735ms (735ms including waiting). Image size: 62780980 bytes.
+52m         Normal    Started                        pod/payment-84d4c68676-fbv9g            Started container payment
+52m         Normal    Created                        pod/payment-84d4c68676-fbv9g            Created container: payment
+52m         Normal    Pulling                        pod/payment-84d4c68676-rzjnn            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+52m         Normal    Created                        pod/payment-84d4c68676-rzjnn            Created container: payment
+52m         Normal    Started                        pod/payment-84d4c68676-rzjnn            Started container payment
+52m         Normal    Pulled                         pod/payment-84d4c68676-rzjnn            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 748ms (748ms including waiting). Image size: 62780980 bytes.
+52m         Normal    Pulled                         pod/payment-84d4c68676-2gdhh            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 730ms (730ms including waiting). Image size: 62780980 bytes.
+52m         Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 9; reason: cpu resource utilization (percentage of request) above target
+52m         Normal    ScalingReplicaSet              deployment/gateway                      (combined from similar events): Scaled up replica set gateway-7b76d459b9 from 8 to 9
+52m         Normal    Pulled                         pod/payment-84d4c68676-k9bk8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 730ms (730ms including waiting). Image size: 62780980 bytes.
+52m         Normal    Pulling                        pod/gateway-7b76d459b9-sl6ph            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+52m         Normal    Started                        pod/gateway-7b76d459b9-sl6ph            Started container gateway
+52m         Normal    Created                        pod/gateway-7b76d459b9-sl6ph            Created container: gateway
+52m         Normal    Pulled                         pod/gateway-7b76d459b9-sl6ph            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 744ms (744ms including waiting). Image size: 63587715 bytes.
+52m         Normal    Pulled                         pod/order-556547d684-d2fh6              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 748ms (748ms including waiting). Image size: 69825511 bytes.
+52m         Normal    Pulled                         pod/order-556547d684-c4brx              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 743ms (1.491s including waiting). Image size: 69825511 bytes.
+52m         Normal    Pulling                        pod/inventory-7c5c586469-dkg5s          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+52m         Normal    Created                        pod/inventory-7c5c586469-dkg5s          Created container: inventory
+52m         Normal    Pulled                         pod/inventory-7c5c586469-dkg5s          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 734ms (734ms including waiting). Image size: 63283423 bytes.
+52m         Normal    Started                        pod/inventory-7c5c586469-dkg5s          Started container inventory
+52m         Normal    Pulling                        pod/order-556547d684-9lq9c              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+52m         Normal    Created                        pod/order-556547d684-9lq9c              Created container: order
+52m         Normal    Started                        pod/order-556547d684-9lq9c              Started container order
+52m         Normal    Pulled                         pod/order-556547d684-9lq9c              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 737ms (737ms including waiting). Image size: 69825511 bytes.
+52m         Normal    Pulling                        pod/order-556547d684-hjkww              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+52m         Normal    Pulled                         pod/order-556547d684-hjkww              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 724ms (724ms including waiting). Image size: 69825511 bytes.
+52m         Normal    Started                        pod/order-556547d684-hjkww              Started container order
+52m         Normal    Created                        pod/order-556547d684-hjkww              Created container: order
+52m         Normal    Killing                        pod/payment-84d4c68676-h2msj            Container payment failed liveness probe, will be restarted
+52m         Normal    Pulling                        pod/payment-84d4c68676-h2msj            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+52m         Normal    Pulled                         pod/payment-84d4c68676-h2msj            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 760ms (760ms including waiting). Image size: 62780980 bytes.
+52m         Normal    Started                        pod/payment-84d4c68676-h2msj            Started container payment
+52m         Normal    Created                        pod/payment-84d4c68676-h2msj            Created container: payment
+52m         Warning   Unhealthy                      pod/payment-84d4c68676-fbv9g            Readiness probe failed: HTTP probe failed with statuscode: 503
+52m         Warning   Unhealthy                      pod/order-556547d684-c4brx              Readiness probe failed: HTTP probe failed with statuscode: 503
+52m         Warning   Unhealthy                      pod/order-556547d684-d2fh6              Readiness probe failed: HTTP probe failed with statuscode: 503
+51m         Warning   Unhealthy                      pod/payment-84d4c68676-2gdhh            Readiness probe failed: HTTP probe failed with statuscode: 503
+51m         Normal    SuccessfulRescale              horizontalpodautoscaler/product-hpa     New size: 4; reason: cpu resource utilization (percentage of request) above target
+51m         Normal    SuccessfulCreate               replicaset/product-7f7cb5797d           Created pod: product-7f7cb5797d-pfwrn
+51m         Normal    ScalingReplicaSet              deployment/product                      Scaled up replica set product-7f7cb5797d from 3 to 4
+51m         Normal    Pulling                        pod/inventory-7c5c586469-h59hh          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+51m         Normal    Started                        pod/inventory-7c5c586469-h59hh          Started container inventory
+51m         Normal    Created                        pod/inventory-7c5c586469-h59hh          Created container: inventory
+51m         Normal    Pulled                         pod/inventory-7c5c586469-h59hh          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 749ms (749ms including waiting). Image size: 63283423 bytes.
+51m         Warning   BackOff                        pod/payment-84d4c68676-bbn7b            Back-off restarting failed container payment in pod payment-84d4c68676-bbn7b_shoply(a7ecd7c8-8d76-4157-a1ad-4f2e336d9b1f)
+51m         Warning   BackOff                        pod/order-556547d684-6dppq              Back-off restarting failed container order in pod order-556547d684-6dppq_shoply(63426b81-6f8e-4664-94c1-297fd0a95131)
+51m         Warning   BackOff                        pod/order-556547d684-d2fh6              Back-off restarting failed container order in pod order-556547d684-d2fh6_shoply(58ad0f0f-3e73-46bd-b7b9-d0318de8215e)
+51m         Warning   Unhealthy                      pod/order-556547d684-mkx72              Readiness probe failed: Get "http://10.244.2.66:4003/health": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+51m         Warning   BackOff                        pod/order-556547d684-hjkww              Back-off restarting failed container order in pod order-556547d684-hjkww_shoply(96c5e468-d2e1-4311-a2d4-cdc74220f83a)
+51m         Normal    Pulling                        pod/order-556547d684-5cw6s              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+51m         Warning   BackOff                        pod/order-556547d684-kk58j              Back-off restarting failed container order in pod order-556547d684-kk58j_shoply(328af3fb-850b-47a3-9d2e-adc8502f972c)
+51m         Normal    Pulled                         pod/order-556547d684-5cw6s              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 767ms (769ms including waiting). Image size: 69825511 bytes.
+51m         Normal    Pulling                        pod/order-556547d684-6dppq              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+51m         Normal    Started                        pod/order-556547d684-5cw6s              Started container order
+51m         Normal    Created                        pod/order-556547d684-5cw6s              Created container: order
+51m         Normal    Started                        pod/order-556547d684-6dppq              Started container order
+51m         Normal    Pulled                         pod/order-556547d684-6dppq              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 718ms (718ms including waiting). Image size: 69825511 bytes.
+51m         Normal    Created                        pod/order-556547d684-6dppq              Created container: order
+51m         Normal    Pulling                        pod/order-556547d684-d2fh6              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+51m         Normal    Pulled                         pod/order-556547d684-d2fh6              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 798ms (798ms including waiting). Image size: 69825511 bytes.
+51m         Normal    Started                        pod/order-556547d684-d2fh6              Started container order
+51m         Normal    Created                        pod/order-556547d684-d2fh6              Created container: order
+51m         Normal    SuccessfulRescale              horizontalpodautoscaler/product-hpa     New size: 3; reason: All metrics below target
+51m         Normal    SuccessfulDelete               replicaset/product-7f7cb5797d           Deleted pod: product-7f7cb5797d-pfwrn
+51m         Normal    ScalingReplicaSet              deployment/product                      Scaled down replica set product-7f7cb5797d from 4 to 3
+51m         Warning   BackOff                        pod/order-556547d684-c4brx              Back-off restarting failed container order in pod order-556547d684-c4brx_shoply(488b3e21-9f99-4187-88a6-e48a348052b9)
+51m         Normal    Pulling                        pod/order-556547d684-kk58j              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+51m         Normal    Pulling                        pod/payment-84d4c68676-bbn7b            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+51m         Normal    Created                        pod/order-556547d684-kk58j              Created container: order
+51m         Normal    Pulled                         pod/order-556547d684-kk58j              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 727ms (727ms including waiting). Image size: 69825511 bytes.
+51m         Normal    Started                        pod/order-556547d684-kk58j              Started container order
+51m         Normal    Created                        pod/payment-84d4c68676-bbn7b            Created container: payment
+51m         Normal    Started                        pod/payment-84d4c68676-bbn7b            Started container payment
+51m         Normal    Pulled                         pod/payment-84d4c68676-bbn7b            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 740ms (1.467s including waiting). Image size: 62780980 bytes.
+51m         Warning   BackOff                        pod/payment-84d4c68676-2gdhh            Back-off restarting failed container payment in pod payment-84d4c68676-2gdhh_shoply(99b87c5b-e398-45bc-a006-be2a0a2f6fc9)
+51m         Normal    Pulling                        pod/order-556547d684-c4brx              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+51m         Normal    Pulling                        pod/inventory-7c5c586469-lq6f8          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+51m         Normal    Pulled                         pod/order-556547d684-c4brx              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 776ms (776ms including waiting). Image size: 69825511 bytes.
+51m         Normal    Created                        pod/order-556547d684-c4brx              Created container: order
+51m         Normal    Started                        pod/order-556547d684-c4brx              Started container order
+51m         Normal    Created                        pod/inventory-7c5c586469-lq6f8          Created container: inventory
+51m         Normal    Started                        pod/inventory-7c5c586469-lq6f8          Started container inventory
+51m         Normal    Pulled                         pod/inventory-7c5c586469-lq6f8          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 734ms (734ms including waiting). Image size: 63283423 bytes.
+51m         Warning   BackOff                        pod/order-556547d684-zswk8              Back-off restarting failed container order in pod order-556547d684-zswk8_shoply(0f512a19-b563-49e3-af35-6a87b530d607)
+51m         Normal    Pulling                        pod/order-556547d684-jzf6v              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+50m         Normal    Started                        pod/order-556547d684-jzf6v              Started container order
+50m         Normal    Created                        pod/order-556547d684-jzf6v              Created container: order
+50m         Normal    Pulled                         pod/order-556547d684-jzf6v              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 721ms (721ms including waiting). Image size: 69825511 bytes.
+50m         Normal    Pulling                        pod/payment-84d4c68676-2gdhh            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+50m         Normal    Pulled                         pod/payment-84d4c68676-2gdhh            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 714ms (715ms including waiting). Image size: 62780980 bytes.
+50m         Normal    Created                        pod/payment-84d4c68676-2gdhh            Created container: payment
+50m         Normal    Started                        pod/payment-84d4c68676-2gdhh            Started container payment
+50m         Normal    Pulling                        pod/order-556547d684-zswk8              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+50m         Normal    Pulled                         pod/order-556547d684-zswk8              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 744ms (744ms including waiting). Image size: 69825511 bytes.
+50m         Normal    Started                        pod/order-556547d684-zswk8              Started container order
+50m         Normal    Created                        pod/order-556547d684-zswk8              Created container: order
+50m         Warning   BackOff                        pod/order-556547d684-9lq9c              Back-off restarting failed container order in pod order-556547d684-9lq9c_shoply(845eb03a-7b7e-419e-881f-6b018d4d73a7)
+50m         Normal    Killing                        pod/product-7f7cb5797d-48lg7            Stopping container product
+50m         Normal    Killing                        pod/gateway-7b76d459b9-tqr9p            Stopping container gateway
+50m         Normal    ScalingReplicaSet              deployment/product                      Scaled down replica set product-7f7cb5797d from 3 to 2
+50m         Normal    SuccessfulRescale              horizontalpodautoscaler/product-hpa     New size: 2; reason: All metrics below target
+50m         Normal    Killing                        pod/gateway-7b76d459b9-sl6ph            Stopping container gateway
+50m         Normal    SuccessfulDelete               replicaset/product-7f7cb5797d           Deleted pod: product-7f7cb5797d-48lg7
+50m         Normal    Killing                        pod/gateway-7b76d459b9-hszdg            Stopping container gateway
+50m         Normal    Killing                        pod/gateway-7b76d459b9-d9ss7            Stopping container gateway
+50m         Normal    SuccessfulDelete               replicaset/inventory-7c5c586469         Deleted pod: inventory-7c5c586469-dkg5s
+50m         Normal    SuccessfulRescale              horizontalpodautoscaler/inventory-hpa   New size: 2; reason: All metrics below target
+50m         Normal    Killing                        pod/gateway-7b76d459b9-kvspx            Stopping container gateway
+50m         Normal    Killing                        pod/order-556547d684-zswk8              Stopping container order
+50m         Normal    ScalingReplicaSet              deployment/inventory                    Scaled down replica set inventory-7c5c586469 from 4 to 2
+50m         Normal    SuccessfulDelete               replicaset/inventory-7c5c586469         Deleted pod: inventory-7c5c586469-lq6f8
+50m         Normal    Killing                        pod/gateway-7b76d459b9-sszzk            Stopping container gateway
+50m         Normal    Killing                        pod/inventory-7c5c586469-lq6f8          Stopping container inventory
+50m         Normal    ScalingReplicaSet              deployment/order                        Scaled down replica set order-556547d684 from 10 to 7
+50m         Warning   BackOff                        pod/payment-84d4c68676-xh6k8            Back-off restarting failed container payment in pod payment-84d4c68676-xh6k8_shoply(0679d06f-09b9-418a-9db5-b15321d74008)
+50m         Normal    Killing                        pod/gateway-7b76d459b9-mb4cj            Stopping container gateway
+50m         Normal    SuccessfulDelete               replicaset/order-556547d684             Deleted pod: order-556547d684-kk58j
+50m         Normal    Killing                        pod/order-556547d684-kk58j              Stopping container order
+50m         Normal    Killing                        pod/order-556547d684-jzf6v              Stopping container order
+50m         Normal    Killing                        pod/order-556547d684-c4brx              Stopping container order
+50m         Normal    Pulling                        pod/payment-84d4c68676-7qj4t            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+50m         Normal    Pulled                         pod/payment-84d4c68676-7qj4t            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 710ms (710ms including waiting). Image size: 62780980 bytes.
+50m         Normal    Created                        pod/payment-84d4c68676-7qj4t            Created container: payment
+49m         Normal    Pulling                        pod/payment-84d4c68676-xh6k8            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+49m         Normal    Pulled                         pod/payment-84d4c68676-xh6k8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 750ms (750ms including waiting). Image size: 62780980 bytes.
+49m         Normal    Started                        pod/payment-84d4c68676-xh6k8            Started container payment
+49m         Normal    Created                        pod/payment-84d4c68676-xh6k8            Created container: payment
+49m         Normal    ScalingReplicaSet              deployment/order                        (combined from similar events): Scaled down replica set order-556547d684 from 4 to 2
+49m         Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       (combined from similar events): New size: 2; reason: All metrics below target
+49m         Normal    Killing                        pod/order-556547d684-6dppq              Stopping container order
+49m         Normal    Killing                        pod/order-556547d684-d2fh6              Stopping container order
+49m         Warning   BackOff                        pod/payment-84d4c68676-h2msj            Back-off restarting failed container payment in pod payment-84d4c68676-h2msj_shoply(ee12d018-35d7-45b0-a622-ef24306649f4)
+49m         Normal    SuccessfulDelete               replicaset/payment-84d4c68676           Deleted pod: payment-84d4c68676-9f56k
+49m         Normal    SuccessfulDelete               replicaset/payment-84d4c68676           Deleted pod: payment-84d4c68676-h2msj
+49m         Normal    SuccessfulRescale              horizontalpodautoscaler/payment-hpa     New size: 4; reason: All metrics below target
+49m         Normal    ScalingReplicaSet              deployment/payment                      Scaled down replica set payment-84d4c68676 from 6 to 4
+48m         Normal    Killing                        pod/payment-84d4c68676-2gdhh            Stopping container payment
+48m         Normal    Killing                        pod/payment-84d4c68676-bbn7b            Stopping container payment
+48m         Normal    ScalingReplicaSet              deployment/payment                      (combined from similar events): Scaled down replica set payment-84d4c68676 from 4 to 2
+48m         Warning   Unhealthy                      pod/payment-84d4c68676-2gdhh            Readiness probe failed: Get "http://10.244.1.70:4004/health": dial tcp 10.244.1.70:4004: connect: connection refused
+48m         Normal    SuccessfulRescale              horizontalpodautoscaler/payment-hpa     (combined from similar events): New size: 2; reason: All metrics below target
+4m54s       Normal    SuccessfulCreate               replicaset/order-556547d684             Created pod: order-556547d684-zcbhh
+4m54s       Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-556547d684 from 2 to 3
+4m54s       Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       New size: 3; reason: cpu resource utilization (percentage of request) above target
+4m52s       Normal    Pulled                         pod/order-556547d684-zcbhh              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 1.283s (1.283s including waiting). Image size: 69825511 bytes.
+4m39s       Normal    ScalingReplicaSet              deployment/gateway                      Scaled up replica set gateway-7b76d459b9 from 2 to 3
+4m39s       Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 3; reason: cpu resource utilization (percentage of request) above target
+4m39s       Normal    SuccessfulRescale              horizontalpodautoscaler/payment-hpa     New size: 3; reason: cpu resource utilization (percentage of request) above target
+4m39s       Normal    ScalingReplicaSet              deployment/payment                      Scaled up replica set payment-84d4c68676 from 2 to 3
+4m39s       Normal    SuccessfulCreate               replicaset/payment-84d4c68676           Created pod: payment-84d4c68676-kjxzw
+4m39s       Normal    SuccessfulCreate               replicaset/gateway-7b76d459b9           Created pod: gateway-7b76d459b9-92tht
+4m39s       Normal    Pulling                        pod/gateway-7b76d459b9-92tht            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+4m38s       Normal    Created                        pod/gateway-7b76d459b9-92tht            Created container: gateway
+4m38s       Normal    Pulled                         pod/gateway-7b76d459b9-92tht            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 819ms (819ms including waiting). Image size: 63587715 bytes.
+4m38s       Normal    Started                        pod/gateway-7b76d459b9-92tht            Started container gateway
+4m38s       Normal    Pulled                         pod/payment-84d4c68676-kjxzw            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 789ms (789ms including waiting). Image size: 62780980 bytes.
+4m24s       Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-556547d684 from 3 to 4
+4m24s       Normal    Pulling                        pod/order-556547d684-m6gfl              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+4m24s       Normal    SuccessfulCreate               replicaset/order-556547d684             Created pod: order-556547d684-m6gfl
+4m24s       Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       New size: 4; reason: cpu resource utilization (percentage of request) above target
+4m22s       Normal    Pulled                         pod/order-556547d684-m6gfl              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 1.475s (1.475s including waiting). Image size: 69825511 bytes.
+4m22s       Normal    Created                        pod/order-556547d684-m6gfl              Created container: order
+4m22s       Normal    Started                        pod/order-556547d684-m6gfl              Started container order
+3m24s       Normal    Pulling                        pod/gateway-7b76d459b9-v6tnz            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+3m24s       Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 4; reason: cpu resource utilization (percentage of request) above target
+3m24s       Normal    ScalingReplicaSet              deployment/gateway                      Scaled up replica set gateway-7b76d459b9 from 3 to 4
+3m24s       Normal    SuccessfulCreate               replicaset/gateway-7b76d459b9           Created pod: gateway-7b76d459b9-v6tnz
+3m23s       Normal    Pulled                         pod/gateway-7b76d459b9-v6tnz            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 745ms (745ms including waiting). Image size: 63587715 bytes.
+3m23s       Normal    Created                        pod/gateway-7b76d459b9-v6tnz            Created container: gateway
+3m23s       Normal    Started                        pod/gateway-7b76d459b9-v6tnz            Started container gateway
+2m9s        Normal    ScalingReplicaSet              deployment/payment                      Scaled up replica set payment-84d4c68676 from 3 to 4
+2m9s        Normal    SuccessfulRescale              horizontalpodautoscaler/payment-hpa     New size: 4; reason: cpu resource utilization (percentage of request) above target
+2m9s        Normal    SuccessfulCreate               replicaset/payment-84d4c68676           Created pod: payment-84d4c68676-bwxlv
+2m9s        Normal    SuccessfulCreate               replicaset/order-556547d684             Created pod: order-556547d684-p7jkh
+2m9s        Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       New size: 5; reason: cpu resource utilization (percentage of request) above target
+2m9s        Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-556547d684 from 4 to 5
+2m8s        Normal    Pulled                         pod/payment-84d4c68676-bwxlv            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 778ms (778ms including waiting). Image size: 62780980 bytes.
+2m7s        Normal    Pulled                         pod/order-556547d684-p7jkh              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 771ms (1.498s including waiting). Image size: 69825511 bytes.
+114s        Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 5; reason: cpu resource utilization (percentage of request) above target
+114s        Normal    SuccessfulCreate               replicaset/gateway-7b76d459b9           Created pod: gateway-7b76d459b9-qplgl
+114s        Normal    SuccessfulCreate               replicaset/inventory-7c5c586469         Created pod: inventory-7c5c586469-cs555
+114s        Normal    SuccessfulRescale              horizontalpodautoscaler/inventory-hpa   New size: 3; reason: cpu resource utilization (percentage of request) above target
+114s        Normal    ScalingReplicaSet              deployment/gateway                      Scaled up replica set gateway-7b76d459b9 from 4 to 5
+114s        Normal    ScalingReplicaSet              deployment/inventory                    Scaled up replica set inventory-7c5c586469 from 2 to 3
+113s        Normal    Pulling                        pod/gateway-7b76d459b9-qplgl            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+113s        Normal    Pulled                         pod/inventory-7c5c586469-cs555          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 752ms (753ms including waiting). Image size: 63283423 bytes.
+112s        Normal    Pulled                         pod/gateway-7b76d459b9-qplgl            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 794ms (1.539s including waiting). Image size: 63587715 bytes.
+112s        Normal    Created                        pod/gateway-7b76d459b9-qplgl            Created container: gateway
+112s        Normal    Started                        pod/gateway-7b76d459b9-qplgl            Started container gateway
+99s         Normal    SuccessfulRescale              horizontalpodautoscaler/payment-hpa     New size: 5; reason: cpu resource utilization (percentage of request) above target
+99s         Normal    SuccessfulCreate               replicaset/order-556547d684             Created pod: order-556547d684-9q9xj
+99s         Normal    SuccessfulCreate               replicaset/payment-84d4c68676           Created pod: payment-84d4c68676-jdfrk
+99s         Normal    ScalingReplicaSet              deployment/payment                      Scaled up replica set payment-84d4c68676 from 4 to 5
+99s         Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       New size: 6; reason: cpu resource utilization (percentage of request) above target
+99s         Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-556547d684 from 5 to 6
+98s         Normal    Pulled                         pod/payment-84d4c68676-jdfrk            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 762ms (762ms including waiting). Image size: 62780980 bytes.
+97s         Normal    Pulled                         pod/order-556547d684-9q9xj              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 759ms (1.46s including waiting). Image size: 69825511 bytes.
+91s         Warning   Unhealthy                      pod/inventory-7c5c586469-cs555          Readiness probe failed: HTTP probe failed with statuscode: 503
+84s         Normal    ScalingReplicaSet              deployment/gateway                      Scaled up replica set gateway-7b76d459b9 from 5 to 6
+84s         Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 6; reason: cpu resource utilization (percentage of request) above target
+84s         Normal    SuccessfulCreate               replicaset/gateway-7b76d459b9           Created pod: gateway-7b76d459b9-dx5zq
+83s         Normal    Pulling                        pod/gateway-7b76d459b9-dx5zq            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+83s         Normal    Started                        pod/gateway-7b76d459b9-dx5zq            Started container gateway
+83s         Normal    Created                        pod/gateway-7b76d459b9-dx5zq            Created container: gateway
+83s         Normal    Pulled                         pod/gateway-7b76d459b9-dx5zq            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 763ms (763ms including waiting). Image size: 63587715 bytes.
+75s         Normal    Pulled                         pod/inventory-7c5c586469-cs555          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 713ms (713ms including waiting). Image size: 63283423 bytes.
+74s         Normal    Pulled                         pod/order-556547d684-zcbhh              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 732ms (732ms including waiting). Image size: 69825511 bytes.
+73s         Normal    Pulled                         pod/order-556547d684-9q9xj              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 731ms (731ms including waiting). Image size: 69825511 bytes.
+71s         Normal    Pulled                         pod/order-556547d684-p7jkh              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 740ms (740ms including waiting). Image size: 69825511 bytes.
+69s         Normal    SuccessfulCreate               replicaset/payment-84d4c68676           Created pod: payment-84d4c68676-79qq4
+69s         Normal    SuccessfulRescale              horizontalpodautoscaler/payment-hpa     New size: 6; reason: cpu resource utilization (percentage of request) above target
+69s         Normal    Pulled                         pod/inventory-7c5c586469-k54j5          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 827ms (827ms including waiting). Image size: 63283423 bytes.
+69s         Normal    ScalingReplicaSet              deployment/payment                      Scaled up replica set payment-84d4c68676 from 5 to 6
+69s         Normal    SuccessfulCreate               replicaset/inventory-7c5c586469         Created pod: inventory-7c5c586469-rrrlv
+69s         Normal    ScalingReplicaSet              deployment/inventory                    Scaled up replica set inventory-7c5c586469 from 3 to 4
+69s         Normal    Pulled                         pod/payment-84d4c68676-kjxzw            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 771ms (771ms including waiting). Image size: 62780980 bytes.
+69s         Normal    SuccessfulRescale              horizontalpodautoscaler/inventory-hpa   New size: 4; reason: cpu resource utilization (percentage of request) above target
+68s         Normal    Pulled                         pod/inventory-7c5c586469-rrrlv          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 716ms (716ms including waiting). Image size: 63283423 bytes.
+68s         Normal    Pulled                         pod/payment-84d4c68676-79qq4            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 772ms (772ms including waiting). Image size: 62780980 bytes.
+66s         Normal    Pulled                         pod/payment-84d4c68676-k9bk8            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 769ms (769ms including waiting). Image size: 62780980 bytes.
+66s         Normal    Pulling                        pod/payment-84d4c68676-k9bk8            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+65s         Normal    Started                        pod/payment-84d4c68676-k9bk8            Started container payment
+65s         Normal    Pulled                         pod/payment-84d4c68676-jdfrk            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 740ms (740ms including waiting). Image size: 62780980 bytes.
+65s         Normal    Created                        pod/payment-84d4c68676-k9bk8            Created container: payment
+54s         Normal    ScalingReplicaSet              deployment/gateway                      Scaled up replica set gateway-7b76d459b9 from 6 to 7
+54s         Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 7; reason: cpu resource utilization (percentage of request) above target
+54s         Normal    SuccessfulCreate               replicaset/gateway-7b76d459b9           Created pod: gateway-7b76d459b9-pl28d
+54s         Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       New size: 7; reason: cpu resource utilization (percentage of request) above target
+54s         Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-556547d684 from 6 to 7
+54s         Normal    SuccessfulCreate               replicaset/order-556547d684             Created pod: order-556547d684-7dddm
+53s         Normal    Pulled                         pod/order-556547d684-7dddm              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 741ms (741ms including waiting). Image size: 69825511 bytes.
+53s         Normal    Pulling                        pod/gateway-7b76d459b9-pl28d            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+53s         Normal    Pulled                         pod/gateway-7b76d459b9-pl28d            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 733ms (733ms including waiting). Image size: 63587715 bytes.
+52s         Normal    Started                        pod/gateway-7b76d459b9-pl28d            Started container gateway
+52s         Normal    Created                        pod/gateway-7b76d459b9-pl28d            Created container: gateway
+51s         Warning   Unhealthy                      pod/order-556547d684-9q9xj              Readiness probe failed: HTTP probe failed with statuscode: 503
+51s         Warning   Unhealthy                      pod/order-556547d684-zcbhh              Readiness probe failed: HTTP probe failed with statuscode: 503
+43s         Warning   Unhealthy                      pod/payment-84d4c68676-jdfrk            Readiness probe failed: HTTP probe failed with statuscode: 503
+41s         Normal    Pulling                        pod/inventory-7c5c586469-rrrlv          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+40s         Normal    Pulled                         pod/inventory-7c5c586469-rrrlv          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 828ms (828ms including waiting). Image size: 63283423 bytes.
+40s         Normal    Started                        pod/inventory-7c5c586469-rrrlv          Started container inventory
+40s         Normal    Created                        pod/inventory-7c5c586469-rrrlv          Created container: inventory
+39s         Normal    SuccessfulRescale              horizontalpodautoscaler/order-hpa       New size: 8; reason: cpu resource utilization (percentage of request) above target
+39s         Normal    SuccessfulCreate               replicaset/product-7f7cb5797d           Created pod: product-7f7cb5797d-8l85p
+39s         Normal    SuccessfulRescale              horizontalpodautoscaler/product-hpa     New size: 3; reason: cpu resource utilization (percentage of request) above target
+39s         Normal    SuccessfulCreate               replicaset/order-556547d684             Created pod: order-556547d684-v5fsl
+39s         Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-556547d684 from 7 to 8
+39s         Normal    ScalingReplicaSet              deployment/product                      Scaled up replica set product-7f7cb5797d from 2 to 3
+39s         Normal    SuccessfulRescale              horizontalpodautoscaler/payment-hpa     New size: 7; reason: cpu resource utilization (percentage of request) above target
+39s         Normal    SuccessfulCreate               replicaset/payment-84d4c68676           Created pod: payment-84d4c68676-bm2nz
+39s         Normal    ScalingReplicaSet              deployment/payment                      Scaled up replica set payment-84d4c68676 from 6 to 7
+38s         Normal    Pulling                        pod/product-7f7cb5797d-8l85p            Pulling image "ghcr.io/incheon-soda/shoply-product:latest"
+38s         Normal    Created                        pod/product-7f7cb5797d-8l85p            Created container: product
+38s         Normal    Pulling                        pod/payment-84d4c68676-bm2nz            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+38s         Normal    Started                        pod/product-7f7cb5797d-8l85p            Started container product
+38s         Normal    Pulled                         pod/product-7f7cb5797d-8l85p            Successfully pulled image "ghcr.io/incheon-soda/shoply-product:latest" in 719ms (719ms including waiting). Image size: 64210416 bytes.
+38s         Normal    Pulling                        pod/order-556547d684-v5fsl              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+37s         Normal    Created                        pod/payment-84d4c68676-bm2nz            Created container: payment
+37s         Normal    Pulled                         pod/order-556547d684-v5fsl              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 754ms (1.554s including waiting). Image size: 69825511 bytes.
+37s         Normal    Created                        pod/order-556547d684-v5fsl              Created container: order
+37s         Normal    Started                        pod/order-556547d684-v5fsl              Started container order
+37s         Warning   BackOff                        pod/inventory-7c5c586469-k54j5          Back-off restarting failed container inventory in pod inventory-7c5c586469-k54j5_shoply(17c8bf30-a186-4dfe-a413-fd2ddd193d56)
+37s         Warning   BackOff                        pod/payment-84d4c68676-kjxzw            Back-off restarting failed container payment in pod payment-84d4c68676-kjxzw_shoply(63f9890a-95e0-4f57-b8ce-2158bddd885f)
+37s         Normal    Pulled                         pod/payment-84d4c68676-bm2nz            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 863ms (863ms including waiting). Image size: 62780980 bytes.
+37s         Normal    Started                        pod/payment-84d4c68676-bm2nz            Started container payment
+34s         Normal    Pulling                        pod/payment-84d4c68676-79qq4            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+33s         Normal    Created                        pod/payment-84d4c68676-79qq4            Created container: payment
+33s         Warning   BackOff                        pod/inventory-7c5c586469-cs555          Back-off restarting failed container inventory in pod inventory-7c5c586469-cs555_shoply(68044c00-023d-4da2-b9b9-5f386b2ee1da)
+33s         Normal    Started                        pod/payment-84d4c68676-79qq4            Started container payment
+33s         Normal    Pulled                         pod/payment-84d4c68676-79qq4            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 741ms (741ms including waiting). Image size: 62780980 bytes.
+31s         Warning   BackOff                        pod/order-556547d684-9q9xj              Back-off restarting failed container order in pod order-556547d684-9q9xj_shoply(b85ff133-45da-4fee-bf4c-914fc3bfd6a6)
+31s         Warning   BackOff                        pod/order-556547d684-zcbhh              Back-off restarting failed container order in pod order-556547d684-zcbhh_shoply(824b2ad6-63a7-42a4-aeb9-741235478633)
+31s         Normal    Pulling                        pod/inventory-7c5c586469-k54j5          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+30s         Normal    Pulled                         pod/inventory-7c5c586469-k54j5          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 755ms (756ms including waiting). Image size: 63283423 bytes.
+30s         Normal    Created                        pod/inventory-7c5c586469-k54j5          Created container: inventory
+30s         Normal    Started                        pod/inventory-7c5c586469-k54j5          Started container inventory
+29s         Normal    Pulling                        pod/order-556547d684-p7jkh              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+29s         Normal    Pulling                        pod/order-556547d684-7dddm              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+29s         Warning   BackOff                        pod/order-556547d684-p7jkh              Back-off restarting failed container order in pod order-556547d684-p7jkh_shoply(b48afe0a-18ee-440e-9660-d3c3795c216f)
+28s         Normal    Created                        pod/order-556547d684-p7jkh              Created container: order
+28s         Normal    Pulled                         pod/order-556547d684-p7jkh              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 747ms (1.119s including waiting). Image size: 69825511 bytes.
+28s         Normal    Created                        pod/order-556547d684-7dddm              Created container: order
+28s         Normal    Started                        pod/order-556547d684-7dddm              Started container order
+28s         Normal    Pulled                         pod/order-556547d684-7dddm              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 771ms (771ms including waiting). Image size: 69825511 bytes.
+27s         Normal    Started                        pod/order-556547d684-p7jkh              Started container order
+24s         Normal    SuccessfulRescale              horizontalpodautoscaler/gateway-hpa     New size: 8; reason: cpu resource utilization (percentage of request) above target
+24s         Normal    SuccessfulRescale              horizontalpodautoscaler/inventory-hpa   New size: 5; reason: cpu resource utilization (percentage of request) above target
+24s         Normal    ScalingReplicaSet              deployment/inventory                    Scaled up replica set inventory-7c5c586469 from 4 to 5
+24s         Normal    SuccessfulCreate               replicaset/inventory-7c5c586469         Created pod: inventory-7c5c586469-m7f8s
+24s         Normal    SuccessfulCreate               replicaset/gateway-7b76d459b9           Created pod: gateway-7b76d459b9-s7r7h
+24s         Normal    ScalingReplicaSet              deployment/gateway                      Scaled up replica set gateway-7b76d459b9 from 7 to 8
+23s         Warning   BackOff                        pod/payment-84d4c68676-jdfrk            Back-off restarting failed container payment in pod payment-84d4c68676-jdfrk_shoply(9ed8eaf7-7e67-488d-858a-9ee29846caff)
+23s         Normal    Pulling                        pod/inventory-7c5c586469-m7f8s          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+23s         Normal    Created                        pod/inventory-7c5c586469-m7f8s          Created container: inventory
+23s         Normal    Pulled                         pod/inventory-7c5c586469-m7f8s          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 764ms (764ms including waiting). Image size: 63283423 bytes.
+23s         Normal    Pulling                        pod/payment-84d4c68676-kjxzw            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+23s         Normal    Pulling                        pod/gateway-7b76d459b9-s7r7h            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+22s         Normal    Started                        pod/payment-84d4c68676-kjxzw            Started container payment
+22s         Normal    Pulling                        pod/inventory-7c5c586469-cs555          Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+22s         Normal    Started                        pod/inventory-7c5c586469-m7f8s          Started container inventory
+22s         Normal    Created                        pod/payment-84d4c68676-kjxzw            Created container: payment
+22s         Normal    Pulled                         pod/payment-84d4c68676-kjxzw            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 807ms (807ms including waiting). Image size: 62780980 bytes.
+22s         Normal    Started                        pod/gateway-7b76d459b9-s7r7h            Started container gateway
+22s         Normal    Created                        pod/gateway-7b76d459b9-s7r7h            Created container: gateway
+22s         Normal    Pulled                         pod/gateway-7b76d459b9-s7r7h            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 751ms (1.432s including waiting). Image size: 63587715 bytes.
+21s         Normal    Pulled                         pod/inventory-7c5c586469-cs555          Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 737ms (960ms including waiting). Image size: 63283423 bytes.
+21s         Normal    Started                        pod/inventory-7c5c586469-cs555          Started container inventory
+21s         Normal    Created                        pod/inventory-7c5c586469-cs555          Created container: inventory
+20s         Normal    Pulling                        pod/order-556547d684-9q9xj              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+19s         Normal    Pulling                        pod/payment-84d4c68676-bwxlv            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+19s         Normal    Started                        pod/order-556547d684-9q9xj              Started container order
+19s         Normal    Created                        pod/order-556547d684-9q9xj              Created container: order
+19s         Normal    Pulled                         pod/order-556547d684-9q9xj              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 765ms (765ms including waiting). Image size: 69825511 bytes.
+19s         Normal    Pulling                        pod/payment-84d4c68676-jdfrk            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+18s         Normal    Started                        pod/payment-84d4c68676-bwxlv            Started container payment
+18s         Normal    Created                        pod/payment-84d4c68676-bwxlv            Created container: payment
+18s         Normal    Pulled                         pod/payment-84d4c68676-bwxlv            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 834ms (837ms including waiting). Image size: 62780980 bytes.
+17s         Normal    Pulling                        pod/order-556547d684-zcbhh              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+17s         Normal    Created                        pod/payment-84d4c68676-jdfrk            Created container: payment
+17s         Normal    Pulled                         pod/payment-84d4c68676-jdfrk            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 828ms (1.384s including waiting). Image size: 62780980 bytes.
+17s         Normal    Started                        pod/payment-84d4c68676-jdfrk            Started container payment
+16s         Normal    Created                        pod/order-556547d684-zcbhh              Created container: order
+16s         Normal    Pulled                         pod/order-556547d684-zcbhh              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 706ms (706ms including waiting). Image size: 69825511 bytes.
+16s         Normal    Started                        pod/order-556547d684-zcbhh              Started container order
+8s          Warning   Unhealthy                      pod/inventory-7c5c586469-k54j5          Readiness probe failed: HTTP probe failed with statuscode: 503
+6s          Warning   Unhealthy                      pod/order-556547d684-p7jkh              Readiness probe failed: HTTP probe failed with statuscode: 503
+6s          Warning   BackOff                        pod/order-556547d684-7dddm              Back-off restarting failed container order in pod order-556547d684-7dddm_shoply(be8f97fc-285e-47aa-aca5-f79c690b1c84)
+5s          Warning   Unhealthy                      pod/payment-84d4c68676-bm2nz            Readiness probe failed: HTTP probe failed with statuscode: 503
+5s          Warning   Unhealthy                      pod/product-7f7cb5797d-8l85p            Readiness probe failed: HTTP probe failed with statuscode: 503
+4s          Warning   Unhealthy                      pod/order-556547d684-v5fsl              Readiness probe failed: HTTP probe failed with statuscode: 503
+4s          Warning   Unhealthy                      pod/payment-84d4c68676-k9bk8            Readiness probe failed: HTTP probe failed with statuscode: 503
+2s          Warning   Unhealthy                      pod/payment-84d4c68676-79qq4            Readiness probe failed: HTTP probe failed with statuscode: 503
+1s          Warning   Unhealthy                      pod/inventory-7c5c586469-m7f8s          Readiness probe failed: HTTP probe failed with statuscode: 503
+0s          Warning   BackOff                        pod/inventory-7c5c586469-rrrlv          Back-off restarting failed container inventory in pod inventory-7c5c586469-rrrlv_shoply(a5df10b8-34d8-4dd9-934d-c8175f0749f2)

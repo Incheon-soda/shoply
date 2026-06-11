@@ -1,0 +1,32 @@
+===== node/k8s-master =====
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                750m (37%)  0 (0%)
+  memory             150Mi (3%)  0 (0%)
+  ephemeral-storage  0 (0%)      0 (0%)
+===== node/k8s-worker1 =====
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests      Limits
+  --------           --------      ------
+  cpu                1 (50%)       4 (200%)
+  memory             1274Mi (33%)  4Gi (107%)
+  ephemeral-storage  0 (0%)        0 (0%)
+===== node/k8s-worker2 =====
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests      Limits
+  --------           --------      ------
+  cpu                1150m (57%)   5200m (260%)
+  memory             1394Mi (36%)  5248Mi (137%)
+  ephemeral-storage  0 (0%)        0 (0%)
+===== node/k8s-worker3 =====
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                400m (20%)  0 (0%)
+  memory             280Mi (7%)  340Mi (8%)
+  ephemeral-storage  0 (0%)      0 (0%)

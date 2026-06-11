@@ -1,0 +1,18 @@
+NAME                         READY   STATUS    RESTARTS      AGE    IP            NODE          NOMINATED NODE   READINESS GATES
+frontend-6798c74b8c-m2ddg    1/1     Running   0             159m   10.244.2.11   k8s-worker2   <none>           <none>
+gateway-7b76d459b9-6spnt     1/1     Running   0             61m    10.244.1.53   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-92tht     1/1     Running   0             94s    10.244.1.80   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-rhsb6     1/1     Running   0             159m   10.244.1.10   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-v6tnz     0/1     Running   0             19s    10.244.1.81   k8s-worker1   <none>           <none>
+inventory-7c5c586469-h59hh   1/1     Running   3 (48m ago)   105m   10.244.2.35   k8s-worker2   <none>           <none>
+inventory-7c5c586469-k54j5   1/1     Running   1 (49m ago)   50m    10.244.1.76   k8s-worker1   <none>           <none>
+order-556547d684-5cw6s       1/1     Running   5 (49m ago)   56m    10.244.2.61   k8s-worker2   <none>           <none>
+order-556547d684-m6gfl       1/1     Running   0             79s    10.244.2.70   k8s-worker2   <none>           <none>
+order-556547d684-mkx72       1/1     Running   0             50m    10.244.2.66   k8s-worker2   <none>           <none>
+order-556547d684-zcbhh       1/1     Running   0             109s   10.244.2.68   k8s-worker2   <none>           <none>
+payment-84d4c68676-fbv9g     1/1     Running   2 (49m ago)   52m    10.244.1.71   k8s-worker1   <none>           <none>
+payment-84d4c68676-k9bk8     1/1     Running   5 (50m ago)   57m    10.244.2.60   k8s-worker2   <none>           <none>
+payment-84d4c68676-kjxzw     1/1     Running   0             94s    10.244.2.69   k8s-worker2   <none>           <none>
+product-7f7cb5797d-4gnkq     1/1     Running   0             119m   10.244.1.13   k8s-worker1   <none>           <none>
+product-7f7cb5797d-x9pq8     1/1     Running   0             63m    10.244.1.51   k8s-worker1   <none>           <none>
+user-cf9f7646c-xfgl5         1/1     Running   0             159m   10.244.2.14   k8s-worker2   <none>           <none>

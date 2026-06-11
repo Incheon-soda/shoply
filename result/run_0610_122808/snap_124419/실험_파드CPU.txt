@@ -1,0 +1,13 @@
+NAME                         CPU(cores)   MEMORY(bytes)   
+frontend-9dcd685f9-hbrfw     1m           3Mi             
+gateway-67ddf64db9-hphmp     3m           24Mi            
+gateway-67ddf64db9-vwb9l     3m           88Mi            
+inventory-54b7486945-ktbmc   2m           22Mi            
+inventory-54b7486945-nf5ql   3m           24Mi            
+order-6976c69cdd-dmbjb       3m           103Mi           
+order-6976c69cdd-kfmw7       3m           25Mi            
+payment-7f446f7f68-8t46k     4m           27Mi            
+payment-7f446f7f68-cpzqc     3m           28Mi            
+product-79f7fc54b6-fmwn8     3m           33Mi            
+product-79f7fc54b6-wr8sw     3m           31Mi            
+user-64dcb65d99-qwlqs        3m           28Mi            

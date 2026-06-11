@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>온프레 부하 실험 — run_0609_123657</title>
+<style>
+  body{font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;background:#0f1117;color:#e6e6e6;
+       max-width:860px;margin:0 auto;padding:32px 24px;line-height:1.6}
+  h1{font-size:24px;border-bottom:2px solid #3b82f6;padding-bottom:12px}
+  h2{font-size:18px;margin-top:36px;color:#93c5fd}
+  .badge{display:inline-block;padding:6px 14px;border-radius:8px;font-weight:700;font-size:15px}
+  .badge.yes{background:#7f1d1d;color:#fecaca} .badge.no{background:#1e3a5f;color:#bfdbfe}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #232838}
+  th{color:#9ca3af;font-weight:600}
+  .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+  .svc{font-weight:600;width:110px}
+  .bar{height:16px;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:4px}
+  .age{color:#9ca3af;width:90px;white-space:nowrap}
+  .summary{background:#161a24;border:1px solid #232838;border-radius:12px;padding:18px 22px;margin-top:14px}
+  .summary td:first-child{color:#9ca3af;width:160px}
+  .conc{background:#1a2233;border-left:4px solid #3b82f6;border-radius:8px;padding:16px 20px;
+         margin-top:14px;font-size:15px}
+  .msg{font-family:ui-monospace,monospace;font-size:12px;color:#fca5a5;background:#1a1010;
+        padding:10px 14px;border-radius:6px;margin-top:8px;word-break:break-all}
+  .pend{color:#fbbf24;font-weight:700} .fail{color:#fca5a5;font-weight:700}
+  .diag{font-family:ui-monospace,monospace;font-size:12px;color:#cbd5e1;background:#11151f;
+         border:1px solid #232838;border-radius:8px;padding:14px 16px;
+         max-height:360px;overflow:auto;white-space:pre-wrap;line-height:1.45}
+  .scroll{max-height:360px;overflow-y:auto;border:1px solid #232838;border-radius:8px}
+  .scroll table{margin-top:0}
+  .muted{color:#6b7280}
+  .foot{margin-top:40px;color:#6b7280;font-size:12px;border-top:1px solid #232838;padding-top:14px}
+</style></head><body>
+
+<h1>📋 온프레 부하 실험 — run_0609_123657</h1>
+
+<h2>📊 요약</h2>
+<div class="summary"><table>
+  <tr><td>한계 도달</td><td><span class="badge no">⬜ 한계 미도달 (여유 있음)</span></td></tr>
+  <tr><td>한계 원인</td><td>Insufficient cpu</td></tr>
+  <tr><td>총 파드 (요청)</td><td><b>7개</b></td></tr>
+  <tr><td>Running / Pending / 실패</td><td><b>7</b> / <span class="pend">0</span> / <span class="fail">0</span></td></tr>
+  <tr><td>FailedScheduling 이벤트</td><td>0건</td></tr>
+</table>
+
+</div>
+
+<h2>📦 서비스별 파드 현황 (캡처 시점) ★</h2>
+<table>
+<tr><th>서비스</th><th class="num">Running</th><th class="num">Pending</th><th class="num">실패</th><th class="num">합계</th></tr>
+<tr><td class="svc">frontend</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td class="svc">gateway</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td class="svc">inventory</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td class="svc">order</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td class="svc">payment</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td class="svc">product</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td class="svc">user</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+</table>
+
+<h2>🩺 진단 — 왜 안 떴나 (비정상 파드 원인·로그)</h2>
+<p class="muted">비정상 파드 없음 (모두 Running)</p>
+
+<h2>🧮 노드 CPU 할당률 (request 기준) — Pending의 진짜 원인</h2>
+<p class="muted">스케줄링은 사용량(top)이 아니라 <b>request 합계 vs allocatable</b>로 결정됨. 90%+ 면 새 파드 못 받음.</p>
+<table><tr><th>노드</th><th class="num">CPU request 할당률</th></tr><tr><td>k8s-master</td><td class="num" style="color:#e6e6e6">37%</td></tr>
+<tr><td>k8s-worker1</td><td class="num" style="color:#e6e6e6">30%</td></tr>
+<tr><td>k8s-worker2</td><td class="num" style="color:#e6e6e6">27%</td></tr>
+<tr><td>k8s-worker3</td><td class="num" style="color:#e6e6e6">10%</td></tr></table>
+
+<h2>🖥 노드 사용률 / 파드 분포 (캡처 시점)</h2>
+<table><tr><th>노드</th><th class="num">CPU</th><th class="num">MEM</th><th class="num">파드 수</th></tr>
+<tr><td>k8s-master</td><td class="num" style="color:#e6e6e6">2%</td><td class="num">20%</td><td class="num">0개</td></tr>
+<tr><td>k8s-worker1</td><td class="num" style="color:#e6e6e6">1%</td><td class="num">12%</td><td class="num">3개</td></tr>
+<tr><td>k8s-worker2</td><td class="num" style="color:#e6e6e6">1%</td><td class="num">12%</td><td class="num">4개</td></tr>
+<tr><td>k8s-worker3</td><td class="num" style="color:#e6e6e6">0%</td><td class="num">11%</td><td class="num">0개</td></tr></table>
+
+<h2>📈 서비스별 최대 파드 수 (이벤트 로그 기준, 부하 전체)</h2>
+<table><tr><td class="svc">inventory</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">1</td></tr>
+<tr><td class="svc">user</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">1</td></tr>
+<tr><td class="svc">product</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">1</td></tr>
+<tr><td class="svc">payment</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">1</td></tr>
+<tr><td class="svc">order</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">1</td></tr>
+<tr><td class="svc">gateway</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">1</td></tr>
+<tr><td class="svc">frontend</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">1</td></tr></table>
+
+<h2>⏱ 타임라인 (최신순)</h2>
+<div class="scroll"><table></table></div>
+
+<h2>🎯 결론</h2>
+<div class="conc">아직 노드에 여유가 있어 Pending이 없다. 부하를 더 올려야 한계가 보인다. (현재 Running 7개)</div>
+
+<div class="foot">로그 파싱 자동 생성 · 같은 입력 → 같은 결과 (재현성 보장) ·
+generated by analyze_experiment.py</div>
+</body></html>

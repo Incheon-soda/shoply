@@ -15,6 +15,18 @@ services:
       - '--web.enable-remote-write-receiver'   # k6 Prometheus remote write 수신
       - '--web.enable-admin-api'               # 스냅샷 API 활성화
 
+  # ── Loki — 로그 저장 (Grafana로 로그/이벤트 조회) ──────────────
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: loki
+    restart: always
+    ports:
+      - "3100:3100"                 # 클러스터 Promtail/event-exporter가 여기로 push
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -23,6 +35,7 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin1234
@@ -31,3 +44,4 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
+  loki_data:

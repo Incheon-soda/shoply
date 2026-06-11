@@ -21,3 +21,6 @@ build/
 
 # 로그
 *.log
+
+# 클러스터 백업 (대용량)
+shoply-cluster.tar.gz

@@ -1,0 +1,13 @@
+NAME                         READY   STATUS    RESTARTS      AGE    IP            NODE          NOMINATED NODE   READINESS GATES
+frontend-6798c74b8c-m2ddg    1/1     Running   0             156m   10.244.2.11   k8s-worker2   <none>           <none>
+gateway-7b76d459b9-6spnt     1/1     Running   0             58m    10.244.1.53   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-rhsb6     1/1     Running   0             156m   10.244.1.10   k8s-worker1   <none>           <none>
+inventory-7c5c586469-h59hh   1/1     Running   3 (45m ago)   102m   10.244.2.35   k8s-worker2   <none>           <none>
+inventory-7c5c586469-k54j5   1/1     Running   1 (46m ago)   47m    10.244.1.76   k8s-worker1   <none>           <none>
+order-556547d684-5cw6s       1/1     Running   5 (46m ago)   53m    10.244.2.61   k8s-worker2   <none>           <none>
+order-556547d684-mkx72       1/1     Running   0             47m    10.244.2.66   k8s-worker2   <none>           <none>
+payment-84d4c68676-fbv9g     1/1     Running   2 (46m ago)   49m    10.244.1.71   k8s-worker1   <none>           <none>
+payment-84d4c68676-k9bk8     1/1     Running   5 (47m ago)   54m    10.244.2.60   k8s-worker2   <none>           <none>
+product-7f7cb5797d-4gnkq     1/1     Running   0             116m   10.244.1.13   k8s-worker1   <none>           <none>
+product-7f7cb5797d-x9pq8     1/1     Running   0             60m    10.244.1.51   k8s-worker1   <none>           <none>
+user-cf9f7646c-xfgl5         1/1     Running   0             156m   10.244.2.14   k8s-worker2   <none>           <none>

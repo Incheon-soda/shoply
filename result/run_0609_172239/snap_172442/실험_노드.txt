@@ -1,0 +1,5 @@
+NAME          CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+k8s-master    155m         7%       776Mi           20%         
+k8s-worker1   481m         24%      617Mi           16%         
+k8s-worker2   508m         25%      672Mi           17%         
+k8s-worker3   187m         9%       476Mi           12%         

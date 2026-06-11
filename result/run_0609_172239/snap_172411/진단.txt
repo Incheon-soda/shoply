@@ -1,0 +1,25 @@
+════════ gateway-7b76d459b9-92tht  (ContainerCreating) ════════
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  2s    default-scheduler  Successfully assigned shoply/gateway-7b76d459b9-92tht to k8s-worker1
+  Normal  Pulling    2s    kubelet            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+  Normal  Pulled     1s    kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 819ms (819ms including waiting). Image size: 63587715 bytes.
+  Normal  Created    1s    kubelet            Created container: gateway
+  Normal  Started    1s    kubelet            Started container gateway
+──── 로그(현재) ────
+──── 로그(직전 컨테이너) ────
+
+════════ payment-84d4c68676-kjxzw  (ContainerCreating) ════════
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  2s    default-scheduler  Successfully assigned shoply/payment-84d4c68676-kjxzw to k8s-worker2
+  Normal  Pulling    2s    kubelet            Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+  Normal  Pulled     1s    kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 789ms (789ms including waiting). Image size: 62780980 bytes.
+  Normal  Created    1s    kubelet            Created container: payment
+  Normal  Started    1s    kubelet            Started container payment
+──── 로그(현재) ────
+[payment-service] :4004
+──── 로그(직전 컨테이너) ────
+

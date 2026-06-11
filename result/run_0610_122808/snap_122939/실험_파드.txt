@@ -1,0 +1,16 @@
+NAME                         READY   STATUS    RESTARTS      AGE    IP            NODE          NOMINATED NODE   READINESS GATES
+frontend-9dcd685f9-hbrfw     1/1     Running   3 (77m ago)   105m   10.244.2.19   k8s-worker2   <none>           <none>
+gateway-67ddf64db9-hphmp     1/1     Running   1 (79m ago)   105m   10.244.1.16   k8s-worker1   <none>           <none>
+gateway-67ddf64db9-hv72g     0/1     Running   0             9s     10.244.1.21   k8s-worker1   <none>           <none>
+gateway-67ddf64db9-vwb9l     1/1     Running   1 (79m ago)   105m   10.244.1.14   k8s-worker1   <none>           <none>
+inventory-54b7486945-ktbmc   1/1     Running   1 (79m ago)   105m   10.244.1.17   k8s-worker1   <none>           <none>
+inventory-54b7486945-nf5ql   1/1     Running   1 (79m ago)   105m   10.244.1.19   k8s-worker1   <none>           <none>
+order-6976c69cdd-dmbjb       1/1     Running   1 (78m ago)   105m   10.244.2.18   k8s-worker2   <none>           <none>
+order-6976c69cdd-dnt5f       0/1     Running   0             9s     10.244.2.26   k8s-worker2   <none>           <none>
+order-6976c69cdd-f6xcw       1/1     Running   1 (78m ago)   105m   10.244.2.22   k8s-worker2   <none>           <none>
+payment-7f446f7f68-55452     1/1     Running   1 (78m ago)   105m   10.244.2.20   k8s-worker2   <none>           <none>
+payment-7f446f7f68-fjrnl     0/1     Running   0             9s     10.244.2.25   k8s-worker2   <none>           <none>
+payment-7f446f7f68-kwzfm     1/1     Running   1 (78m ago)   105m   10.244.2.23   k8s-worker2   <none>           <none>
+product-79f7fc54b6-fmwn8     1/1     Running   1 (79m ago)   105m   10.244.1.15   k8s-worker1   <none>           <none>
+product-79f7fc54b6-wr8sw     1/1     Running   1 (79m ago)   105m   10.244.1.18   k8s-worker1   <none>           <none>
+user-64dcb65d99-qwlqs        1/1     Running   1 (78m ago)   105m   10.244.2.21   k8s-worker2   <none>           <none>

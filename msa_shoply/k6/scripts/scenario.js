@@ -1,5 +1,10 @@
 import http from 'k6/http';
-import { check } from 'k6';
+import { check, sleep } from 'k6';
+
+// 현실적 유저 대기시간(think time) — 실제 사용자는 페이지 보고 잠깐 멈춘다
+function think(min, max) {
+  sleep(min + Math.random() * (max - min));
+}
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost';
 
@@ -27,18 +32,33 @@ const PRODUCTS = [
   '157192dd-1412-4afe-9ec7-cfdda556d25e',
 ];
 
+// ── 부하 프로파일 ─────────────────────────────────────────────
+// 실험 워커 2대(2코어/4GB)에 맞춘 "완만한 계단식 램프".
+// 한 번에 폭증시키지 않고 단계별로 천천히 올려 Pending(한계) 발생 지점을 눈으로 찾는다.
+//   · 0~3분  : 워밍업 + 안정 baseline (시나리오1 — Error 0 확인)
+//   · 3~13분 : 단계별 증가 (Pending 뜨는 VU를 관찰)
+//   · 13~16분: 한계 부근 유지 (시나리오2 — 과부하 측정)
+//   · 마지막 : 0으로 회복 (MTTR 관찰)
+// 한계가 안 보이면(끝까지 Pending 없음) 아래 target 숫자를 키워서 재실행.
 export const options = {
   scenarios: {
-    wave_A: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '0s',  tags: { wave: 'A' } },
-    wave_B: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '1m',  tags: { wave: 'B' } },
-    wave_C: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '2m',  tags: { wave: 'C' } },
-    wave_D: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '3m',  tags: { wave: 'D' } },
-    wave_E: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '4m',  tags: { wave: 'E' } },
-    wave_F: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '5m',  tags: { wave: 'F' } },
-    wave_G: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '6m',  tags: { wave: 'G' } },
-    wave_H: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '7m',  tags: { wave: 'H' } },
-    wave_I: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '8m',  tags: { wave: 'I' } },
-    wave_J: { executor: 'constant-vus', vus: 200, duration: '5m', startTime: '9m',  tags: { wave: 'J' } },
+    ramp: {
+      executor: 'ramping-vus',
+      startVUs: 0,
+      stages: [
+        { duration: '1m', target: 100 },   // 워밍업
+        { duration: '2m', target: 100 },   // 안정 baseline
+        { duration: '1m', target: 200 },
+        { duration: '1m', target: 400 },
+        { duration: '1m', target: 600 },
+        { duration: '1m', target: 800 },
+        { duration: '1m', target: 1000 },
+        { duration: '2m', target: 1200 },  // 한계 부근 — 천천히
+        { duration: '3m', target: 1200 },  // ★ 과부하 유지 (시나리오2 측정 구간)
+        { duration: '1m', target: 0 },     // 회복 (MTTR)
+      ],
+      gracefulRampDown: '30s',
+    },
   },
   thresholds: {
     http_req_duration: ['p(95)<3000'],
@@ -70,6 +90,7 @@ export default function (data) {
   // ── 1. 홈페이지 접속 ────────────────────────────────────────
   const homeRes = http.get(`${BASE_URL}/`);
   check(homeRes, { '홈 200': (r) => r.status === 200 });
+  think(0.5, 1.0);   // 홈 둘러보는 시간
 
   // ── 2. 상품 페이지 접속 ──────────────────────────────────────
   const productId = PRODUCTS[Math.floor(Math.random() * PRODUCTS.length)];
@@ -77,6 +98,8 @@ export default function (data) {
   check(productRes, { '상품 200': (r) => r.status === 200 });
 
   if (productRes.status !== 200) return;
+
+  think(0.5, 1.5);   // 상품 보고 살지 고민하는 시간
 
   const product = productRes.json();
   const availableSizes = product.sizes ? product.sizes.filter((s) => s.available > 0) : [];

@@ -1,0 +1,29 @@
+===== node/k8s-master =====
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests    Limits
+  --------           --------    ------
+  cpu                780m (39%)  100m (5%)
+  memory             214Mi (5%)  128Mi (3%)
+  ephemeral-storage  0 (0%)      0 (0%)
+===== node/k8s-worker1 =====
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests      Limits
+  --------           --------      ------
+  cpu                980m (49%)    4250m (212%)
+  memory             1238Mi (32%)  4424Mi (115%)
+  ephemeral-storage  0 (0%)        0 (0%)
+===== node/k8s-worker2 =====
+
+■ 캡처 종료
+  총 스냅샷       : 33개
+  파드 최다 스냅샷 : /root/result/run_0610_122808/snap_123620  (39개)
+
+  ▶ 다음 단계:
+    1) 이 폴더 통째로 맥으로 가져가기
+       scp -r -i ~/key/aws-3tier-keypair.pem \
+         -o ProxyCommand="ssh -i ~/key/aws-3tier-keypair.pem -W %h:%p ubuntu@<EC2공인IP>" \
+         'ubuntu@<masterVM-IP>:/root/result/run_0610_122808' ~/Downloads/
+    2) 파드 최다 폴더에 리포트 생성
+       python3 scripts/analyze_experiment.py '~/Downloads/run_0610_122808/snap_XXXXXX'

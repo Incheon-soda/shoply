@@ -1,0 +1,27 @@
+NAME                         READY   STATUS    RESTARTS      AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+frontend-6798c74b8c-m2ddg    1/1     Running   0             161m    10.244.2.11   k8s-worker2   <none>           <none>
+gateway-7b76d459b9-6spnt     1/1     Running   0             63m     10.244.1.53   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-92tht     1/1     Running   0             3m37s   10.244.1.80   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-dx5zq     0/1     Running   0             22s     10.244.1.84   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-qplgl     1/1     Running   0             52s     10.244.1.83   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-rhsb6     1/1     Running   0             161m    10.244.1.10   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-v6tnz     1/1     Running   0             2m22s   10.244.1.81   k8s-worker1   <none>           <none>
+inventory-7c5c586469-cs555   0/1     Running   1 (14s ago)   52s     10.244.1.82   k8s-worker1   <none>           <none>
+inventory-7c5c586469-h59hh   1/1     Running   3 (50m ago)   107m    10.244.2.35   k8s-worker2   <none>           <none>
+inventory-7c5c586469-k54j5   0/1     Running   2 (8s ago)    52m     10.244.1.76   k8s-worker1   <none>           <none>
+inventory-7c5c586469-rrrlv   0/1     Running   0             7s      10.244.1.85   k8s-worker1   <none>           <none>
+order-556547d684-5cw6s       1/1     Running   5 (51m ago)   58m     10.244.2.61   k8s-worker2   <none>           <none>
+order-556547d684-9q9xj       0/1     Running   1 (12s ago)   37s     10.244.2.74   k8s-worker2   <none>           <none>
+order-556547d684-m6gfl       1/1     Running   0             3m22s   10.244.2.70   k8s-worker2   <none>           <none>
+order-556547d684-mkx72       1/1     Running   0             52m     10.244.2.66   k8s-worker2   <none>           <none>
+order-556547d684-p7jkh       0/1     Running   1 (10s ago)   67s     10.244.2.72   k8s-worker2   <none>           <none>
+order-556547d684-zcbhh       0/1     Running   1 (13s ago)   3m52s   10.244.2.68   k8s-worker2   <none>           <none>
+payment-84d4c68676-79qq4     0/1     Running   0             7s      10.244.2.75   k8s-worker2   <none>           <none>
+payment-84d4c68676-bwxlv     1/1     Running   0             67s     10.244.2.71   k8s-worker2   <none>           <none>
+payment-84d4c68676-fbv9g     1/1     Running   2 (51m ago)   54m     10.244.1.71   k8s-worker1   <none>           <none>
+payment-84d4c68676-jdfrk     0/1     Running   1 (4s ago)    37s     10.244.2.73   k8s-worker2   <none>           <none>
+payment-84d4c68676-k9bk8     0/1     Running   6 (5s ago)    59m     10.244.2.60   k8s-worker2   <none>           <none>
+payment-84d4c68676-kjxzw     0/1     Running   1 (8s ago)    3m37s   10.244.2.69   k8s-worker2   <none>           <none>
+product-7f7cb5797d-4gnkq     1/1     Running   0             121m    10.244.1.13   k8s-worker1   <none>           <none>
+product-7f7cb5797d-x9pq8     1/1     Running   0             65m     10.244.1.51   k8s-worker1   <none>           <none>
+user-cf9f7646c-xfgl5         1/1     Running   0             161m    10.244.2.14   k8s-worker2   <none>           <none>

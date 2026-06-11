@@ -250,31 +250,38 @@
 
   <!-- 5. 시나리오 -->
   <section>
-    <h2><span class="step-no">5</span>그래서 시나리오는? (2개)</h2>
-    <p>4개에서 <b>2개로 압축</b>했어. 목적 겹치는 거 빼고 핵심만.</p>
+    <h2><span class="step-no">5</span>그래서 시나리오는? (3개)</h2>
+    <p>안정 → 스파이크 → 장애 순서로. <b>신뢰 형성 → 갈림 → 임팩트</b>.</p>
 
-    <h3>🅰️ 시나리오 A — 한계 측정 (계단식 부하)</h3>
+    <h3>🅰️ 시나리오 1 — 안정 (베이스라인)</h3>
     <div class="box">
       <div class="timeline">
-        <div class="tl-row"><div class="tl-time">0~2분</div><div class="tl-desc">100 RPS — 워밍업, 양쪽 멀쩡</div></div>
-        <div class="tl-row"><div class="tl-time">2~4분</div><div class="tl-desc">300 RPS — HPA 슬슬 파드 늘리기 시작</div></div>
-        <div class="tl-row"><div class="tl-time">4~8분</div><div class="tl-desc">500→1000 RPS — 파드 계속 증가, 노드 차오름</div></div>
-        <div class="tl-row"><div class="tl-time">8~12분</div><div class="tl-desc">1500 RPS — <span class="badge on">온프레</span> Pending 폭발 / <span class="badge eks">EKS</span> Karpenter 노드 추가</div></div>
-        <div class="tl-row"><div class="tl-time">12~20분</div><div class="tl-desc">1500 유지 — 차이 굳히기</div></div>
+        <div class="tl-row"><div class="tl-time">10~20분</div><div class="tl-desc">200 RPS 일정 — 양쪽 다 정상 (Error 0, Pending 0)</div></div>
       </div>
-      <p style="margin:0;"><b>보여줄 그래프:</b> Pending Pod 수 / Node 개수 / HPA 목표 vs 실제 / Error율</p>
-      <p style="margin:8px 0 0;"><b>결론 문장:</b> "온프레는 <b>X RPS에서 한계</b>(Pending·Error 급증), EKS는 노드 추가로 계속 감당"</p>
+      <p style="margin:0;"><b>결론 문장:</b> "평상시엔 온프레미스도 충분합니다" (공정성 어필 → 신뢰 형성)</p>
     </div>
 
-    <h3>🅱️ 시나리오 B — 장애 복구 (노드 강제 종료)</h3>
+    <h3>🅱️ 시나리오 2 — 스파이크 (순간 급증 + 유지) ★핵심</h3>
     <div class="box">
       <div class="timeline">
-        <div class="tl-row"><div class="tl-time">0~5분</div><div class="tl-desc">500 RPS 일정하게 — 양쪽 안정</div></div>
-        <div class="tl-row"><div class="tl-time">5분 ⚡</div><div class="tl-desc">워커노드 2번을 <b>강제로 죽임</b> (kubectl drain 또는 EC2 stop)</div></div>
-        <div class="tl-row"><div class="tl-time">5~?분</div><div class="tl-desc"><span class="badge on">온프레</span> 갈 노드가 없어 파드 복구 실패 → 다운 지속 / <span class="badge eks">EKS</span> Karpenter가 새 노드 띄워 복구</div></div>
-        <div class="tl-row"><div class="tl-time">측정</div><div class="tl-desc"><b>MTTR</b>(다운→정상까지 걸린 시간) + 장애 중 결제 실패 건수</div></div>
+        <div class="tl-row"><div class="tl-time">0~5분</div><div class="tl-desc">200 RPS — 안정</div></div>
+        <div class="tl-row"><div class="tl-time">5분 ⚡</div><div class="tl-desc">1500 RPS로 <b>순간 급증</b> (30초~1분에 걸쳐)</div></div>
+        <div class="tl-row"><div class="tl-time">5~15분</div><div class="tl-desc"><b>1500 RPS 유지</b> ← 진짜 실험. <span class="badge on">온프레</span> Pending 지속 / <span class="badge eks">EKS</span> Karpenter 노드추가(60~90초) 후 회복</div></div>
       </div>
-      <p style="margin:0;"><b>결론 문장:</b> "온프레 복구 <b>N분</b> vs EKS 복구 <b>N초</b>"</p>
+      <p style="margin:0 0 6px;"><b>⚠️ 유지가 핵심:</b> 급증만 하고 빼면 시스템 반응 전에 끝나 안 보임. 급증 후 5~10분 유지해야 차이가 드러남.</p>
+      <pre style="background:#0f172a;color:#e2e8f0;padding:10px;border-radius:8px;font-size:12px;margin:0;font-family:Menlo,monospace">온프레 ▁▁████████████  ← 못 버팀
+EKS&nbsp;&nbsp; ▁▁███▁▁▁▁▁▁▁▁  ← 60~90초 후 흡수</pre>
+      <p style="margin:8px 0 0;"><b>결론 문장:</b> "갑자기 몰리면 — EKS는 흡수하고, 온프레는 계속 무너집니다"</p>
+    </div>
+
+    <h3>🅲 시나리오 3 — 노드 장애 복구 (MTTR)</h3>
+    <div class="box">
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">0~5분</div><div class="tl-desc">500 RPS 일정 — 양쪽 안정</div></div>
+        <div class="tl-row"><div class="tl-time">5분 ⚡</div><div class="tl-desc"><b>worker1 강제 종료</b> → 모든 파드가 worker2로 몰림 → 자원 부족 Pending</div></div>
+        <div class="tl-row"><div class="tl-time">측정</div><div class="tl-desc"><span class="badge on">온프레</span> 수동복구 수 분 / <span class="badge eks">EKS</span> Karpenter 자동 60초 — <b>MTTR</b> + 결제 실패 건수</div></div>
+      </div>
+      <p style="margin:0;"><b>결론 문장:</b> "복구 시간이 곧 비즈니스 손실 — N분 vs 60초"</p>
     </div>
   </section>
 
@@ -295,12 +302,12 @@
 
     <h3>진행 순서</h3>
     <div class="timeline">
-      <div class="tl-row"><div class="tl-time">1단계</div><div class="tl-desc"><b>리허설</b> — 시나리오 A를 500 RPS로 한 번 돌려서 파드 CPU 관찰 → request/RPS 다이얼 맞춤</div></div>
-      <div class="tl-row"><div class="tl-time">2단계</div><div class="tl-desc">양쪽 DB 리셋 + Redis 비우기 + 파드 정상 확인</div></div>
-      <div class="tl-row"><div class="tl-time">3단계</div><div class="tl-desc">k6로 <b>시나리오 A 동시 시작</b> (온프레·EKS 같은 시각)</div></div>
-      <div class="tl-row"><div class="tl-time">4단계</div><div class="tl-desc">Grafana 보면서 Pending/Node/Error 기록 + 스냅샷 저장</div></div>
-      <div class="tl-row"><div class="tl-time">5단계</div><div class="tl-desc">DB 리셋 후 <b>시나리오 B</b> (노드 종료 → MTTR 측정)</div></div>
-      <div class="tl-row"><div class="tl-time">6단계</div><div class="tl-desc">수치 정리 → "한계 RPS", "MTTR 비교" 발표 자료화</div></div>
+      <div class="tl-row"><div class="tl-time">1단계</div><div class="tl-desc"><b>리허설</b> — 시나리오 2를 작게 돌려 파드 CPU 관찰 → request/RPS·급증속도 맞춤</div></div>
+      <div class="tl-row"><div class="tl-time">2단계</div><div class="tl-desc">DB 리셋(load-test-prep.sql) + 파드 정상 확인</div></div>
+      <div class="tl-row"><div class="tl-time">3단계</div><div class="tl-desc"><b>시나리오 1 (안정)</b> → Grafana 기록</div></div>
+      <div class="tl-row"><div class="tl-time">4단계</div><div class="tl-desc">DB 리셋 후 <b>시나리오 2 (스파이크)</b> — 급증+유지, 기록+스냅샷</div></div>
+      <div class="tl-row"><div class="tl-time">5단계</div><div class="tl-desc">DB 리셋 후 <b>시나리오 3 (노드 종료 → MTTR)</b></div></div>
+      <div class="tl-row"><div class="tl-time">6단계</div><div class="tl-desc">수치 정리 → "스파이크 흡수", "MTTR 비교" 발표 자료화</div></div>
     </div>
 
     <h3>측정 지표 (대시보드)</h3>

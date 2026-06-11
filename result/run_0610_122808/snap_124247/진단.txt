@@ -1,0 +1,283 @@
+════════ gateway-67ddf64db9-kd4s6  (Pending) ════════
+Events:
+  Type     Reason            Age    From               Message
+  ----     ------            ----   ----               -------
+  Warning  FailedScheduling  5m16s  default-scheduler  0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+
+════════ gateway-67ddf64db9-kvlfh  (Pending) ════════
+Events:
+  Type     Reason            Age    From               Message
+  ----     ------            ----   ----               -------
+  Warning  FailedScheduling  5m16s  default-scheduler  0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+
+════════ gateway-67ddf64db9-vmg2p  (Pending) ════════
+Events:
+  Type     Reason            Age    From               Message
+  ----     ------            ----   ----               -------
+  Warning  FailedScheduling  4m16s  default-scheduler  0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+
+════════ inventory-54b7486945-6kffz  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                  From               Message
+  ----     ------     ----                 ----               -------
+  Normal   Scheduled  10m                  default-scheduler  Successfully assigned shoply/inventory-54b7486945-6kffz to k8s-worker1
+  Normal   Pulled     10m                  kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 735ms (735ms including waiting). Image size: 63283423 bytes.
+  Normal   Pulled     8m34s                kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 738ms (738ms including waiting). Image size: 63283423 bytes.
+  Normal   Pulled     7m40s                kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 766ms (766ms including waiting). Image size: 63283423 bytes.
+  Warning  Unhealthy  7m18s                kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
+  Normal   Pulled     6m43s                kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 720ms (720ms including waiting). Image size: 63283423 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+
+════════ payment-7f446f7f68-6mlng  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                  From               Message
+  ----     ------     ----                 ----               -------
+  Normal   Scheduled  9m32s                default-scheduler  Successfully assigned shoply/payment-7f446f7f68-6mlng to k8s-worker2
+  Normal   Pulled     9m31s                kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 722ms (722ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     9m5s                 kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 725ms (725ms including waiting). Image size: 62780980 bytes.
+  Warning  Unhealthy  7m32s                kubelet            Liveness probe failed: Get "http://10.244.2.32:4004/livez": read tcp 10.244.2.1:35652->10.244.2.32:4004: read: connection reset by peer
+  Normal   Pulled     7m10s                kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 755ms (1.448s including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     6m19s                kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 715ms (715ms including waiting). Image size: 62780980 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+
+════════ payment-7f446f7f68-fjrnl  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  13m                   default-scheduler  Successfully assigned shoply/payment-7f446f7f68-fjrnl to k8s-worker2
+  Normal   Pulled     13m                   kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 726ms (726ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     7m5s                  kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 713ms (714ms including waiting). Image size: 62780980 bytes.
+  Warning  Unhealthy  6m42s                 kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
+  Normal   Pulled     6m17s                 kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 748ms (748ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     5m4s                  kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 728ms (1.463s including waiting). Image size: 62780980 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+
+════════ payment-7f446f7f68-k2ws6  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  10m                   default-scheduler  Successfully assigned shoply/payment-7f446f7f68-k2ws6 to k8s-worker2
+  Normal   Pulled     10m                   kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 739ms (739ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     7m56s                 kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 722ms (1.27s including waiting). Image size: 62780980 bytes.
+  Warning  Unhealthy  7m33s                 kubelet            Liveness probe failed: Get "http://10.244.2.28:4004/livez": dial tcp 10.244.2.28:4004: connect: connection refused
+  Normal   Pulled     7m12s                 kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 768ms (774ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     5m20s                 kubelet            Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 704ms (704ms including waiting). Image size: 62780980 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+
+════════ payment-7f446f7f68-kwzfm  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From     Message
+  ----     ------     ----                  ----     -------
+  Normal   Pulled     9m15s                 kubelet  Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 722ms (1.168s including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     8m29s                 kubelet  Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 707ms (707ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     6m19s                 kubelet  Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 711ms (711ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     5m5s                  kubelet  Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 735ms (735ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulling    3m8s (x6 over 91m)    kubelet  Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+  Normal   Created    3m8s (x6 over 91m)    kubelet  Created container: payment
+──── 로그(현재) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: 'FATAL',
+  code: '53300',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'proc.c',
+  line: '351',
+  routine: 'InitProcess'
+}
+
+Node.js v22.22.3
+
