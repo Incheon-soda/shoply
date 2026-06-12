@@ -7,15 +7,15 @@ scrape_configs:
   - job_name: "app-onprem"
     # 타겟마다 service 라벨 부여 → 쿼리에서 IP 대신 service="order" 식으로 사용 (IP 의존 제거)
     static_configs:
-      - targets: ["10.0.4.55:30400"]
+      - targets: ["10.0.8.138:30400"]
         labels: { service: gateway }
-      - targets: ["10.0.4.55:30401"]
+      - targets: ["10.0.8.138:30401"]
         labels: { service: product }
-      - targets: ["10.0.4.55:30402"]
+      - targets: ["10.0.8.138:30402"]
         labels: { service: inventory }
-      - targets: ["10.0.4.55:30403"]
+      - targets: ["10.0.8.138:30403"]
         labels: { service: order }
-      - targets: ["10.0.4.55:30404"]
+      - targets: ["10.0.8.138:30404"]
         labels: { service: payment }
     relabel_configs:
       - target_label: env
@@ -25,9 +25,9 @@ scrape_configs:
   # 호스트 EC2 DNAT: 38080→worker1:8080, 38081→worker2:8080
   - job_name: "cadvisor-onprem"
     static_configs:
-      - targets: ["10.0.4.55:38080"]
+      - targets: ["10.0.8.138:38080"]
         labels: { node: worker1 }
-      - targets: ["10.0.4.55:38081"]
+      - targets: ["10.0.8.138:38081"]
         labels: { node: worker2 }
     relabel_configs:
       - target_label: env
@@ -46,13 +46,13 @@ scrape_configs:
   # 재구축 시 여기 호스트IP 한 곳만 바꾸면 됨 (대시보드는 안 건드림).
   - job_name: "node-onprem"
     static_configs:
-      - targets: ["10.0.4.55:9100"]
+      - targets: ["10.0.8.138:9100"]
         labels: { node: ec2-host }
-      - targets: ["10.0.4.55:39101"]
+      - targets: ["10.0.8.138:39101"]
         labels: { node: worker1 }
-      - targets: ["10.0.4.55:39102"]
+      - targets: ["10.0.8.138:39102"]
         labels: { node: worker2 }
-      - targets: ["10.0.4.55:39103"]
+      - targets: ["10.0.8.138:39103"]
         labels: { node: worker3 }
     relabel_configs:
       - target_label: env
@@ -62,8 +62,8 @@ scrape_configs:
   - job_name: "node-db-onprem"
     static_configs:
       - targets:
-          - "10.0.15.83:9100" # PostgreSQL EC2
-          - "10.0.8.188:9100" # Redis EC2
+          - "10.0.8.127:9100" # PostgreSQL EC2
+          - "10.0.11.55:9100" # Redis EC2
     relabel_configs:
       - target_label: env
         replacement: onprem
@@ -71,7 +71,7 @@ scrape_configs:
   # ── PostgreSQL Exporter ───────────────────────────────────────
   - job_name: "postgres-onprem"
     static_configs:
-      - targets: ["10.0.15.83:9187"]
+      - targets: ["10.0.8.127:9187"]
     relabel_configs:
       - target_label: env
         replacement: onprem
@@ -79,7 +79,7 @@ scrape_configs:
   # ── Redis Exporter ────────────────────────────────────────────
   - job_name: "redis-onprem"
     static_configs:
-      - targets: ["10.0.8.188:9121"]
+      - targets: ["10.0.11.55:9121"]
     relabel_configs:
       - target_label: env
         replacement: onprem
@@ -87,7 +87,7 @@ scrape_configs:
   # ── kube-state-metrics ────────────────────────────────────────
   - job_name: "kube-state-onprem"
     static_configs:
-      - targets: ["10.0.4.55:30800"]
+      - targets: ["10.0.8.138:30800"]
     relabel_configs:
       - target_label: env
         replacement: onprem

@@ -45,6 +45,25 @@
 
 ---
 
+## 현재 구성 (최신 요약)
+
+> ⚠️ 아래 본문 일부(부하도구·진입경로 등)는 초기 설계 기준이라, **최신 상태는 `문서/13~16`을 우선** 참고.
+
+| 영역 | 현재 |
+|---|---|
+| 온프레 클러스터 | KVM VM 4대 — master + worker1·2(실험) + **worker3(운영, taint 격리)** |
+| 노드 IP | **DHCP 예약으로 고정** (재구축/복원해도 안 바뀜) |
+| 진입 경로 | EC2:30080 → 호스트 iptables DNAT → ingress → 파드 (또는 **MetalLB VIP**, doc 14) |
+| 부하 도구 | **k6** (완만 ramp + think time) |
+| 모니터링 | Prometheus + **Loki**(로그) + Grafana (16패널) + cAdvisor |
+| 배포 | kubectl / **ArgoCD(GitOps, worker3)** / Rancher(관리 UI, 별도 EC2) |
+| 백업 | **qcow2 → PC**, `restore-cluster.sh` 한 줄 복원 (doc 15) |
+| EKS(예정) | Karpenter(Ubuntu 통일) + NLB + VPC 내 Prometheus → 온프레 Grafana가 수집 |
+
+**실험 핵심:** 앱·부하·설정 전부 동일, **노드 자동확장만** 다르게 (온프레 고정 → Pending / EKS Karpenter → 노드추가). 측정은 `capture-loop.sh` + Grafana.
+
+---
+
 ## 아키텍처
 
 ![아키텍처 다이어그램]()
@@ -868,15 +887,37 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 ## 문서
 
-| 문서 | 설명 |
+> 전체 그림은 **[00_프로젝트_역할_개요](문서/00_프로젝트_역할_개요.md)** 부터.
+
+| 문서 | 내용 |
 |---|---|
-| [인프라 가이드](문서/인프라_가이드.md) | VPC·SG·파드배치·nodeAffinity·HPA + LXD K8s 구축 12단계 + 트러블슈팅 + 확정 설정값 |
-| [데이터베이스 가이드](문서/데이터베이스_가이드.md) | PostgreSQL 스키마·핵심 쿼리·SELECT FOR UPDATE·Redis 캐싱·EC2/RDS 구축·검증·관리 쿼리 |
-| [모니터링 구성 가이드](문서/모니터링.md) | 수집 도구·PromQL·Grafana 대시보드·Exporter 설치·iptables DNAT·실제 배포 정보 |
-| [서비스 테스트 가이드](문서/테스트.md) | 1~5차 서비스 curl 테스트, 동시성 검증, 전체 흐름 통합 테스트 |
-| [전체 작업 목록](문서/전체_작업_목록.md) | 인프라 결정 사항, 온프레미스·EKS·공통 전체 작업 체크리스트, 현재 진행 상태 |
-| [온프레미스 현황 요약](문서/onpre-summary.md) | 실제 배포된 온프레미스 환경 요약 (EC2 IP, k8s 버전, 배포 서비스, 파일 위치) |
-| [K8s 진단 명령어](문서/k8s-debug-commands.md) | 사이트 접속 불가 체크 순서, Pod·서비스·ConfigMap 확인, Deployment 재시작, 리소스 조회 |
+| [00_프로젝트_역할_개요](문서/00_프로젝트_역할_개요.md) | 전체 그림·실험 핵심·문서 지도 (여기부터) |
+| [01_온프레미스](문서/01_온프레미스.md) | 온프레 구조·서비스 배치·트래픽 경로 |
+| [02_데이터베이스](문서/02_데이터베이스.md) | 스키마·쿼리·동시성·시드·설정 |
+| [03_모니터링](문서/03_모니터링.md) | Prometheus·Grafana·수집 구조 |
+| [04_부하테스트](문서/04_부하테스트.md) | k6·한계치 측정 + **결과 자동 캡처/리포트 워크플로** |
+| [05_시나리오](문서/05_시나리오.md) | 실험 시나리오 1/2/3 (안정/스파이크/노드장애) |
+| [06_설치_k8s_KVM](문서/06_설치_k8s_KVM.md) | KVM 위 k8s 설치 (2워커) |
+| [07_설치_서버](문서/07_설치_서버.md) | 모니터링·DB·Redis·k6 서버 설치 |
+| [08_포트정리](문서/08_포트정리.md) | 전체 포트 일람 |
+| [09_아키텍처](문서/09_아키텍처.md) | 아키텍처 구조도 |
+| [10_동일화](문서/10_동일화.md) | 온프레 ↔ EKS 항목별 동일화 대조 |
+| [11_트러블슈팅](문서/11_트러블슈팅.md) | 구축 트러블슈팅 §1~19 (네트워크·flannel·apiserver·포워딩·cAdvisor 등) |
+| [12_내역할](문서/12_내역할.md) | 담당 범위 상세 |
+| [13_워커3_운영노드_분리](문서/13_워커3_운영노드_분리.md) | ★ 워커 3대 구성 (worker1·2 실험 / worker3 운영 taint격리) — **메인 구축 가이드** |
+| [14_도메인_MetalLB](문서/14_도메인_MetalLB.md) | 진입 경로 — 온프레 MetalLB ↔ EKS NLB (LoadBalancer 대칭) |
+| [15_VM백업_복원](문서/15_VM백업_복원.md) | qcow2 백업 → PC 보관 → 새 EC2 복원 (재구축 생략) |
+| [16_ArgoCD_운영노드](문서/16_ArgoCD_운영노드.md) | ArgoCD(GitOps)를 worker3 격리 설치 |
+| [발표_내용](문서/발표_내용.md) | 발표 스토리·예상질문·방어논리 |
+
+### 자동화 스크립트 (`scripts/`)
+
+| 스크립트 | 실행 위치 | 역할 |
+|---|---|---|
+| `capture-loop.sh` | master VM | 부하 중 30초마다 클러스터 스냅샷(파드/노드/hpa/이벤트/진단) |
+| `analyze_experiment.py` | 맥 | run 폴더 → 한계 스냅샷 자동선택 → **HTML 리포트** |
+| `host-network.sh` | 호스트 EC2 | ip_forward + DNAT + FORWARD (VM IP 자동감지) |
+| `restore-cluster.sh` | 새 EC2 | KVM설치 + VM복원 + 호스트네트워크 한 방 |
 
 ---
 
@@ -901,11 +942,15 @@ API Gateway 없는 서비스 호출 → 503 반환 (정상) → 다음 단계에
 
 | 항목 | 용도 |
 |---|---|
-| Prometheus | 메트릭 수집 (15초 간격) |
-| Grafana | 대시보드 시각화 |
-| Fluent Bit | Pod 로그 수집 → OpenSearch 전송 |
-| Amazon OpenSearch Service | 로그 저장 및 에러 원인 분석 |
-| OpenSearch Dashboards | 로그 시각화 및 MTTR 측정 |
+| Prometheus | 메트릭 수집 (15초 간격, 온프레=static / EKS=kubernetes_sd) |
+| Grafana | 대시보드 16패널 + 로그 (Prometheus + Loki 데이터소스) |
+| **Loki** | 로그 저장 (Grafana로 조회) |
+| **Promtail** | 파드 로그 → Loki (DaemonSet) |
+| **kubernetes-event-exporter** | k8s 이벤트(Pending·스케일) → Loki (worker3) |
+| **cAdvisor** | 파드별 CPU/메모리 (worker1·2 DaemonSet) |
+| node_exporter / kube-state-metrics | 노드·k8s 오브젝트 메트릭 |
+
+> 부하 도구는 **k6** (온프레/EKS 동일 시나리오). EKS 모니터링은 VPC 내 Prometheus를 두고 온프레 Grafana가 데이터소스로 가져옴.
 
 ### 백엔드 서비스 공통
 

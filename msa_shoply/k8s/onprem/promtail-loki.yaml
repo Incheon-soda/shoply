@@ -34,7 +34,7 @@ data:
     server:
       http_listen_port: 9080
     clients:
-      - url: http://<MONITORING_IP>:3100/loki/api/v1/push
+      - url: http://10.0.6.224:3100/loki/api/v1/push
     positions:
       filename: /run/promtail/positions.yaml
     scrape_configs:

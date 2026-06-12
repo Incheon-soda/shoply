@@ -42,20 +42,34 @@ for vm in $VMS; do
   sudo virsh start $vm
 done
 
-echo "▶ 5/5 상태 확인"
-sleep 8
+echo "▶ 5/6 VM 부팅 대기 (master IP 받을 때까지)"
+MASTER=""
+for i in $(seq 1 36); do
+  MASTER=$(sudo virsh net-dhcp-leases default | grep k8s-master | awk '{print $5}' | cut -d/ -f1)
+  [ -n "$MASTER" ] && break
+  sleep 5
+done
 sudo virsh list --all
 sudo virsh net-dhcp-leases default
 
+echo "▶ 6/6 호스트 네트워크 자동 설정 (ip_forward + DNAT + FORWARD)"
+HN="$(cd "$(dirname "$0")" && pwd)/host-network.sh"
+if [ -f "$HN" ]; then
+  bash "$HN" || echo "  ⚠️ host-network.sh 실패 — VM이 다 떴는지 확인 후 수동 실행"
+else
+  echo "  ⚠️ host-network.sh 없음 (같은 폴더에 두면 자동 실행). 수동으로 ip_forward+DNAT+FORWARD 필요."
+fi
+
 cat <<'DONE'
 
-✅ VM 복원 완료.
-다음 할 것:
-  1. ★ 호스트 네트워크 재설정 (이 호스트에서):
-       ./host-network.sh          # ip_forward + DNAT + FORWARD 한 방 (VM IP 자동감지)
-  2. master VM 접속 → kubectl get nodes (4개 Ready 확인)
-       - apiserver가 6443 refused면 loopback 방화벽 flush (11_트러블슈팅 §13)
-       - NodePort 안 되면 kube-proxy 재시작 (§19)
-  3. 모니터링 EC2: prometheus.yml 호스트IP 갱신 + curl -X POST .../-/reload
-  4. VM 내부 IP는 고정돼 있어 클러스터 자체는 그대로 동작.
+✅ 복원 + 호스트 네트워크 자동 완료.
+── 자동으로 된 것: 디스크확장 · KVM설치 · VM복원/부팅 · ip_forward+DNAT+FORWARD ──
+
+남은 수동 (클러스터/모니터링 측 — 조건부):
+  1. master VM: kubectl get nodes (4개 Ready?)
+       · 6443 refused면 → loopback 방화벽 flush + kubelet 재시작 (11_트러블슈팅 §13)  ← 부팅 후 자주 발생
+       · NodePort(메트릭) 안 되면 → kube-proxy 재시작 (§19)
+  2. 모니터링 EC2: prometheus.yml 의 호스트IP를 새 호스트 사설IP로 + curl -X POST .../-/reload
+  3. DB/Redis EC2도 새로 떴으면 configmap IP 갱신 (kubectl patch cm + rollout restart)
+  4. VM 내부 IP는 고정 → 클러스터 자체는 그대로 동작.
 DONE
