@@ -84,7 +84,7 @@ AWS (ap-northeast-2)
 |---|---|
 | 가상화 | KVM (중첩 가상화 활성) |
 | k8s | v1.34.x, CNI Flannel v0.26.7 |
-| 이미지 | GHCR `ghcr.io/incheon-soda/shoply-*` |
+| 이미지 | GHCR `ghcr.io/ktk026/shoply-*` |
 | 진입 | MetalLB VIP(worker3 L2 광고) + 호스트 iptables DNAT |
 | DB | 온프레: EC2 PostgreSQL 16 / EKS: RDS (예정) |
 

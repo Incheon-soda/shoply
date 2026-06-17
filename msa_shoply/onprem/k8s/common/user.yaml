@@ -26,7 +26,7 @@ spec:
                 values: ["worker2"]
       containers:
         - name: user
-          image: ghcr.io/incheon-soda/shoply-user:latest
+          image: ghcr.io/ktk026/shoply-user:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 4005

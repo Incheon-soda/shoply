@@ -37,3 +37,6 @@ build/
 
 # 클러스터 백업 (대용량)
 shoply-cluster.tar.gz
+
+# 토큰/메모 파일 추적 금지
+*.rtf

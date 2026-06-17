@@ -359,7 +359,7 @@ git push → GitHub Actions 트리거
   → 변경된 서비스만 감지 (paths-filter)
   → npm ci + tsc 타입체크 + npm audit
   → Docker 이미지 빌드
-  → GHCR 푸시 (ghcr.io/incheon-soda/shoply-*)
+  → GHCR 푸시 (ghcr.io/ktk026/shoply-*)
 ```
 
 이미지 버전 태그로 양쪽 환경에 동일 이미지를 보장한다. 레지스트리 인증은 EKS=노드 IAM Role(IRSA) 자동, 온프레미스=`imagePullSecrets` 수동 등록(`ghcr-secret`).

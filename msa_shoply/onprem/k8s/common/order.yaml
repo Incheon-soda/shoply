@@ -30,7 +30,7 @@ spec:
                 values: ["worker2"]
       containers:
         - name: order
-          image: ghcr.io/incheon-soda/shoply-order:latest
+          image: ghcr.io/ktk026/shoply-order:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 4003

@@ -1,0 +1,129 @@
+{
+  "uid": "shoply-recommend",
+  "title": "Shoply 추천 대시보드 — 노드 자동확장 관측 (온프레)",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "type": "row", "title": "📊 현황", "id": 1,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat", "title": "노드 수 (★변수)", "id": 2,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "count(kube_node_info)" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null } ] } }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 }
+    },
+    {
+      "type": "stat", "title": "Running 파드 (shoply)", "id": 3,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "sum(kube_pod_status_phase{namespace=\"shoply\", phase=\"Running\"})" } ],
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 }
+    },
+    {
+      "type": "stat", "title": "⚠️ Pending 파드", "id": 4,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "sum(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"})" } ],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] } }, "overrides": [] },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 }
+    },
+    {
+      "type": "stat", "title": "전체 RPS", "id": 5,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "sum(rate(gateway_http_duration_seconds_count{route!~\"/health|/metrics|/livez\"}[1m]))" } ],
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 }
+    },
+    {
+      "type": "row", "title": "🚨 한계 & 스케일", "id": 10,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 }
+    },
+    {
+      "type": "timeseries", "title": "Pending 파드 추이", "id": 11,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "sum(kube_pod_status_phase{namespace=\"shoply\", phase=\"Pending\"})" } ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 }
+    },
+    {
+      "type": "timeseries", "title": "파드 수 (서비스별)", "id": 12,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "count by (created_by_name)(kube_pod_info{namespace=\"shoply\"})" } ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 }
+    },
+    {
+      "type": "timeseries", "title": "노드 CPU 사용률 (%)", "id": 13,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "100 - (avg by(node)(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)" } ],
+      "fieldConfig": { "defaults": { "unit": "percent", "max": 100 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 }
+    },
+    {
+      "type": "table", "title": "HPA 현재/최대 replica", "id": 14,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [
+        { "refId": "A", "expr": "kube_horizontalpodautoscaler_status_current_replicas{namespace=\"shoply\"}", "format": "table", "instant": true },
+        { "refId": "B", "expr": "kube_horizontalpodautoscaler_spec_max_replicas{namespace=\"shoply\"}", "format": "table", "instant": true }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 }
+    },
+    {
+      "type": "row", "title": "📦 파드 자원 (cAdvisor)", "id": 20,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 }
+    },
+    {
+      "type": "bargauge", "title": "서비스별 CPU (millicore)", "id": 21,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "sum by(service)(label_replace(rate(container_cpu_usage_seconds_total{namespace=\"shoply\",container!=\"\",container!=\"POD\"}[1m]), \"service\", \"$1\", \"pod\", \"^([^-]+)-.*\"))*1000", "legendFormat": "{{service}}", "instant": true } ],
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 24 }
+    },
+    {
+      "type": "bargauge", "title": "서비스별 메모리", "id": 22,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [ { "refId": "A", "expr": "sum by(service)(label_replace(container_memory_working_set_bytes{namespace=\"shoply\",container!=\"\",container!=\"POD\"}, \"service\", \"$1\", \"pod\", \"^([^-]+)-.*\"))", "legendFormat": "{{service}}", "instant": true } ],
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 24 }
+    },
+    {
+      "type": "row", "title": "⚡ 성능", "id": 30,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 33 }
+    },
+    {
+      "type": "timeseries", "title": "RPS (order·payment)", "id": 31,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(order_service_http_duration_seconds_count{route!~\"/health|/metrics|/livez\"}[1m]))", "legendFormat": "order" },
+        { "refId": "B", "expr": "sum(rate(payment_service_http_duration_seconds_count{route!~\"/health|/metrics|/livez\"}[1m]))", "legendFormat": "payment" }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 34 }
+    },
+    {
+      "type": "timeseries", "title": "P95 응답시간 (order·payment)", "id": 32,
+      "datasource": { "type": "prometheus", "uid": "prometheus-onprem" },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.95, sum by(le)(rate(order_service_http_duration_seconds_bucket{route!~\"/health|/metrics|/livez\"}[1m])))", "legendFormat": "order" },
+        { "refId": "B", "expr": "histogram_quantile(0.95, sum by(le)(rate(payment_service_http_duration_seconds_bucket{route!~\"/health|/metrics|/livez\"}[1m])))", "legendFormat": "payment" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 34 }
+    },
+    {
+      "type": "row", "title": "📋 로그 / 이벤트 (Loki)", "id": 40,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 42 }
+    },
+    {
+      "type": "logs", "title": "shoply 앱 로그", "id": 41,
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [ { "refId": "A", "expr": "{namespace=\"shoply\"}" } ],
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 43 }
+    },
+    {
+      "type": "logs", "title": "k8s 이벤트 (Pending 사유 등)", "id": 42,
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [ { "refId": "A", "expr": "{source=\"kubernetes-events\"}" } ],
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 43 }
+    }
+  ]
+}

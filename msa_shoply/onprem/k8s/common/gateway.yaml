@@ -30,7 +30,7 @@ spec:
                 values: ["worker1"]
       containers:
         - name: gateway
-          image: ghcr.io/incheon-soda/shoply-gateway:latest
+          image: ghcr.io/ktk026/shoply-gateway:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 4000

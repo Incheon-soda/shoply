@@ -40,7 +40,7 @@ GitHub PAT은 `read:packages` 권한만 있으면 됨.
 ```bash
 kubectl create secret docker-registry ghcr-secret \
   --docker-server=ghcr.io \
-  --docker-username=incheon-soda \
+  --docker-username=ktk026 \
   --docker-password=<YOUR_GITHUB_TOKEN> \
   --namespace=shoply
 ```
@@ -55,7 +55,7 @@ kubectl create secret docker-registry ghcr-secret \
 # 1. 네임스페이스 + 공통 리소스
 kubectl apply -f k8s/common/namespace.yaml
 kubectl create secret docker-registry ghcr-secret \
-  --docker-server=ghcr.io --docker-username=incheon-soda \
+  --docker-server=ghcr.io --docker-username=ktk026 \
   --docker-password=<YOUR_GITHUB_TOKEN> \
   --namespace=shoply
 kubectl apply -f k8s/onprem/configmap-patch.yaml   # DB/Redis IP 먼저 설정
@@ -125,7 +125,7 @@ kubectl apply -f k8s/eks/karpenter-nodepool.yaml
 
 ```bash
 # 예시 (GHCR 사용)
-REGISTRY=ghcr.io/incheon-soda
+REGISTRY=ghcr.io/ktk026
 
 docker build -t $REGISTRY/shoply-user:latest ./services/user
 docker build -t $REGISTRY/shoply-product:latest ./services/product

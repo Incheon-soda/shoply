@@ -44,6 +44,20 @@ services:
       - ./loki-config.yml:/etc/loki/loki-config.yml:ro
       - loki_data:/loki
 
+  # ── Tempo — 트레이스 저장 + 서비스그래프 메트릭 생성 ──────────
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: tempo
+    restart: always
+    command: -config.file=/etc/tempo/tempo.yml
+    ports:
+      - "3200:3200"     # Tempo 쿼리 (Grafana)
+      - "4317:4317"     # OTLP gRPC (앱 트레이스 수신)
+      - "4318:4318"     # OTLP HTTP (앱 트레이스 수신)
+    volumes:
+      - ./tempo.yaml:/etc/tempo/tempo.yml:ro
+      - tempo_data:/var/tempo
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -63,3 +77,4 @@ volumes:
   prometheus_eks_data:
   grafana_data:
   loki_data:
+  tempo_data:
