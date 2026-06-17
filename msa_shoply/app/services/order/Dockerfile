@@ -10,5 +10,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev && rm -f package-lock.json
 COPY --from=builder /app/dist ./dist
+COPY tracing.js ./
 EXPOSE 4003
-CMD ["node", "dist/index.js"]
+CMD ["node", "--require", "./tracing.js", "dist/index.js"]
