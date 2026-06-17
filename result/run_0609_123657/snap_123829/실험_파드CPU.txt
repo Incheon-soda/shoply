@@ -1,0 +1,8 @@
+NAME                        CPU(cores)   MEMORY(bytes)   
+frontend-5975bcbc67-5tttf   1m           3Mi             
+gateway-7c998dd6f8-zwr7g    3m           21Mi            
+inventory-7b9846b88-ttbfm   4m           21Mi            
+order-59bbb567bf-j2zmj      3m           22Mi            
+payment-bcd66f5fc-nrbbv     4m           23Mi            
+product-5c79bb699c-xn2fm    4m           23Mi            
+user-88d9b54f9-wt25k        4m           21Mi            

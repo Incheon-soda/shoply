@@ -1,0 +1,97 @@
+# ============================================================
+# EKS 노드 자동확장 (Karpenter) — Ubuntu 통일 버전
+#   온프레미스 KVM 노드가 Ubuntu 24.04.4이므로, EKS 노드도 Ubuntu 24.04.4로 맞춘다.
+#
+#   ⚠️ Karpenter v1부터 관리형 `Ubuntu` amiFamily가 제거됨.
+#      → AL2023처럼 alias 한 줄로 안 되고, 아래 3가지를 직접 해야 한다:
+#        1) amiFamily: Custom
+#        2) amiSelectorTerms 로 Canonical Ubuntu EKS AMI를 직접 지정 (id 또는 name)
+#        3) userData 에 부트스트랩 스크립트 직접 작성 (Custom은 자동 부트스트랩 없음)
+#
+#   📌 Ubuntu EKS AMI ID 찾기 (Canonical 계정 owner=099720109477):
+#      aws ec2 describe-images --owners 099720109477 \
+#        --filters "Name=name,Values=ubuntu-eks/k8s_1.30/images/*24.04*" \
+#        --query 'sort_by(Images,&CreationDate)[-1].ImageId' --output text
+#      (k8s 버전·우분투 버전은 실제 클러스터에 맞게 교체)
+# ============================================================
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: shoply-nodepool
+spec:
+  template:
+    metadata:
+      labels:
+        role: shoply-worker
+    spec:
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: shoply-nodeclass
+      requirements:
+        - key: "karpenter.k8s.aws/instance-family"
+          operator: In
+          values: ["t3"]
+        - key: "karpenter.k8s.aws/instance-size"
+          operator: In
+          values: ["medium"]
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+        - key: "karpenter.sh/capacity-type"
+          operator: In
+          values: ["on-demand"]
+  limits:
+    cpu: "20"       # 최대 10대 t3.medium(2vCPU)
+    memory: "40Gi"
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 30s
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: shoply-nodeclass
+spec:
+  # ── Amazon Linux 대신 Ubuntu (온프레와 동일 배포판) ───────────
+  amiFamily: Custom            # Ubuntu는 v1에서 관리형 family가 없으므로 Custom
+  amiSelectorTerms:
+    # 방법 A — AMI ID 직접 지정 (위 describe-images 명령으로 구한 값)
+    - id: ami-________________  # ← Canonical Ubuntu 24.04 EKS AMI ID (실측 후 교체)
+    # 방법 B — name/owner 태그 셀렉터 (ID 대신 패턴으로, 최신 자동 추적)
+    # - name: "ubuntu-eks/k8s_1.30/images/*24.04*"
+    #   owner: "099720109477"
+
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "shoply-eks"  # 실제 클러스터 이름으로 변경
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: "shoply-eks"  # 실제 클러스터 이름으로 변경
+  role: "KarpenterNodeRole-shoply-eks"         # 실제 IAM 역할 이름으로 변경
+
+  blockDeviceMappings:
+    - deviceName: /dev/sda1     # ⚠️ Ubuntu 루트 디바이스는 /dev/sda1 (AL2023의 /dev/xvda 아님)
+      ebs:
+        volumeSize: 30Gi
+        volumeType: gp3
+        deleteOnTermination: true
+
+  # ── 부트스트랩 (Custom family는 자동 join 안 됨 → 직접 작성) ──
+  #   ⚠️ 아래 값들은 EKS 클러스터 생성 후 실측해서 채운다 (지어내지 말 것):
+  #     CLUSTER_NAME      : eksctl/terraform 으로 만든 클러스터 이름
+  #     APISERVER_ENDPOINT: aws eks describe-cluster --name <C> --query cluster.endpoint
+  #     B64_CLUSTER_CA    : aws eks describe-cluster --name <C> --query cluster.certificateAuthority.data
+  #     DNS_CLUSTER_IP    : 보통 10.100.0.10 (서비스 CIDR 기준 — kube-dns ClusterIP)
+  #
+  #   ⚠️ Ubuntu AMI 세대에 따라 부트스트랩 방식이 다름:
+  #     - 구버전 ubuntu-eks AMI : /etc/eks/bootstrap.sh (아래 형태)
+  #     - 신버전(24.04 일부)     : nodeadm 사용 — AMI 릴리스 노트로 확인 후 교체
+  userData: |
+    #!/bin/bash
+    /etc/eks/bootstrap.sh '____CLUSTER_NAME____' \
+      --b64-cluster-ca '____B64_CLUSTER_CA____' \
+      --apiserver-endpoint '____APISERVER_ENDPOINT____' \
+      --dns-cluster-ip '10.100.0.10' \
+      --container-runtime containerd \
+      --kubelet-extra-args '--node-labels=role=shoply-worker'

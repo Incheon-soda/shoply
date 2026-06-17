@@ -1,0 +1,65 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'   # k6 Prometheus remote write 수신
+      - '--web.enable-admin-api'               # 스냅샷 API 활성화
+
+  # ── Prometheus (EKS 전용) — 온프레와 분리 수집 ────────────────
+  prometheus-eks:
+    image: prom/prometheus:latest
+    container_name: prometheus-eks
+    restart: always
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus-eks/prometheus-eks.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_eks_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+      - '--web.enable-admin-api'
+
+  # ── Loki — 로그 저장 (Grafana로 로그/이벤트 조회) ──────────────
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: loki
+    restart: always
+    ports:
+      - "3100:3100"                 # 클러스터 Promtail/event-exporter가 여기로 push
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin1234
+      - GF_USERS_ALLOW_SIGN_UP=false
+
+volumes:
+  prometheus_data:
+  prometheus_eks_data:
+  grafana_data:
+  loki_data:

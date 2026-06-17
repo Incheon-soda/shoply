@@ -1,0 +1,23 @@
+NAME                         READY   STATUS             RESTARTS         AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+frontend-6798c74b8c-m2ddg    1/1     Running            0                171m    10.244.2.11   k8s-worker2   <none>           <none>
+gateway-7b76d459b9-6spnt     1/1     Running            0                73m     10.244.1.53   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-rhsb6     1/1     Running            0                171m    10.244.1.10   k8s-worker1   <none>           <none>
+inventory-7c5c586469-cs555   1/1     Running            4 (7m58s ago)    11m     10.244.1.82   k8s-worker1   <none>           <none>
+inventory-7c5c586469-h59hh   1/1     Running            8 (2m34s ago)    117m    10.244.2.35   k8s-worker2   <none>           <none>
+inventory-7c5c586469-rrrlv   1/1     Running            6 (4m23s ago)    10m     10.244.1.85   k8s-worker1   <none>           <none>
+order-556547d684-5cw6s       1/1     Running            10 (2m32s ago)   69m     10.244.2.61   k8s-worker2   <none>           <none>
+order-556547d684-7dddm       0/1     CrashLoopBackOff   6 (86s ago)      10m     10.244.2.76   k8s-worker2   <none>           <none>
+order-556547d684-9q9xj       1/1     Running            5 (6m25s ago)    10m     10.244.2.74   k8s-worker2   <none>           <none>
+order-556547d684-btvvm       1/1     Running            5 (2m37s ago)    9m10s   10.244.2.79   k8s-worker2   <none>           <none>
+order-556547d684-m6gfl       1/1     Running            0                13m     10.244.2.70   k8s-worker2   <none>           <none>
+order-556547d684-mkx72       0/1     CrashLoopBackOff   5 (104s ago)     62m     10.244.2.66   k8s-worker2   <none>           <none>
+order-556547d684-smgkl       1/1     Running            2 (3m33s ago)    5m39s   10.244.1.94   k8s-worker1   <none>           <none>
+order-556547d684-v5fsl       0/1     CrashLoopBackOff   5 (2m33s ago)    9m55s   10.244.2.78   k8s-worker2   <none>           <none>
+payment-84d4c68676-79qq4     1/1     Running            6 (3m39s ago)    10m     10.244.2.75   k8s-worker2   <none>           <none>
+payment-84d4c68676-df5gz     1/1     Running            4 (2m24s ago)    6m10s   10.244.1.92   k8s-worker1   <none>           <none>
+payment-84d4c68676-fbv9g     1/1     Running            7 (2m25s ago)    65m     10.244.1.71   k8s-worker1   <none>           <none>
+payment-84d4c68676-hltrh     1/1     Running            2 (4m22s ago)    6m10s   10.244.2.80   k8s-worker2   <none>           <none>
+payment-84d4c68676-hw8bv     1/1     Running            2 (94s ago)      2m54s   10.244.1.98   k8s-worker1   <none>           <none>
+product-7f7cb5797d-4gnkq     1/1     Running            0                132m    10.244.1.13   k8s-worker1   <none>           <none>
+product-7f7cb5797d-x9pq8     1/1     Running            0                76m     10.244.1.51   k8s-worker1   <none>           <none>
+user-cf9f7646c-xfgl5         1/1     Running            0                171m    10.244.2.14   k8s-worker2   <none>           <none>

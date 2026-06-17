@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온프레미스 vs EKS 비교 실험 — 전체 계획</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.65;
+    color:#1a1a1a;background:#fff;max-width:780px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:24px;margin-bottom:6px}
+  .sub{color:#64748b;margin-bottom:30px}
+  h2{font-size:18px;margin:34px 0 12px;padding-bottom:6px;border-bottom:2px solid #0f172a}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{padding:9px 11px;border:1px solid #e2e8f0;text-align:left;vertical-align:top}
+  th{background:#f8fafc}
+  .on{color:#ea580c;font-weight:700}.eks{color:#2563eb;font-weight:700}
+  .lead{font-size:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px 18px}
+  .hl{background:#fef08a;padding:1px 5px;border-radius:3px;font-weight:600}
+  code{background:#1e293b;color:#e2e8f0;padding:1px 6px;border-radius:4px;font-size:12.5px;font-family:Menlo,monospace}
+  .bar{font-family:Menlo,monospace;font-size:12px;letter-spacing:-1px}
+  .red{color:#dc2626}.grn{color:#16a34a}
+  ul{margin:8px 0 8px 20px;font-size:14px}li{margin:3px 0}
+  .done{color:#16a34a}.box{background:#f8fafc;border-left:4px solid #0f172a;padding:12px 14px;border-radius:0 8px 8px 0;font-size:14px;margin:10px 0}
+</style>
+</head>
+<body>
+
+<h1>온프레미스 k8s vs AWS EKS</h1>
+<div class="sub">인프라 운영 비교 실험 — 전체 계획</div>
+
+<div class="lead">
+앱·부하·설정을 <b>전부 똑같이</b> 맞추고,<br>
+<span class="hl">"노드가 자동으로 늘어나냐"</span> 딱 하나만 다르게 둬서<br>
+폭증·장애 때 어떻게 갈리는지 본다.
+</div>
+
+<h2>1. 무엇이 같고 무엇이 다른가</h2>
+<table>
+  <tr><th>구분</th><th>내용</th></tr>
+  <tr><td><b>같음</b> (공정성)</td><td>앱 이미지(GHCR) · k6 부하 · 데이터 · <b>Nginx Ingress</b> · 리소스 100m/500m · HPA 60% · DB max_conn 300</td></tr>
+  <tr><td><b>다름</b> ★실험 대상</td><td><span class="on">온프레: 노드 고정 (KVM VM)</span> ↔ <span class="eks">EKS: Karpenter 자동확장</span></td></tr>
+</table>
+
+<h2>2. 시스템 구성</h2>
+<table>
+  <tr><th></th><th class="on">온프레미스</th><th class="eks">EKS (예정)</th></tr>
+  <tr><td>가상화</td><td>AWS EC2 + <b>KVM 가상머신</b> 3대</td><td>실제 EC2 노드</td></tr>
+  <tr><td>진입</td><td>EC2 Nginx(NAT) → :30080</td><td>Node :30080 직접</td></tr>
+  <tr><td>노드확장</td><td>❌ 고정</td><td>✅ Karpenter</td></tr>
+  <tr><td>DB</td><td>EC2 PostgreSQL</td><td>RDS Multi-AZ</td></tr>
+</table>
+<p style="font-size:13px;color:#64748b">k8s v1.34.x · 이미지 GHCR · 부하 k6 · 모니터링 Prometheus+Grafana</p>
+
+<h2>3. 시나리오 (안정 → 스파이크 → 장애)</h2>
+<table>
+  <tr><th></th><th>상황</th><th class="on">온프레</th><th class="eks">EKS</th></tr>
+  <tr><td><b>1</b></td><td>안정 (200 RPS)</td><td>정상 (Error 0)</td><td>정상 (동일)</td></tr>
+  <tr><td><b>2 ★</b></td><td>스파이크 (급증+유지)</td><td>Pending 지속</td><td>노드 추가 → 회복</td></tr>
+  <tr><td><b>3</b></td><td>worker1 종료</td><td>몰림→Pending, 수동 수 분</td><td>자동 60초</td></tr>
+</table>
+
+<div class="box">
+<b>⚠️ 스파이크 핵심 — "유지"가 진짜 실험</b><br>
+급증을 10초만에 끝내면 시스템이 반응(파드/노드 생성) 전에 끝나 아무것도 안 보임.<br>
+→ <b>급증(트리거) + 5~10분 유지</b>. 유지 구간에서 차이가 드러남:
+<div class="bar" style="margin-top:6px">온프레 <span class="red">▁▁████████████</span> ← 못 버팀</div>
+<div class="bar">EKS&nbsp;&nbsp; <span class="grn">▁▁███▁▁▁▁▁▁▁▁</span> ← 60~90초 후 흡수</div>
+</div>
+
+<h2>4. 부하 방식 (하이브리드)</h2>
+<p style="font-size:14px">코드를 무겁게 하지 않고, <code>request 100m</code>(작게) + <b>k6 RPS 크게</b>로 HPA를 발동시킨다.<br>
+→ <code>실제CPU ÷ request</code>가 60% 쉽게 넘어 파드가 늘고, 노드가 차면 <span class="on">온프레 Pending</span> vs <span class="eks">EKS 노드추가</span>로 갈린다.</p>
+
+<h2>5. 핵심 측정 지표</h2>
+<ul>
+  <li>★ <b>Pending Pod</b> — 온프레 한계의 증거</li>
+  <li>★ <b>Node Count</b> — EKS 자동 확장 / <b>EKS 회복 시간</b></li>
+  <li><b>MTTR</b> — 노드 장애 복구 시간 (시나리오 3)</li>
+  <li>Error율 · 결제 성공/실패 · DB 커넥션</li>
+</ul>
+
+<h2>6. 진행 순서</h2>
+<table>
+  <tr><td>1</td><td>리허설 (시나리오 2 작게 → 설정 확정)</td></tr>
+  <tr><td>2</td><td>load-test-prep.sql 리셋 + 동시 시작</td></tr>
+  <tr><td>3</td><td>1 안정 → 2 스파이크 → 3 장애 순서</td></tr>
+  <tr><td>4</td><td>한계·MTTR 비교 정리</td></tr>
+</table>
+
+<h2>7. 현황</h2>
+<p style="font-size:14px"><span class="done">✅ 완료:</span> 앱 코드 정리 · 매니페스트(리소스/HPA/affinity) · 온프레 KVM 클러스터 · HPA 작동 확인 · 대시보드 · 문서</p>
+<p style="font-size:14px"><b>⬜ 남음:</b> 온프레 한계 데이터 수집 · EKS 구축 · k6 시나리오 분리 · 본 실험 1→2→3</p>
+
+</body>
+</html>

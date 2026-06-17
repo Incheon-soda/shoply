@@ -1,0 +1,73 @@
+LAST SEEN   TYPE      REASON                         OBJECT                                  MESSAGE
+20m         Normal    ScalingReplicaSet              deployment/inventory                    Scaled up replica set inventory-7b9846b88 from 0 to 1
+20m         Normal    Pulling                        pod/user-88d9b54f9-wt25k                Pulling image "ghcr.io/incheon-soda/shoply-user:latest"
+20m         Normal    ScalingReplicaSet              deployment/user                         Scaled up replica set user-88d9b54f9 from 0 to 1
+20m         Normal    SuccessfulCreate               replicaset/user-88d9b54f9               Created pod: user-88d9b54f9-wt25k
+20m         Normal    Scheduled                      pod/product-5c79bb699c-xn2fm            Successfully assigned shoply/product-5c79bb699c-xn2fm to k8s-worker1
+20m         Normal    Scheduled                      pod/order-59bbb567bf-j2zmj              Successfully assigned shoply/order-59bbb567bf-j2zmj to k8s-worker2
+20m         Normal    SuccessfulCreate               replicaset/inventory-7b9846b88          Created pod: inventory-7b9846b88-ttbfm
+20m         Normal    SuccessfulCreate               replicaset/order-59bbb567bf             Created pod: order-59bbb567bf-j2zmj
+20m         Normal    ScalingReplicaSet              deployment/product                      Scaled up replica set product-5c79bb699c from 0 to 1
+20m         Normal    ScalingReplicaSet              deployment/payment                      Scaled up replica set payment-bcd66f5fc from 0 to 1
+20m         Normal    ScalingReplicaSet              deployment/order                        Scaled up replica set order-59bbb567bf from 0 to 1
+20m         Normal    SuccessfulCreate               replicaset/payment-bcd66f5fc            Created pod: payment-bcd66f5fc-nrbbv
+20m         Normal    Scheduled                      pod/inventory-7b9846b88-ttbfm           Successfully assigned shoply/inventory-7b9846b88-ttbfm to k8s-worker1
+20m         Normal    SuccessfulCreate               replicaset/product-5c79bb699c           Created pod: product-5c79bb699c-xn2fm
+20m         Normal    Scheduled                      pod/user-88d9b54f9-wt25k                Successfully assigned shoply/user-88d9b54f9-wt25k to k8s-worker2
+20m         Normal    Scheduled                      pod/payment-bcd66f5fc-nrbbv             Successfully assigned shoply/payment-bcd66f5fc-nrbbv to k8s-worker2
+20m         Normal    Scheduled                      pod/frontend-5975bcbc67-5tttf           Successfully assigned shoply/frontend-5975bcbc67-5tttf to k8s-worker2
+20m         Normal    Pulling                        pod/inventory-7b9846b88-ttbfm           Pulling image "ghcr.io/incheon-soda/shoply-inventory:latest"
+20m         Normal    Pulling                        pod/order-59bbb567bf-j2zmj              Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+20m         Normal    ScalingReplicaSet              deployment/gateway                      Scaled up replica set gateway-7c998dd6f8 from 0 to 1
+20m         Normal    Pulling                        pod/frontend-5975bcbc67-5tttf           Pulling image "ghcr.io/incheon-soda/shoply-frontend:latest"
+20m         Normal    SuccessfulCreate               replicaset/gateway-7c998dd6f8           Created pod: gateway-7c998dd6f8-zwr7g
+20m         Normal    Pulling                        pod/gateway-7c998dd6f8-zwr7g            Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+20m         Normal    Scheduled                      pod/gateway-7c998dd6f8-zwr7g            Successfully assigned shoply/gateway-7c998dd6f8-zwr7g to k8s-worker1
+20m         Normal    SuccessfulCreate               replicaset/frontend-5975bcbc67          Created pod: frontend-5975bcbc67-5tttf
+20m         Normal    ScalingReplicaSet              deployment/frontend                     Scaled up replica set frontend-5975bcbc67 from 0 to 1
+20m         Normal    Pulling                        pod/payment-bcd66f5fc-nrbbv             Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+20m         Normal    Pulling                        pod/product-5c79bb699c-xn2fm            Pulling image "ghcr.io/incheon-soda/shoply-product:latest"
+20m         Normal    Pulled                         pod/product-5c79bb699c-xn2fm            Successfully pulled image "ghcr.io/incheon-soda/shoply-product:latest" in 6.931s (6.931s including waiting). Image size: 64210416 bytes.
+20m         Normal    Created                        pod/product-5c79bb699c-xn2fm            Created container: product
+20m         Normal    Started                        pod/product-5c79bb699c-xn2fm            Started container product
+20m         Normal    Pulled                         pod/user-88d9b54f9-wt25k                Successfully pulled image "ghcr.io/incheon-soda/shoply-user:latest" in 9.061s (9.061s including waiting). Image size: 62570807 bytes.
+20m         Normal    Created                        pod/user-88d9b54f9-wt25k                Created container: user
+20m         Normal    Started                        pod/user-88d9b54f9-wt25k                Started container user
+20m         Normal    Pulled                         pod/inventory-7b9846b88-ttbfm           Successfully pulled image "ghcr.io/incheon-soda/shoply-inventory:latest" in 3.968s (10.771s including waiting). Image size: 63283423 bytes.
+20m         Normal    Started                        pod/inventory-7b9846b88-ttbfm           Started container inventory
+20m         Normal    Created                        pod/inventory-7b9846b88-ttbfm           Created container: inventory
+20m         Normal    Pulled                         pod/payment-bcd66f5fc-nrbbv             Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 4.012s (12.51s including waiting). Image size: 62780980 bytes.
+20m         Normal    Started                        pod/payment-bcd66f5fc-nrbbv             Started container payment
+20m         Normal    Created                        pod/payment-bcd66f5fc-nrbbv             Created container: payment
+20m         Normal    Started                        pod/gateway-7c998dd6f8-zwr7g            Started container gateway
+20m         Normal    Created                        pod/gateway-7c998dd6f8-zwr7g            Created container: gateway
+20m         Normal    Pulled                         pod/gateway-7c998dd6f8-zwr7g            Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 3.502s (13.867s including waiting). Image size: 63587715 bytes.
+20m         Normal    Started                        pod/order-59bbb567bf-j2zmj              Started container order
+20m         Normal    Pulled                         pod/order-59bbb567bf-j2zmj              Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 4.209s (16.571s including waiting). Image size: 69825511 bytes.
+20m         Normal    Created                        pod/order-59bbb567bf-j2zmj              Created container: order
+20m         Normal    Created                        pod/frontend-5975bcbc67-5tttf           Created container: frontend
+20m         Normal    Pulled                         pod/frontend-5975bcbc67-5tttf           Successfully pulled image "ghcr.io/incheon-soda/shoply-frontend:latest" in 6.243s (22.684s including waiting). Image size: 26153671 bytes.
+20m         Normal    Started                        pod/frontend-5975bcbc67-5tttf           Started container frontend
+20m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/payment-hpa     failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/payment-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/product-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/order-hpa       failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/order-hpa       invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/gateway-hpa     failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/gateway-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/inventory-hpa   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/inventory-hpa   failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+20m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/product-hpa     failed to get cpu utilization: unable to get metrics for resource cpu: unable to fetch metrics from resource metrics API: the server is currently unable to handle the request (get pods.metrics.k8s.io)
+19m         Normal    Sync                           ingress/shoply-ingress                  Scheduled for sync
+19m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/gateway-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+19m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/order-hpa       invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/gateway-hpa     failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+19m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/inventory-hpa   failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/inventory-hpa   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/payment-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/payment-hpa     failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/order-hpa       failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/product-hpa     failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/product-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/gateway-hpa     failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+19m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/gateway-hpa     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)

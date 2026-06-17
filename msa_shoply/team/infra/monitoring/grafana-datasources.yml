@@ -1,0 +1,19 @@
+# Grafana 데이터소스 자동 등록 (Prometheus 온프레/EKS + Loki)
+apiVersion: 1
+
+datasources:
+  - name: Prometheus            # 온프레 (env="onprem")
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+
+  - name: Prometheus-EKS        # EKS (env="eks")
+    type: prometheus
+    access: proxy
+    url: http://prometheus-eks:9090
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100

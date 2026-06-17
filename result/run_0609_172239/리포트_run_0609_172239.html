@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>부하 실험 리포트 — run_0609_172239 (한계: snap_173520)</title>
+<style>
+  body{font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;background:#0f1117;color:#e6e6e6;
+       max-width:860px;margin:0 auto;padding:32px 24px;line-height:1.6}
+  h1{font-size:24px;border-bottom:2px solid #3b82f6;padding-bottom:12px}
+  h2{font-size:18px;margin-top:36px;color:#93c5fd}
+  .badge{display:inline-block;padding:6px 14px;border-radius:8px;font-weight:700;font-size:15px}
+  .badge.yes{background:#7f1d1d;color:#fecaca} .badge.no{background:#1e3a5f;color:#bfdbfe}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #232838}
+  th{color:#9ca3af;font-weight:600}
+  .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+  .svc{font-weight:600;width:110px}
+  .bar{height:16px;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:4px}
+  .age{color:#9ca3af;width:90px;white-space:nowrap}
+  .summary{background:#161a24;border:1px solid #232838;border-radius:12px;padding:18px 22px;margin-top:14px}
+  .summary td:first-child{color:#9ca3af;width:160px}
+  .conc{background:#1a2233;border-left:4px solid #3b82f6;border-radius:8px;padding:16px 20px;
+         margin-top:14px;font-size:15px}
+  .msg{font-family:ui-monospace,monospace;font-size:12px;color:#fca5a5;background:#1a1010;
+        padding:10px 14px;border-radius:6px;margin-top:8px;word-break:break-all}
+  .pend{color:#fbbf24;font-weight:700} .fail{color:#fca5a5;font-weight:700}
+  .diag{font-family:ui-monospace,monospace;font-size:12px;color:#cbd5e1;background:#11151f;
+         border:1px solid #232838;border-radius:8px;padding:14px 16px;
+         max-height:360px;overflow:auto;white-space:pre-wrap;line-height:1.45}
+  .scroll{max-height:360px;overflow-y:auto;border:1px solid #232838;border-radius:8px}
+  .scroll table{margin-top:0}
+  .muted{color:#6b7280}
+  .foot{margin-top:40px;color:#6b7280;font-size:12px;border-top:1px solid #232838;padding-top:14px}
+</style></head><body>
+
+<h1>📋 부하 실험 리포트 — run_0609_172239 (한계: snap_173520)</h1>
+
+<h2>📊 요약</h2>
+<div class="summary"><table>
+  <tr><td>한계 도달</td><td><span class="badge yes">✅ 한계 도달 (Pending 발생)</span></td></tr>
+  <tr><td>한계 원인</td><td>Insufficient cpu (worker1·2 만재) + worker3 taint 격리</td></tr>
+  <tr><td>총 파드 (요청)</td><td><b>41개</b></td></tr>
+  <tr><td>Running / Pending / 실패</td><td><b>28</b> / <span class="pend">4</span> / <span class="fail">9</span></td></tr>
+  <tr><td>FailedScheduling 이벤트</td><td>13건</td></tr>
+</table>
+<div class="msg">0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s).</div>
+</div>
+
+<h2>📦 서비스별 파드 현황 (캡처 시점) ★</h2>
+<table>
+<tr><th>서비스</th><th class="num">Running</th><th class="num">Pending</th><th class="num">실패</th><th class="num">합계</th></tr>
+<tr><td class="svc">gateway</td><td class="num">8</td><td class="num"><span class="pend">2</span></td><td class="num">0</td><td class="num">10</td></tr>
+<tr><td class="svc">order</td><td class="num">6</td><td class="num">0</td><td class="num"><span class="fail">4</span></td><td class="num">10</td></tr>
+<tr><td class="svc">payment</td><td class="num">5</td><td class="num"><span class="pend">1</span></td><td class="num"><span class="fail">4</span></td><td class="num">10</td></tr>
+<tr><td class="svc">inventory</td><td class="num">5</td><td class="num">0</td><td class="num"><span class="fail">1</span></td><td class="num">6</td></tr>
+<tr><td class="svc">product</td><td class="num">2</td><td class="num"><span class="pend">1</span></td><td class="num">0</td><td class="num">3</td></tr>
+<tr><td class="svc">frontend</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+<tr><td class="svc">user</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">1</td></tr>
+</table>
+
+<h2>🩺 진단 — 왜 안 떴나 (비정상 파드 원인·로그)</h2>
+<pre class="diag">════════ gateway-7b76d459b9-9v8qj  (Pending) ════════
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  55s   default-scheduler  0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+
+════════ gateway-7b76d459b9-rk8hv  (Pending) ════════
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  55s   default-scheduler  0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+
+════════ inventory-7c5c586469-rrrlv  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  7m41s                 default-scheduler  Successfully assigned shoply/inventory-7c5c586469-rrrlv to k8s-worker1
+  Normal   Pulled     7m40s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-inventory:latest&quot; in 716ms (716ms including waiting). Image size: 63283423 bytes.
+  Normal   Pulled     7m12s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-inventory:latest&quot; in 828ms (828ms including waiting). Image size: 63283423 bytes.
+  Normal   Pulled     6m20s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-inventory:latest&quot; in 734ms (734ms including waiting). Image size: 63283423 bytes.
+  Warning  Unhealthy  5m58s                 kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
+  Normal   Pulled     5m7s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-inventory:latest&quot; in 839ms (839ms including waiting). Image size: 63283423 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ order-556547d684-7dddm  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  7m26s                  default-scheduler  Successfully assigned shoply/order-556547d684-7dddm to k8s-worker2
+  Normal   Pulled     7m25s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 741ms (741ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     7m                     kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 771ms (771ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     6m25s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 761ms (761ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     5m34s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 813ms (813ms including waiting). Image size: 69825511 bytes.
+  Warning  Unhealthy  5m13s                  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ order-556547d684-mkx72  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  59m                    default-scheduler  Successfully assigned shoply/order-556547d684-mkx72 to k8s-worker2
+  Normal   Pulled     59m                    kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 728ms (1.462s including waiting). Image size: 69825511 bytes.
+  Warning  Unhealthy  58m                    kubelet            Readiness probe failed: Get &quot;http://10.244.2.66:4003/health&quot;: context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+  Normal   Pulled     5m48s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 774ms (774ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     5m4s                   kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 1.173s (1.173s including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     3m13s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 779ms (779ms including waiting). Image size: 69825511 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ order-556547d684-p7jkh  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  8m41s                  default-scheduler  Successfully assigned shoply/order-556547d684-p7jkh to k8s-worker2
+  Normal   Pulled     8m40s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 771ms (1.498s including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     7m44s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 740ms (740ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     7m1s                   kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 747ms (1.119s including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     6m4s                   kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 755ms (755ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     4m55s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 766ms (766ms including waiting). Image size: 69825511 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ order-556547d684-zcbhh  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  11m                    default-scheduler  Successfully assigned shoply/order-556547d684-zcbhh to k8s-worker2
+  Normal   Pulled     11m                    kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 1.283s (1.283s including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     7m47s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 732ms (732ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     6m49s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 706ms (706ms including waiting). Image size: 69825511 bytes.
+  Normal   Pulled     5m32s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-order:latest&quot; in 758ms (758ms including waiting). Image size: 69825511 bytes.
+  Warning  Unhealthy  5m11s (x4 over 7m24s)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ payment-84d4c68676-79qq4  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  7m41s                 default-scheduler  Successfully assigned shoply/payment-84d4c68676-79qq4 to k8s-worker2
+  Normal   Pulled     7m41s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 772ms (772ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     7m6s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 741ms (741ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     6m1s                  kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 784ms (784ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     4m48s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 776ms (2.165s including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     3m38s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 800ms (800ms including waiting). Image size: 62780980 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ payment-84d4c68676-bwxlv  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  8m42s                 default-scheduler  Successfully assigned shoply/payment-84d4c68676-bwxlv to k8s-worker2
+  Normal   Pulled     8m41s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 778ms (778ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     6m51s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 834ms (837ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     5m46s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 753ms (753ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     4m48s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 1.389s (1.389s including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     3m40s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 729ms (729ms including waiting). Image size: 62780980 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ payment-84d4c68676-hw8bv  (Pending) ════════
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  11s   default-scheduler  0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.
+
+════════ payment-84d4c68676-k9bk8  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From     Message
+  ----     ------     ----                  ----     -------
+  Normal   Pulled     60m                   kubelet  Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 737ms (737ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     58m                   kubelet  Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 730ms (730ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     7m39s                 kubelet  Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 769ms (769ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     6m                    kubelet  Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 806ms (806ms including waiting). Image size: 62780980 bytes.
+  Warning  Unhealthy  5m39s (x20 over 65m)  kubelet  Readiness probe failed: HTTP probe failed with statuscode: 503
+  Normal   Created    4m59s (x9 over 67m)   kubelet  Created container: payment
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ payment-84d4c68676-kjxzw  (CrashLoopBackOff) ════════
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  11m                   default-scheduler  Successfully assigned shoply/payment-84d4c68676-kjxzw to k8s-worker2
+  Normal   Pulled     11m                   kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 789ms (789ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     7m42s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 771ms (771ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     6m55s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 807ms (807ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     5m58s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 709ms (709ms including waiting). Image size: 62780980 bytes.
+  Normal   Pulled     4m46s                 kubelet            Successfully pulled image &quot;ghcr.io/incheon-soda/shoply-payment:latest&quot; in 757ms (757ms including waiting). Image size: 62780980 bytes.
+──── 로그(현재) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+──── 로그(직전 컨테이너) ────
+  length: 85,
+  severity: &#x27;FATAL&#x27;,
+  code: &#x27;53300&#x27;,
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: &#x27;proc.c&#x27;,
+  line: &#x27;351&#x27;,
+  routine: &#x27;InitProcess&#x27;
+}
+
+Node.js v22.22.3
+
+════════ product-7f7cb5797d-nqccj  (Pending) ════════
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  41s   default-scheduler  0/4 nodes are available: 2 Insufficient cpu, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/4 nodes are available: 2 No preemption victims found for incoming pod, 2 Preemption is not helpful for scheduling.</pre>
+
+<h2>🧮 노드 CPU 할당률 (request 기준) — Pending의 진짜 원인</h2>
+<p class="muted">스케줄링은 사용량(top)이 아니라 <b>request 합계 vs allocatable</b>로 결정됨. 90%+ 면 새 파드 못 받음.</p>
+<table><tr><th>노드</th><th class="num">CPU request 할당률</th></tr><tr><td>k8s-master</td><td class="num" style="color:#e6e6e6">37%</td></tr>
+<tr><td>k8s-worker1</td><td class="num" style="color:#fca5a5">100%</td></tr>
+<tr><td>k8s-worker2</td><td class="num" style="color:#fca5a5">97%</td></tr>
+<tr><td>k8s-worker3</td><td class="num" style="color:#e6e6e6">20%</td></tr></table>
+
+<h2>🖥 노드 사용률 / 파드 분포 (캡처 시점)</h2>
+<table><tr><th>노드</th><th class="num">CPU</th><th class="num">MEM</th><th class="num">파드 수</th></tr>
+<tr><td>k8s-master</td><td class="num" style="color:#e6e6e6">4%</td><td class="num">21%</td><td class="num">0개</td></tr>
+<tr><td>k8s-worker1</td><td class="num" style="color:#e6e6e6">65%</td><td class="num">24%</td><td class="num">10개</td></tr>
+<tr><td>k8s-worker2</td><td class="num" style="color:#e6e6e6">47%</td><td class="num">21%</td><td class="num">3개</td></tr>
+<tr><td>k8s-worker3</td><td class="num" style="color:#e6e6e6">20%</td><td class="num">13%</td><td class="num">0개</td></tr></table>
+
+<h2>📈 서비스별 최대 파드 수 (이벤트 로그 기준, 부하 전체)</h2>
+<table><tr><td class="svc">order</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">10</td></tr>
+<tr><td class="svc">gateway</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">10</td></tr>
+<tr><td class="svc">payment</td><td><div class="bar" style="width:240px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">10</td></tr>
+<tr><td class="svc">inventory</td><td><div class="bar" style="width:144px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">6</td></tr>
+<tr><td class="svc">product</td><td><div class="bar" style="width:72px;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></td><td class="num">3</td></tr></table>
+
+<h2>⏱ 타임라인 (최신순)</h2>
+<div class="scroll"><table><tr><td class="age">10s 전</td><td>⬇️ 스케일다운 → 2개 (CPU 여유)</td></tr>
+<tr><td class="age">25s 전</td><td>⬇️ 스케일다운 → 4개 (CPU 여유)</td></tr>
+<tr><td class="age">25s 전</td><td>⬇️ 스케일다운 → 5개 (CPU 여유)</td></tr>
+<tr><td class="age">25s 전</td><td>⬇️ 스케일다운 → 2개 (CPU 여유)</td></tr>
+<tr><td class="age">40s 전</td><td>⬇️ 스케일다운 → 5개 (CPU 여유)</td></tr>
+<tr><td class="age">40s 전</td><td>⬇️ 스케일다운 → 3개 (CPU 여유)</td></tr>
+<tr><td class="age">55s 전</td><td>⬇️ 스케일다운 → 8개 (CPU 여유)</td></tr>
+<tr><td class="age">2m40s 전</td><td>⬇️ 스케일다운 → 2개 (CPU 여유)</td></tr>
+<tr><td class="age">3m25s 전</td><td>⬆️ 스케일업 → 10개 (CPU 초과)</td></tr>
+<tr><td class="age">3m55s 전</td><td>⬆️ 스케일업 → 3개 (CPU 초과)</td></tr>
+<tr><td class="age">4m10s 전</td><td>⬆️ 스케일업 → 10개 (CPU 초과)</td></tr>
+<tr><td class="age">4m40s 전</td><td>⬇️ 스케일다운 → 7개 (CPU 여유)</td></tr>
+<tr><td class="age">5m56s 전</td><td>⬆️ 스케일업 → 6개 (CPU 초과)</td></tr>
+<tr><td class="age">6m11s 전</td><td>⬆️ 스케일업 → 10개 (CPU 초과)</td></tr>
+<tr><td class="age">6m41s 전</td><td>⬇️ 스케일다운 → 4개 (CPU 여유)</td></tr>
+<tr><td class="age">6m41s 전</td><td>⬆️ 스케일업 → 9개 (CPU 초과)</td></tr>
+<tr><td class="age">6m41s 전</td><td>⬇️ 스케일다운 → 9개 (CPU 여유)</td></tr>
+<tr><td class="age">9m41s 전</td><td>⬆️ 스케일업 → 9개 (CPU 초과)</td></tr>
+<tr><td class="age">10m 전</td><td>⬆️ 스케일업 → 8개 (CPU 초과)</td></tr>
+<tr><td class="age">10m 전</td><td>⬆️ 스케일업 → 5개 (CPU 초과)</td></tr>
+<tr><td class="age">10m 전</td><td>⬆️ 스케일업 → 7개 (CPU 초과)</td></tr>
+<tr><td class="age">10m 전</td><td>⬆️ 스케일업 → 8개 (CPU 초과)</td></tr>
+<tr><td class="age">10m 전</td><td>⬆️ 스케일업 → 7개 (CPU 초과)</td></tr>
+<tr><td class="age">10m 전</td><td>⬆️ 스케일업 → 4개 (CPU 초과)</td></tr>
+<tr><td class="age">10m 전</td><td>⬆️ 스케일업 → 6개 (CPU 초과)</td></tr>
+<tr><td class="age">11m 전</td><td>⬆️ 스케일업 → 6개 (CPU 초과)</td></tr>
+<tr><td class="age">11m 전</td><td>⬆️ 스케일업 → 5개 (CPU 초과)</td></tr>
+<tr><td class="age">11m 전</td><td>⬆️ 스케일업 → 3개 (CPU 초과)</td></tr>
+<tr><td class="age">11m 전</td><td>⬆️ 스케일업 → 5개 (CPU 초과)</td></tr>
+<tr><td class="age">11m 전</td><td>⬆️ 스케일업 → 4개 (CPU 초과)</td></tr>
+<tr><td class="age">13m 전</td><td>⬆️ 스케일업 → 4개 (CPU 초과)</td></tr>
+<tr><td class="age">14m 전</td><td>⬆️ 스케일업 → 4개 (CPU 초과)</td></tr>
+<tr><td class="age">14m 전</td><td>⬆️ 스케일업 → 3개 (CPU 초과)</td></tr>
+<tr><td class="age">5m55s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">4m39s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">6m10s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">2m10s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">6m40s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">2m10s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">4m55s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">3m25s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">4m10s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">3m55s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">4m10s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr>
+<tr><td class="age">5m55s 전</td><td>❌ Pending 발생 (스케줄 실패)</td></tr></table></div>
+
+<h2>🎯 결론</h2>
+<div class="conc">온프레미스는 실험 노드(worker1·2)의 CPU 한계에서 파드 <b>28개</b>를 천장으로 <b>Pending 4개</b>가 쌓인다. 캡처 시점 총 41개 요청 중 28개만 배치 → 나머지 4개는 노드 자리 없어 대기.</div>
+
+<div class="foot">로그 파싱 자동 생성 · 같은 입력 → 같은 결과 (재현성 보장) ·
+generated by analyze_experiment.py</div>
+</body></html>

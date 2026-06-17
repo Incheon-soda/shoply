@@ -1,0 +1,16 @@
+NAME                         READY   STATUS    RESTARTS        AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+frontend-6798c74b8c-m2ddg    1/1     Running   0               172m    10.244.2.11   k8s-worker2   <none>           <none>
+gateway-7b76d459b9-6spnt     1/1     Running   0               73m     10.244.1.53   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-rhsb6     1/1     Running   0               172m    10.244.1.10   k8s-worker1   <none>           <none>
+inventory-7c5c586469-cs555   1/1     Running   4 (8m29s ago)   11m     10.244.1.82   k8s-worker1   <none>           <none>
+inventory-7c5c586469-h59hh   1/1     Running   8 (3m5s ago)    118m    10.244.2.35   k8s-worker2   <none>           <none>
+order-556547d684-5cw6s       1/1     Running   10 (3m3s ago)   69m     10.244.2.61   k8s-worker2   <none>           <none>
+order-556547d684-9q9xj       1/1     Running   5 (6m56s ago)   11m     10.244.2.74   k8s-worker2   <none>           <none>
+order-556547d684-btvvm       1/1     Running   5 (3m8s ago)    9m41s   10.244.2.79   k8s-worker2   <none>           <none>
+order-556547d684-m6gfl       1/1     Running   0               14m     10.244.2.70   k8s-worker2   <none>           <none>
+order-556547d684-smgkl       1/1     Running   2 (4m4s ago)    6m10s   10.244.1.94   k8s-worker1   <none>           <none>
+payment-84d4c68676-df5gz     1/1     Running   4 (2m55s ago)   6m41s   10.244.1.92   k8s-worker1   <none>           <none>
+payment-84d4c68676-hltrh     1/1     Running   2 (4m53s ago)   6m41s   10.244.2.80   k8s-worker2   <none>           <none>
+product-7f7cb5797d-4gnkq     1/1     Running   0               132m    10.244.1.13   k8s-worker1   <none>           <none>
+product-7f7cb5797d-x9pq8     1/1     Running   0               76m     10.244.1.51   k8s-worker1   <none>           <none>
+user-cf9f7646c-xfgl5         1/1     Running   0               172m    10.244.2.14   k8s-worker2   <none>           <none>

@@ -1,0 +1,8 @@
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE          NOMINATED NODE   READINESS GATES
+frontend-5975bcbc67-5tttf   1/1     Running   0          32m   10.244.2.7   k8s-worker2   <none>           <none>
+gateway-7c998dd6f8-zwr7g    1/1     Running   0          32m   10.244.1.6   k8s-worker1   <none>           <none>
+inventory-7b9846b88-ttbfm   1/1     Running   0          32m   10.244.1.5   k8s-worker1   <none>           <none>
+order-59bbb567bf-j2zmj      1/1     Running   0          32m   10.244.2.6   k8s-worker2   <none>           <none>
+payment-bcd66f5fc-nrbbv     1/1     Running   0          32m   10.244.2.5   k8s-worker2   <none>           <none>
+product-5c79bb699c-xn2fm    1/1     Running   0          32m   10.244.1.4   k8s-worker1   <none>           <none>
+user-88d9b54f9-wt25k        1/1     Running   0          32m   10.244.2.4   k8s-worker2   <none>           <none>

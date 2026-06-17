@@ -1,0 +1,17 @@
+=== 서비스별 파드 수 (status) ===
+  frontend       Running        x1
+  gateway        Pending        x3
+  gateway        Running        x7
+  inventory      CrashLoopBackOff x3
+  inventory      Running        x2
+  order          CrashLoopBackOff x3
+  order          Running        x7
+  payment        CrashLoopBackOff x5
+  payment        Error          x1
+  payment        Running        x3
+  product        Pending        x1
+  product        Running        x2
+  user           Running        x1
+
+=== 합계 ===
+  총 39   Running 23   Pending 4   실패/Crash 12

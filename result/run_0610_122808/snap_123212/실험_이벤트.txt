@@ -1,0 +1,33 @@
+LAST SEEN   TYPE     REASON              OBJECT                                MESSAGE
+2m42s       Normal   Scheduled           pod/payment-7f446f7f68-fjrnl          Successfully assigned shoply/payment-7f446f7f68-fjrnl to k8s-worker2
+2m12s       Normal   Scheduled           pod/order-6976c69cdd-smkdm            Successfully assigned shoply/order-6976c69cdd-smkdm to k8s-worker2
+2m42s       Normal   Scheduled           pod/gateway-67ddf64db9-hv72g          Successfully assigned shoply/gateway-67ddf64db9-hv72g to k8s-worker1
+2m42s       Normal   Scheduled           pod/order-6976c69cdd-dnt5f            Successfully assigned shoply/order-6976c69cdd-dnt5f to k8s-worker2
+2m42s       Normal   ScalingReplicaSet   deployment/order                      Scaled up replica set order-6976c69cdd from 2 to 3
+2m42s       Normal   SuccessfulRescale   horizontalpodautoscaler/payment-hpa   New size: 3; reason: cpu resource utilization (percentage of request) above target
+2m42s       Normal   SuccessfulRescale   horizontalpodautoscaler/gateway-hpa   New size: 3; reason: cpu resource utilization (percentage of request) above target
+2m42s       Normal   ScalingReplicaSet   deployment/gateway                    Scaled up replica set gateway-67ddf64db9 from 2 to 3
+2m42s       Normal   SuccessfulRescale   horizontalpodautoscaler/order-hpa     New size: 3; reason: cpu resource utilization (percentage of request) above target
+2m42s       Normal   Pulling             pod/order-6976c69cdd-dnt5f            Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+2m42s       Normal   Pulling             pod/payment-7f446f7f68-fjrnl          Pulling image "ghcr.io/incheon-soda/shoply-payment:latest"
+2m42s       Normal   SuccessfulCreate    replicaset/gateway-67ddf64db9         Created pod: gateway-67ddf64db9-hv72g
+2m42s       Normal   SuccessfulCreate    replicaset/order-6976c69cdd           Created pod: order-6976c69cdd-dnt5f
+2m42s       Normal   SuccessfulCreate    replicaset/payment-7f446f7f68         Created pod: payment-7f446f7f68-fjrnl
+2m42s       Normal   Pulling             pod/gateway-67ddf64db9-hv72g          Pulling image "ghcr.io/incheon-soda/shoply-gateway:latest"
+2m42s       Normal   ScalingReplicaSet   deployment/payment                    Scaled up replica set payment-7f446f7f68 from 2 to 3
+2m41s       Normal   Created             pod/gateway-67ddf64db9-hv72g          Created container: gateway
+2m41s       Normal   Started             pod/gateway-67ddf64db9-hv72g          Started container gateway
+2m41s       Normal   Pulled              pod/payment-7f446f7f68-fjrnl          Successfully pulled image "ghcr.io/incheon-soda/shoply-payment:latest" in 726ms (726ms including waiting). Image size: 62780980 bytes.
+2m41s       Normal   Created             pod/payment-7f446f7f68-fjrnl          Created container: payment
+2m41s       Normal   Started             pod/payment-7f446f7f68-fjrnl          Started container payment
+2m41s       Normal   Pulled              pod/gateway-67ddf64db9-hv72g          Successfully pulled image "ghcr.io/incheon-soda/shoply-gateway:latest" in 736ms (736ms including waiting). Image size: 63587715 bytes.
+2m40s       Normal   Created             pod/order-6976c69cdd-dnt5f            Created container: order
+2m40s       Normal   Started             pod/order-6976c69cdd-dnt5f            Started container order
+2m40s       Normal   Pulled              pod/order-6976c69cdd-dnt5f            Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 735ms (1.454s including waiting). Image size: 69825511 bytes.
+2m12s       Normal   ScalingReplicaSet   deployment/order                      Scaled up replica set order-6976c69cdd from 3 to 4
+2m12s       Normal   SuccessfulRescale   horizontalpodautoscaler/order-hpa     New size: 4; reason: cpu resource utilization (percentage of request) above target
+2m12s       Normal   SuccessfulCreate    replicaset/order-6976c69cdd           Created pod: order-6976c69cdd-smkdm
+2m12s       Normal   Pulling             pod/order-6976c69cdd-smkdm            Pulling image "ghcr.io/incheon-soda/shoply-order:latest"
+2m11s       Normal   Created             pod/order-6976c69cdd-smkdm            Created container: order
+2m11s       Normal   Pulled              pod/order-6976c69cdd-smkdm            Successfully pulled image "ghcr.io/incheon-soda/shoply-order:latest" in 800ms (800ms including waiting). Image size: 69825511 bytes.
+2m11s       Normal   Started             pod/order-6976c69cdd-smkdm            Started container order

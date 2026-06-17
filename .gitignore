@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# FUSE 임시 잔여물 (푸시 제외)
+.fuse_hidden*
+
+# 토큰 포함 — 절대 커밋 금지
+무제.rtf
+
+# 환경변수 (비밀번호 포함)
+.env
+*.env.local
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# 생성된 파일 (Bedrock 출력물)
+msa_shoply/app/db/seed.sql
+msa_shoply/app/db/test_accounts.txt
+msa_shoply/app/db/_generated-generator.js
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+*.tfvars.local
+
+# 빌드 결과물
+dist/
+build/
+.output/
+
+# 로그
+*.log
+
+# 클러스터 백업 (대용량)
+shoply-cluster.tar.gz

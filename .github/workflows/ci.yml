@@ -1,0 +1,180 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      gateway:   ${{ steps.filter.outputs.gateway }}
+      user:      ${{ steps.filter.outputs.user }}
+      product:   ${{ steps.filter.outputs.product }}
+      inventory: ${{ steps.filter.outputs.inventory }}
+      order:     ${{ steps.filter.outputs.order }}
+      payment:   ${{ steps.filter.outputs.payment }}
+      frontend:  ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            gateway:   ['msa_shoply/app/gateway/**']
+            user:      ['msa_shoply/app/services/user/**']
+            product:   ['msa_shoply/app/services/product/**']
+            inventory: ['msa_shoply/app/services/inventory/**']
+            order:     ['msa_shoply/app/services/order/**']
+            payment:   ['msa_shoply/app/services/payment/**']
+            frontend:  ['msa_shoply/app/frontend/**']
+
+  check-gateway:
+    needs: changes
+    if: needs.changes.outputs.gateway == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/app/gateway
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/app/gateway/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/app/gateway
+          push: false
+
+  check-user:
+    needs: changes
+    if: needs.changes.outputs.user == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/app/services/user
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/app/services/user/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/app/services/user
+          push: false
+
+  check-product:
+    needs: changes
+    if: needs.changes.outputs.product == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/app/services/product
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/app/services/product/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/app/services/product
+          push: false
+
+  check-inventory:
+    needs: changes
+    if: needs.changes.outputs.inventory == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/app/services/inventory
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/app/services/inventory/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/app/services/inventory
+          push: false
+
+  check-order:
+    needs: changes
+    if: needs.changes.outputs.order == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/app/services/order
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/app/services/order/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/app/services/order
+          push: false
+
+  check-payment:
+    needs: changes
+    if: needs.changes.outputs.payment == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: msa_shoply/app/services/payment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: msa_shoply/app/services/payment/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm audit --audit-level=high
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/app/services/payment
+          push: false
+
+  check-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v5
+        with:
+          context: msa_shoply/app/frontend
+          push: false

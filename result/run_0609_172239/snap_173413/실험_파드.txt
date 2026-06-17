@@ -1,0 +1,37 @@
+NAME                         READY   STATUS             RESTARTS        AGE     IP            NODE          NOMINATED NODE   READINESS GATES
+frontend-6798c74b8c-m2ddg    1/1     Running            0               167m    10.244.2.11   k8s-worker2   <none>           <none>
+gateway-7b76d459b9-6spnt     1/1     Running            0               69m     10.244.1.53   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-92tht     1/1     Running            0               10m     10.244.1.80   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-dx5zq     1/1     Running            0               6m49s   10.244.1.84   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-pl28d     1/1     Running            0               6m19s   10.244.1.86   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-qplgl     1/1     Running            0               7m19s   10.244.1.83   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-rhsb6     1/1     Running            0               167m    10.244.1.10   k8s-worker1   <none>           <none>
+gateway-7b76d459b9-v6tnz     1/1     Running            0               8m49s   10.244.1.81   k8s-worker1   <none>           <none>
+inventory-7c5c586469-cs555   1/1     Running            4 (4m7s ago)    7m19s   10.244.1.82   k8s-worker1   <none>           <none>
+inventory-7c5c586469-h59hh   0/1     Error              6 (51s ago)     113m    10.244.2.35   k8s-worker2   <none>           <none>
+inventory-7c5c586469-m7f8s   0/1     CrashLoopBackOff   4 (67s ago)     5m49s   10.244.1.88   k8s-worker1   <none>           <none>
+inventory-7c5c586469-p8l8f   0/1     Running            0               94s     10.244.1.95   k8s-worker1   <none>           <none>
+inventory-7c5c586469-rrrlv   0/1     CrashLoopBackOff   5 (32s ago)     6m34s   10.244.1.85   k8s-worker1   <none>           <none>
+inventory-7c5c586469-zqvm9   0/1     Running            0               94s     10.244.1.96   k8s-worker1   <none>           <none>
+order-556547d684-5cw6s       0/1     CrashLoopBackOff   8 (17s ago)     65m     10.244.2.61   k8s-worker2   <none>           <none>
+order-556547d684-7dddm       0/1     CrashLoopBackOff   5 (50s ago)     6m19s   10.244.2.76   k8s-worker2   <none>           <none>
+order-556547d684-9q9xj       1/1     Running            5 (2m34s ago)   7m4s    10.244.2.74   k8s-worker2   <none>           <none>
+order-556547d684-btvvm       0/1     CrashLoopBackOff   3 (31s ago)     5m19s   10.244.2.79   k8s-worker2   <none>           <none>
+order-556547d684-m6gfl       1/1     Running            0               9m49s   10.244.2.70   k8s-worker2   <none>           <none>
+order-556547d684-mkx72       1/1     Running            4 (74s ago)     58m     10.244.2.66   k8s-worker2   <none>           <none>
+order-556547d684-p7jkh       0/1     CrashLoopBackOff   5 (73s ago)     7m34s   10.244.2.72   k8s-worker2   <none>           <none>
+order-556547d684-smgkl       0/1     Running            1 (6s ago)      108s    10.244.1.94   k8s-worker1   <none>           <none>
+order-556547d684-v5fsl       0/1     CrashLoopBackOff   4 (41s ago)     6m4s    10.244.2.78   k8s-worker2   <none>           <none>
+order-556547d684-zcbhh       0/1     CrashLoopBackOff   5 (53s ago)     10m     10.244.2.68   k8s-worker2   <none>           <none>
+payment-84d4c68676-79qq4     0/1     Running            5 (102s ago)    6m34s   10.244.2.75   k8s-worker2   <none>           <none>
+payment-84d4c68676-bm2nz     0/1     CrashLoopBackOff   4 (74s ago)     6m4s    10.244.2.77   k8s-worker2   <none>           <none>
+payment-84d4c68676-bwxlv     0/1     Running            5 (102s ago)    7m34s   10.244.2.71   k8s-worker2   <none>           <none>
+payment-84d4c68676-df5gz     0/1     Running            2 (34s ago)     2m19s   10.244.1.92   k8s-worker1   <none>           <none>
+payment-84d4c68676-fbv9g     0/1     Running            5 (32s ago)     61m     10.244.1.71   k8s-worker1   <none>           <none>
+payment-84d4c68676-hltrh     0/1     Running            2 (31s ago)     2m19s   10.244.2.80   k8s-worker2   <none>           <none>
+payment-84d4c68676-jdfrk     1/1     Running            4 (4m5s ago)    7m4s    10.244.2.73   k8s-worker2   <none>           <none>
+payment-84d4c68676-k9bk8     0/1     CrashLoopBackOff   10 (9s ago)     66m     10.244.2.60   k8s-worker2   <none>           <none>
+payment-84d4c68676-kjxzw     0/1     CrashLoopBackOff   5 (69s ago)     10m     10.244.2.69   k8s-worker2   <none>           <none>
+product-7f7cb5797d-4gnkq     1/1     Running            0               128m    10.244.1.13   k8s-worker1   <none>           <none>
+product-7f7cb5797d-x9pq8     1/1     Running            0               72m     10.244.1.51   k8s-worker1   <none>           <none>
+user-cf9f7646c-xfgl5         1/1     Running            0               167m    10.244.2.14   k8s-worker2   <none>           <none>

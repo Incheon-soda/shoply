@@ -1,0 +1,10 @@
+# cp terraform.tfvars.example terraform.tfvars 후 값 채우기
+aws_region    = "ap-northeast-2"
+vpc_id        = "vpc-xxxxxxxx"
+subnet_id     = "subnet-xxxxxxxx"   # 퍼블릭 서브넷
+key_name      = "aws-3tier-keypair"
+admin_cidr    = "1.2.3.4/32"        # 본인 IP/32
+internal_cidr = "10.0.0.0/16"       # VPC CIDR (k8s 호스트·모니터링 접근)
+
+# instance_type = "t3.medium"
+# ami_id        = ""                 # 비우면 Ubuntu 24.04 최신 자동

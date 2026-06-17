@@ -1,0 +1,6 @@
+NAME            REFERENCE              TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+gateway-hpa     Deployment/gateway     cpu: 77%/70%    2         10        10         165m
+inventory-hpa   Deployment/inventory   cpu: 153%/70%   2         10        5          165m
+order-hpa       Deployment/order       cpu: 132%/70%   2         10        9          165m
+payment-hpa     Deployment/payment     cpu: 5%/70%     2         10        7          165m
+product-hpa     Deployment/product     cpu: 58%/70%    2         10        3          165m

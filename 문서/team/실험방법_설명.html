@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>온프레미스 vs EKS — 왜 request 튜닝으로 실험하는가</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.7; color: #1a1a1a; background: #f5f6f8;
+    padding: 0 0 80px;
+  }
+  header {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #fff; padding: 48px 24px; text-align: center;
+  }
+  header h1 { font-size: 28px; margin-bottom: 12px; }
+  header p { color: #cbd5e1; font-size: 16px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  section {
+    background: #fff; border-radius: 14px; padding: 32px;
+    margin-top: 28px; box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .step-no {
+    display: inline-block; background: #2563eb; color: #fff;
+    width: 30px; height: 30px; border-radius: 50%; text-align: center;
+    line-height: 30px; font-weight: 700; margin-right: 10px; font-size: 15px;
+  }
+  h2 { font-size: 22px; margin-bottom: 18px; display: flex; align-items: center; }
+  h3 { font-size: 17px; margin: 22px 0 10px; color: #334155; }
+  p { margin-bottom: 12px; }
+  .lead { font-size: 17px; color: #334155; }
+  .hl { background: #fef08a; padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+  .hl-blue { background: #dbeafe; padding: 1px 5px; border-radius: 4px; font-weight: 600; color: #1e40af; }
+  .box {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+    padding: 18px 20px; margin: 14px 0;
+  }
+  .box.warn { background: #fef2f2; border-color: #fecaca; }
+  .box.good { background: #f0fdf4; border-color: #bbf7d0; }
+  code {
+    background: #1e293b; color: #e2e8f0; padding: 2px 7px;
+    border-radius: 5px; font-family: "SF Mono", Menlo, monospace; font-size: 13px;
+  }
+  pre {
+    background: #1e293b; color: #e2e8f0; padding: 16px 18px;
+    border-radius: 10px; overflow-x: auto; margin: 12px 0; font-size: 13px;
+    font-family: "SF Mono", Menlo, monospace; line-height: 1.6;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14.5px; }
+  th, td { padding: 11px 13px; border: 1px solid #e2e8f0; text-align: left; vertical-align: top; }
+  th { background: #f1f5f9; font-weight: 700; }
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .vs-card { border-radius: 10px; padding: 18px; }
+  .vs-card.bad { background: #fef2f2; border: 1px solid #fecaca; }
+  .vs-card.win { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .vs-card h4 { font-size: 16px; margin-bottom: 10px; }
+  .vs-card.bad h4 { color: #b91c1c; }
+  .vs-card.win h4 { color: #15803d; }
+  .vs-card ul { margin-left: 18px; font-size: 14px; }
+  .vs-card li { margin-bottom: 6px; }
+
+  /* 인터랙티브 데모 */
+  .demo { background: #0f172a; border-radius: 12px; padding: 24px; margin: 20px 0; color:#fff; }
+  .demo-controls { margin-bottom: 20px; }
+  .demo-controls label { color: #94a3b8; font-size: 14px; display:block; margin-bottom:8px; }
+  .demo-controls .val { color: #38bdf8; font-weight: 700; font-size: 18px; }
+  input[type=range] { width: 100%; accent-color: #38bdf8; height: 6px; }
+  .node-box {
+    background: #1e293b; border: 2px solid #334155; border-radius: 10px;
+    padding: 14px; margin-top: 14px;
+  }
+  .node-title { font-size: 13px; color: #94a3b8; margin-bottom: 10px; display:flex; justify-content:space-between;}
+  .pods { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pod {
+    width: 38px; height: 38px; border-radius: 6px; background: #2563eb;
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff;
+    transition: all .2s;
+  }
+  .pod.pending { background: #dc2626; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  .capacity-bar {
+    height: 22px; background:#334155; border-radius: 6px; overflow:hidden; margin-top:12px; position:relative;
+  }
+  .capacity-fill { height:100%; background: linear-gradient(90deg,#22c55e,#eab308); transition: width .2s; }
+  .capacity-fill.over { background: linear-gradient(90deg,#eab308,#dc2626); }
+  .demo-readout { margin-top: 14px; font-size: 14px; }
+  .demo-readout b { color:#38bdf8; }
+  .badge { display:inline-block; padding:3px 9px; border-radius:6px; font-size:12px; font-weight:700; }
+  .badge.on { background:#1e3a5f; color:#7dd3fc; }
+  .badge.eks { background:#14532d; color:#86efac; }
+
+  .timeline { margin: 16px 0; }
+  .tl-row { display:flex; gap:12px; margin-bottom:10px; align-items:flex-start; }
+  .tl-time { flex:0 0 70px; font-weight:700; color:#2563eb; font-size:14px; }
+  .tl-desc { flex:1; font-size:14.5px; }
+  .arrow { color:#94a3b8; }
+  .footer-note { text-align:center; color:#94a3b8; font-size:13px; margin-top:30px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>온프레미스 vs EKS 비교 실험</h1>
+  <p>왜 "부하코드"가 아니라 "request 튜닝"으로 실험하는가 — 끝까지 읽으면 이해됨</p>
+</header>
+
+<div class="wrap">
+
+  <!-- 0. 우리가 보려는 것 -->
+  <section>
+    <h2><span class="step-no">0</span>먼저 — 우리가 도대체 뭘 보려는 거야?</h2>
+    <p class="lead">이 실험의 결론은 딱 한 문장이야:</p>
+    <div class="box good">
+      <p style="margin:0; font-size:17px;">
+        트래픽이 폭증하면 —<br>
+        🖥️ <span class="hl">온프레미스</span>는 노드가 고정이라 <b>더 못 버티고 터진다(Pending)</b><br>
+        ☁️ <span class="hl-blue">EKS</span>는 노드를 자동으로 늘려서 <b>계속 버틴다(Karpenter)</b>
+      </p>
+    </div>
+    <p>이 차이를 그래프로 증명하는 게 목표야. 그러려면 <span class="hl">"파드가 자동으로 늘어나는 상황"(HPA)</span>을 만들어야 해. 안 그러면 둘 다 멀쩡해서 비교할 게 없어.</p>
+    <p><b>여기서 문제가 생겨 👉</b> 우리 앱은 너무 가벼워서, 부하를 줘도 파드가 안 늘어나. 그래서 "어떻게 파드를 늘릴 거냐"를 두고 두 가지 길이 있는 거야.</p>
+  </section>
+
+  <!-- 1. request가 뭔지 -->
+  <section>
+    <h2><span class="step-no">1</span>request가 도대체 뭐야? (식당 비유)</h2>
+    <p>k8s에서 <code>request</code>는 <span class="hl">"파드 한 개가 노드에서 미리 예약하는 CPU 자리"</span>야. 상품 개수랑 전혀 상관없어. 그냥 설정 숫자야.</p>
+
+    <div class="box">
+      <h3 style="margin-top:0;">🍽️ 식당으로 생각하면</h3>
+      <table>
+        <tr><th>실제 k8s</th><th>식당 비유</th></tr>
+        <tr><td>노드(워커 서버)</td><td>식당 — 총 좌석 <b>2000석</b> (=2 vCPU)</td></tr>
+        <tr><td>파드(우리 서비스)</td><td>손님 — 입장할 때 좌석을 <b>예약(request)</b>함</td></tr>
+        <tr><td><code>request: 100m</code></td><td>손님 1명이 <b>100석</b> 예약</td></tr>
+        <tr><td>파드가 더 못 들어감 = <b>Pending</b></td><td>좌석 다 차서 <b>"자리 없음"</b></td></tr>
+      </table>
+    </div>
+
+    <p>핵심: <span class="hl">손님 1명이 예약하는 좌석(request)을 작게 잡을지 크게 잡을지</span>를 우리가 정한다는 거야. 이게 "request 튜닝".</p>
+  </section>
+
+  <!-- 2. 인터랙티브 데모 -->
+  <section>
+    <h2><span class="step-no">2</span>직접 움직여봐 👇 (이게 핵심)</h2>
+    <p>슬라이더 2개를 움직이면서 노드에 파드가 어떻게 차는지 봐. <b>빨간 파드 = Pending(자리없음)</b>.</p>
+
+    <div class="demo">
+      <div class="demo-controls">
+        <label>① 파드 1개가 예약하는 CPU (request): <span class="val" id="reqVal">100m</span></label>
+        <input type="range" id="reqSlider" min="50" max="500" step="50" value="100">
+      </div>
+      <div class="demo-controls">
+        <label>② 부하 때문에 HPA가 늘린 파드 개수: <span class="val" id="podVal">6개</span></label>
+        <input type="range" id="podSlider" min="1" max="30" step="1" value="6">
+      </div>
+
+      <!-- 온프레미스 노드 -->
+      <div class="node-box">
+        <div class="node-title"><span><span class="badge on">온프레미스</span> 워커노드 (고정, 2000m)</span> <span id="onpremStat"></span></div>
+        <div class="pods" id="onpremPods"></div>
+        <div class="capacity-bar"><div class="capacity-fill" id="onpremBar"></div></div>
+      </div>
+
+      <!-- EKS 노드 -->
+      <div class="node-box">
+        <div class="node-title"><span><span class="badge eks">EKS</span> 워커노드 (Karpenter 자동 확장)</span> <span id="eksStat"></span></div>
+        <div class="pods" id="eksPods"></div>
+        <div class="capacity-bar"><div class="capacity-fill" id="eksBar"></div></div>
+      </div>
+
+      <div class="demo-readout" id="readout"></div>
+    </div>
+
+    <div class="box">
+      <p style="margin:0;">💡 <b>실험해볼 것:</b></p>
+      <ul style="margin:8px 0 0 18px; font-size:14.5px;">
+        <li><b>request를 작게(50m)</b> → 파드가 많이 들어가지만, HPA가 워낙 민감해서 금방 30개까지 늘어남 → 결국 노드 꽉 참</li>
+        <li><b>파드 개수를 30개로</b> → 온프레는 빨강(Pending) 폭발, EKS는 노드를 늘려서 다 초록</li>
+        <li>이 <span class="hl">"온프레 빨강 vs EKS 초록"</span>이 바로 우리가 발표에서 보여줄 그림이야</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. HPA 발동 원리 -->
+  <section>
+    <h2><span class="step-no">3</span>그래서 "파드를 늘리는" 두 가지 방법</h2>
+    <p>파드는 HPA가 늘려. HPA 공식은 이거 하나야:</p>
+    <pre>늘릴까 말까? =  지금 쓰는 CPU  ÷  예약한 CPU(request)
+
+  예) 파드가 실제 60m 쓰는 중
+      request 100m → 60 ÷ 100 = 60% → "늘려!" ✅
+      request 500m → 60 ÷ 500 = 12% → "안 늘려" ❌ (잠잠)</pre>
+    <p>파드를 늘리려면 이 비율(%)을 높여야 해. 방법이 두 개야:</p>
+
+    <table>
+      <tr><th>방법</th><th>뭘 바꾸나</th><th>분자/분모 어디를?</th></tr>
+      <tr>
+        <td>🔴 <b>부하코드</b></td>
+        <td>앱 코드에 CPU 태우는 로직 추가 → 실제 사용 CPU(분자)를 키움</td>
+        <td>분자 ↑ (60m→300m)</td>
+      </tr>
+      <tr>
+        <td>🟢 <b>request 튜닝</b></td>
+        <td>yaml 숫자만 줄임 → 예약 CPU(분모)를 작게</td>
+        <td>분모 ↓ (500m→100m)</td>
+      </tr>
+    </table>
+    <p>둘 다 비율(%)을 높여서 HPA를 발동시켜. <span class="hl">목적지는 같은데 가는 길이 달라.</span></p>
+  </section>
+
+  <!-- 4. 왜 request 이기는지 -->
+  <section>
+    <h2><span class="step-no">4</span>왜 우리는 request로 가는가 (결정 이유)</h2>
+
+    <div class="vs-grid">
+      <div class="vs-card bad">
+        <h4>🔴 부하코드 (안 감)</h4>
+        <ul>
+          <li><b>이미 해봤고 망함</b> — gateway만 터지고 나머지 안 늘어남 (서비스마다 무게 달라서)</li>
+          <li>고칠 때마다 <b>코드 재빌드 + 이미지 재배포</b> → 실험 직전에 시간 다 날림</li>
+          <li>"왜 인위 부하 넣었냐" <b>멘토 질문 방어 어려움</b></li>
+          <li>방금 우리가 <b>깨끗하게 다 지운 걸 되돌리는</b> 셈</li>
+        </ul>
+      </div>
+      <div class="vs-card win">
+        <h4>🟢 request 튜닝 (감 ✅)</h4>
+        <ul>
+          <li><b>yaml 숫자 한 줄</b> — <code>kubectl apply</code>로 즉시 적용</li>
+          <li>양쪽 환경 <b>완전히 똑같이</b> 적용 → 공정성 완벽</li>
+          <li>"k8s는 원래 request로 스케줄링한다" → <b>방어 끝</b> (실무 그대로)</li>
+          <li>코드는 <b>깨끗한 채로 유지</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="box good">
+      <p style="margin:0;">✅ <b>결론:</b> 우리 실험 목적은 <span class="hl">"노드가 늘어나냐 마냐(HPA→Pending vs Karpenter)"</span>야. 이건 request 튜닝이 정확히 보여주는 그림이고, 부하코드는 했다가 실패한 길. <b>그래서 request로 간다.</b></p>
+    </div>
+
+    <h3>그럼 "하이브리드"는 뭐였어?</h3>
+    <p>걱정 하나가 남아: <i>"request만 줄이면 실제 CPU는 낮아서, 대시보드 CPU 패널이 밋밋하지 않나?"</i><br>
+    → 그래서 <span class="hl-blue">RPS(부하량)를 크게</span> 줘. 그러면 실제 CPU도 어느 정도 같이 올라와서 CPU 패널도 안 밋밋해. <b>이게 하이브리드야 — 부하"코드"가 아니라 부하"량"으로 CPU를 올리는 것.</b></p>
+    <pre>다이얼 1 (메인) : request 작게  → HPA 확실히 발동
+다이얼 2 (보조) : RPS 크게      → 실제 CPU도 올림 (패널 안 밋밋)
+다이얼 3 (최후) : 부하코드       → 리허설에서 정말 안 되면 (아마 안 씀)</pre>
+  </section>
+
+  <!-- 5. 시나리오 -->
+  <section>
+    <h2><span class="step-no">5</span>그래서 시나리오는? (3개)</h2>
+    <p>안정 → 스파이크 → 장애 순서로. <b>신뢰 형성 → 갈림 → 임팩트</b>.</p>
+
+    <h3>🅰️ 시나리오 1 — 안정 (베이스라인)</h3>
+    <div class="box">
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">10~20분</div><div class="tl-desc">200 RPS 일정 — 양쪽 다 정상 (Error 0, Pending 0)</div></div>
+      </div>
+      <p style="margin:0;"><b>결론 문장:</b> "평상시엔 온프레미스도 충분합니다" (공정성 어필 → 신뢰 형성)</p>
+    </div>
+
+    <h3>🅱️ 시나리오 2 — 스파이크 (순간 급증 + 유지) ★핵심</h3>
+    <div class="box">
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">0~5분</div><div class="tl-desc">200 RPS — 안정</div></div>
+        <div class="tl-row"><div class="tl-time">5분 ⚡</div><div class="tl-desc">1500 RPS로 <b>순간 급증</b> (30초~1분에 걸쳐)</div></div>
+        <div class="tl-row"><div class="tl-time">5~15분</div><div class="tl-desc"><b>1500 RPS 유지</b> ← 진짜 실험. <span class="badge on">온프레</span> Pending 지속 / <span class="badge eks">EKS</span> Karpenter 노드추가(60~90초) 후 회복</div></div>
+      </div>
+      <p style="margin:0 0 6px;"><b>⚠️ 유지가 핵심:</b> 급증만 하고 빼면 시스템 반응 전에 끝나 안 보임. 급증 후 5~10분 유지해야 차이가 드러남.</p>
+      <pre style="background:#0f172a;color:#e2e8f0;padding:10px;border-radius:8px;font-size:12px;margin:0;font-family:Menlo,monospace">온프레 ▁▁████████████  ← 못 버팀
+EKS&nbsp;&nbsp; ▁▁███▁▁▁▁▁▁▁▁  ← 60~90초 후 흡수</pre>
+      <p style="margin:8px 0 0;"><b>결론 문장:</b> "갑자기 몰리면 — EKS는 흡수하고, 온프레는 계속 무너집니다"</p>
+    </div>
+
+    <h3>🅲 시나리오 3 — 노드 장애 복구 (MTTR)</h3>
+    <div class="box">
+      <div class="timeline">
+        <div class="tl-row"><div class="tl-time">0~5분</div><div class="tl-desc">500 RPS 일정 — 양쪽 안정</div></div>
+        <div class="tl-row"><div class="tl-time">5분 ⚡</div><div class="tl-desc"><b>worker1 강제 종료</b> → 모든 파드가 worker2로 몰림 → 자원 부족 Pending</div></div>
+        <div class="tl-row"><div class="tl-time">측정</div><div class="tl-desc"><span class="badge on">온프레</span> 수동복구 수 분 / <span class="badge eks">EKS</span> Karpenter 자동 60초 — <b>MTTR</b> + 결제 실패 건수</div></div>
+      </div>
+      <p style="margin:0;"><b>결론 문장:</b> "복구 시간이 곧 비즈니스 손실 — N분 vs 60초"</p>
+    </div>
+  </section>
+
+  <!-- 6. 실제 실험 절차 -->
+  <section>
+    <h2><span class="step-no">6</span>뭘 어떻게 실험하나 (절차)</h2>
+
+    <h3>준비 (양쪽 동일하게)</h3>
+    <table>
+      <tr><th>항목</th><th>값</th><th>이유</th></tr>
+      <tr><td>request</td><td><code>100m</code> (작게)</td><td>HPA 민감하게 발동</td></tr>
+      <tr><td>limit</td><td><code>500m</code></td><td>부하 주면 실제 CPU도 여기까지 오름</td></tr>
+      <tr><td>HPA target</td><td><code>60%</code> 통일</td><td>서비스마다 다르면 해석 복잡</td></tr>
+      <tr><td>재고</td><td>사이즈별 <b>5000개</b></td><td>재고가 먼저 바닥나면 실험 망침</td></tr>
+      <tr><td>로그인</td><td>고정 토큰</td><td>매번 로그인하면 변수 됨</td></tr>
+      <tr><td>부하도구</td><td>k6</td><td>이미 결정</td></tr>
+    </table>
+
+    <h3>진행 순서</h3>
+    <div class="timeline">
+      <div class="tl-row"><div class="tl-time">1단계</div><div class="tl-desc"><b>리허설</b> — 시나리오 2를 작게 돌려 파드 CPU 관찰 → request/RPS·급증속도 맞춤</div></div>
+      <div class="tl-row"><div class="tl-time">2단계</div><div class="tl-desc">DB 리셋(load-test-prep.sql) + 파드 정상 확인</div></div>
+      <div class="tl-row"><div class="tl-time">3단계</div><div class="tl-desc"><b>시나리오 1 (안정)</b> → Grafana 기록</div></div>
+      <div class="tl-row"><div class="tl-time">4단계</div><div class="tl-desc">DB 리셋 후 <b>시나리오 2 (스파이크)</b> — 급증+유지, 기록+스냅샷</div></div>
+      <div class="tl-row"><div class="tl-time">5단계</div><div class="tl-desc">DB 리셋 후 <b>시나리오 3 (노드 종료 → MTTR)</b></div></div>
+      <div class="tl-row"><div class="tl-time">6단계</div><div class="tl-desc">수치 정리 → "스파이크 흡수", "MTTR 비교" 발표 자료화</div></div>
+    </div>
+
+    <h3>측정 지표 (대시보드)</h3>
+    <table>
+      <tr><th>지표</th><th>온프레 예상</th><th>EKS 예상</th></tr>
+      <tr><td>Pending Pod</td><td>📈 쌓임</td><td>0 유지</td></tr>
+      <tr><td>Node 개수</td><td>고정 (안 늘어남)</td><td>📈 자동 증가</td></tr>
+      <tr><td>HPA 목표 vs 실제</td><td>괴리 큼 (원하는데 못 늘림)</td><td>일치</td></tr>
+      <tr><td>Error율</td><td>📈 급증</td><td>0% 유지</td></tr>
+      <tr><td>결제 성공/실패</td><td>실패 증가</td><td>성공 유지</td></tr>
+    </table>
+  </section>
+
+  <p class="footer-note">이해 안 가는 부분 있으면 그 섹션 번호 말해줘 — 더 풀어서 설명할게.</p>
+
+</div>
+
+<script>
+  const reqSlider = document.getElementById('reqSlider');
+  const podSlider = document.getElementById('podSlider');
+  const reqVal = document.getElementById('reqVal');
+  const podVal = document.getElementById('podVal');
+  const NODE_CAP = 2000; // m, 노드 1개 용량
+
+  function render() {
+    const req = +reqSlider.value;
+    const pods = +podSlider.value;
+    reqVal.textContent = req + 'm';
+    podVal.textContent = pods + '개';
+
+    const totalReq = req * pods;
+    const maxPodsPerNode = Math.floor(NODE_CAP / req);
+
+    // 온프레: 노드 1개 고정
+    const onpremPods = document.getElementById('onpremPods');
+    onpremPods.innerHTML = '';
+    let pendingCount = 0;
+    for (let i = 0; i < pods; i++) {
+      const d = document.createElement('div');
+      d.className = 'pod';
+      if (i >= maxPodsPerNode) { d.classList.add('pending'); d.textContent = '✕'; pendingCount++; }
+      else { d.textContent = req + 'm'; }
+      onpremPods.appendChild(d);
+    }
+    const onpremUsed = Math.min(totalReq, NODE_CAP);
+    const onpremBar = document.getElementById('onpremBar');
+    onpremBar.style.width = Math.min(100, totalReq / NODE_CAP * 100) + '%';
+    onpremBar.classList.toggle('over', totalReq > NODE_CAP);
+    document.getElementById('onpremStat').innerHTML = pendingCount > 0
+      ? `<span style="color:#f87171;font-weight:700;">⚠ Pending ${pendingCount}개</span>`
+      : `<span style="color:#4ade80;">정상</span>`;
+
+    // EKS: 노드 자동 추가
+    const nodesNeeded = Math.ceil(pods / maxPodsPerNode);
+    const eksPods = document.getElementById('eksPods');
+    eksPods.innerHTML = '';
+    for (let i = 0; i < pods; i++) {
+      const d = document.createElement('div');
+      d.className = 'pod';
+      d.textContent = req + 'm';
+      eksPods.appendChild(d);
+    }
+    document.getElementById('eksBar').style.width = '100%';
+    document.getElementById('eksStat').innerHTML =
+      `<span style="color:#4ade80;font-weight:700;">노드 ${nodesNeeded}개로 확장 ✓</span>`;
+
+    // 설명
+    document.getElementById('readout').innerHTML =
+      `파드 1개가 <b>${req}m</b> 예약 → 노드 1개(2000m)에 최대 <b>${maxPodsPerNode}개</b>까지 입장 가능.<br>` +
+      `지금 파드 <b>${pods}개</b> → 온프레는 <b>${pendingCount}개가 자리없음(Pending)</b>, ` +
+      `EKS는 <b>노드 ${nodesNeeded}개</b>로 늘려서 전부 수용.`;
+  }
+
+  reqSlider.addEventListener('input', render);
+  podSlider.addEventListener('input', render);
+  render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+# cp terraform.tfvars.example terraform.tfvars 후 값 채우기
+aws_region    = "ap-northeast-2"
+vpc_id        = "vpc-xxxxxxxx"      # 온프레미스 측 VPC
+subnet_id     = "subnet-xxxxxxxx"   # 퍼블릭 서브넷
+key_name      = "aws-3tier-keypair"
+admin_cidr    = "1.2.3.4/32"        # 본인 IP/32 (SSH 22)
+# Grafana(3000)·Prometheus(9090)·Loki(3100)는 0.0.0.0/0 전체 개방 (코드 고정)
+
+# instance_type    = "t3.small"
+# root_volume_size = 50
+# ami_id           = ""
